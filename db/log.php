@@ -16,7 +16,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This file keeps track of upgrades to the certificate module
+ * Definition of log events
  *
  * @package    mod
  * @subpackage accredible
@@ -24,10 +24,11 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-function xmldb_accredible_upgrade($oldversion=0) {
+defined('MOODLE_INTERNAL') || die();
 
-    global $CFG, $THEME, $DB;
-    $dbman = $DB->get_manager();
-
-    return true;
-}
+$logs = array(
+    array('module'=>'accredible', 'action'=>'view', 'mtable'=>'accredible', 'field'=>'name'),
+    array('module'=>'accredible', 'action'=>'add', 'mtable'=>'accredible', 'field'=>'name'),
+     array('module'=>'accredible', 'action'=>'update', 'mtable'=>'accredible', 'field'=>'name'),
+    array('module'=>'accredible', 'action'=>'received', 'mtable'=>'accredible', 'field'=>'name'),
+);

@@ -28,5 +28,5 @@ defined('MOODLE_INTERNAL') || die;
 
 // TODO - language tags
 $settings->add(
-	new mod_accredible_admin_setting_upload('text', 'API Key', 'Enter your API Key from accredible.com', '')
+	new admin_setting_configtext('accredible_api_key', 'API Key', 'Enter your API Key from accredible.com', '')
 );

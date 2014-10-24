@@ -24,18 +24,15 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once($CFG->dirroot.'/course/lib.php');
-require_once($CFG->dirroot.'/grade/lib.php');
-require_once($CFG->dirroot.'/grade/querylib.php');
-
 /**
  * Add certificate instance.
  *
  * @param array $certificate
  * @return array $certificate new certificate object
  */
-function certificate_add_instance($post) {
-    global $DB;
+function accredible_add_instance($post) {
+    global $DB, $CFG;
+    $count = 0;
 
     foreach ($post->users as $user_id => $issue_certificate) {
         if($issue_certificate) {
@@ -51,11 +48,21 @@ function certificate_add_instance($post) {
             curl_setopt($curl, CURLOPT_POST, 1);
             curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query( array('credential' => $certificate) ));
             curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-            curl_setopt( $curl, CURLOPT_HTTPHEADER, array( 'Authorization: Token token="accredible_secret123"' ) );
+            curl_setopt( $curl, CURLOPT_HTTPHEADER, array( 'Authorization: Token token="'.$CFG->accredible_api_key.'"' ) );
             curl_exec($curl);
             curl_close($curl);
+            
+            $count = $count + 1;
         }
     }
+
+    $db_record = new stdClass();
+    $db_record->name = $post->name;
+    $db_record->achievementid = $post->achievement_id;
+    $db_record->certificates = $count;
+    $db_record->timecreated = time();
+
+    return $DB->insert_record('accredible', $db_record);
 }
 
 /**
@@ -64,12 +71,13 @@ function certificate_add_instance($post) {
  * @param stdClass $certificate
  * @return stdClass $certificate updated 
  */
-function certificate_update_instance($certificate, $api_key) {
+function accredible_update_instance($certificate) {
+    global $CFG;
     $curl = curl_init('https://staging.accredible.com/v1/credentials/'.$certificate->id);
     curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "PUT");
     curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($certificate));
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-    curl_setopt( $curl, CURLOPT_HTTPHEADER, array( 'Authorization: Token token="'.$api_key.'"' ) );
+    curl_setopt( $curl, CURLOPT_HTTPHEADER, array( 'Authorization: Token token="'.$CFG->accredible_api_key.'"' ) );
     $result = json_decode( curl_exec($curl) );
     curl_close($curl);
     return $result;
@@ -83,10 +91,12 @@ function certificate_update_instance($certificate, $api_key) {
  * @param int $id
  * @return bool true if successful
  */
-function certificate_delete_instance($id, $api_key) {
+function accredible_delete_instance($id) {
+    global $CFG;
+    
     $curl = curl_init('https://staging.accredible.com/v1/credentials/'.$certificate->id);
     curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "DELETE");
-    curl_setopt( $curl, CURLOPT_HTTPHEADER, array( 'Authorization: Token token="'.$api_key.'"' ) );
+    curl_setopt( $curl, CURLOPT_HTTPHEADER, array( 'Authorization: Token token="'.$CFG->accredible_api_key.'"' ) );
     $result = json_decode( curl_exec($curl) );
     curl_close($curl);
     return true;
@@ -97,17 +107,18 @@ function certificate_delete_instance($id, $api_key) {
  * this function will permanently delete the instance
  * and any data that depends on it.
  *
- * @param string $api_key - provided by accredible.com
+ * @param string $achievement_id
  * @return array[stdClass] $certificates
  */
-function certificate_get_issued($api_key) {
-    // TODO - don't have this API method yet. Just simulating a response here
-    $curl = curl_init('https://staging.accredible.com/v1/credentials/10000005');
+function accredible_get_issued($achievement_id) {
+    global $CFG;
+
+    $curl = curl_init('https://staging.accredible.com/v1/credentials?achievement_id='.$achievement_id);
+    curl_setopt( $curl, CURLOPT_HTTPHEADER, array( 'Authorization: Token token="'.$CFG->accredible_api_key.'"' ) );
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
     $result = json_decode( curl_exec($curl) );
-    $cert_array = array( $result );
     curl_close($curl);
-    return $cert_array;
+    return $result;
 }
 
 ?>

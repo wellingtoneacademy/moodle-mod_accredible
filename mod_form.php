@@ -31,22 +31,26 @@ if (!defined('MOODLE_INTERNAL')) {
 require_once ($CFG->dirroot.'/course/moodleform_mod.php');
 require_once($CFG->dirroot.'/mod/accredible/lib.php');
 
-class mod_certificate_mod_form extends moodleform_mod {
+class mod_accredible_mod_form extends moodleform_mod {
 
     function definition() {
-        global $DB, $OUTPUT;
+        global $DB, $OUTPUT, $CFG;
 
         $id = required_param('course', PARAM_INT);    // Course Module ID
         if (!$course = $DB->get_record('course', array('id'=> $id))) {
             print_error('Course ID is wrong');
         }
 
+        if($CFG->accredible_api_key === "") {
+            print_error('Please set your API Key first.');
+        }
 
         $context = context_course::instance($course->id);
         $query = 'select u.id as id, firstname, lastname, email from mdl_role_assignments as a, mdl_user as u where contextid=' . $context->id . ' and roleid=5 and a.userid=u.id;';
         $users = $DB->get_recordset_sql( $query );
 
         $mform =& $this->_form;
+        $mform->addElement('hidden', 'course', $id);
 
         $mform->addElement('header', 'general', get_string('general', 'form'));
 
