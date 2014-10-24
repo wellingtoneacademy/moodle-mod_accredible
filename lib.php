@@ -51,7 +51,7 @@ function accredible_add_instance($post) {
             curl_setopt( $curl, CURLOPT_HTTPHEADER, array( 'Authorization: Token token="'.$CFG->accredible_api_key.'"' ) );
             curl_exec($curl);
             curl_close($curl);
-            
+
             $count = $count + 1;
         }
     }
@@ -72,40 +72,39 @@ function accredible_add_instance($post) {
  * @return stdClass $certificate updated 
  */
 function accredible_update_instance($certificate) {
-    global $CFG;
-    $curl = curl_init('https://staging.accredible.com/v1/credentials/'.$certificate->id);
-    curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "PUT");
-    curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($certificate));
-    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-    curl_setopt( $curl, CURLOPT_HTTPHEADER, array( 'Authorization: Token token="'.$CFG->accredible_api_key.'"' ) );
-    $result = json_decode( curl_exec($curl) );
-    curl_close($curl);
-    return $result;
+    // To update your certificates, go to accredible.com.
+
+    // global $CFG;
+    // $curl = curl_init('https://staging.accredible.com/v1/credentials/'.$certificate->id);
+    // curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "PUT");
+    // curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($certificate));
+    // curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+    // curl_setopt( $curl, CURLOPT_HTTPHEADER, array( 'Authorization: Token token="'.$CFG->accredible_api_key.'"' ) );
+    // $result = json_decode( curl_exec($curl) );
+    // curl_close($curl);
+    // return $result;
 }
 
 /**
  * Given an ID of an instance of this module,
- * this function will permanently delete the instance
- * and any data that depends on it.
+ * this function will permanently delete the instance.
  *
  * @param int $id
  * @return bool true if successful
  */
 function accredible_delete_instance($id) {
-    global $CFG;
-    
-    $curl = curl_init('https://staging.accredible.com/v1/credentials/'.$certificate->id);
-    curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "DELETE");
-    curl_setopt( $curl, CURLOPT_HTTPHEADER, array( 'Authorization: Token token="'.$CFG->accredible_api_key.'"' ) );
-    $result = json_decode( curl_exec($curl) );
-    curl_close($curl);
-    return true;
+    global $DB;
+
+    // Ensure the certificate exists
+    if (!$certificate = $DB->get_record('accredible', array('id' => $id))) {
+        return false;
+    }
+
+    return $DB->delete_records('accredible', array('id' => $id));
 }
 
 /**
- * Given an ID of an instance of this module,
- * this function will permanently delete the instance
- * and any data that depends on it.
+ * List all of the ceritificates with a specific achievement id
  *
  * @param string $achievement_id
  * @return array[stdClass] $certificates
@@ -113,12 +112,12 @@ function accredible_delete_instance($id) {
 function accredible_get_issued($achievement_id) {
     global $CFG;
 
-    $curl = curl_init('https://staging.accredible.com/v1/credentials?achievement_id='.$achievement_id);
+    $curl = curl_init('https://staging.accredible.com/v1/credentials?achievement_id='.urlencode($achievement_id));
     curl_setopt( $curl, CURLOPT_HTTPHEADER, array( 'Authorization: Token token="'.$CFG->accredible_api_key.'"' ) );
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
     $result = json_decode( curl_exec($curl) );
     curl_close($curl);
-    return $result;
+    return $result->credentials;
 }
 
 ?>
