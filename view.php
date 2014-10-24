@@ -1,6 +1,6 @@
 <?php
 
-// This file is part of the Certificate module for Moodle - http://moodle.org/
+// This file is part of the Accredible Certificate module for Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -19,14 +19,14 @@
  * Handles viewing a certificate
  *
  * @package    mod
- * @subpackage certificate
- * @copyright  Mark Nelson <markn@moodle.com>
+ * @subpackage accredible
+ * @copyright  Accredible <dev@accredible.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 require_once("../../config.php");
-require_once("$CFG->dirroot/mod/certificate/deprecatedlib.php");
-require_once("$CFG->dirroot/mod/certificate/lib.php");
+require_once("$CFG->dirroot/mod/accredible/deprecatedlib.php");
+require_once("$CFG->dirroot/mod/accredible/lib.php");
 require_once("$CFG->libdir/pdflib.php");
 
 $id = required_param('id', PARAM_INT);    // Course Module ID
@@ -45,9 +45,9 @@ if (!$certificate = $DB->get_record('certificate', array('id'=> $cm->instance)))
 
 require_login($course->id, false, $cm);
 $context = context_module::instance($cm->id);
-require_capability('mod/certificate:view', $context);
+require_capability('mod/accredible:view', $context);
 
-$event = \mod_certificate\event\course_module_viewed::create(array(
+$event = \mod_accredible\event\course_module_viewed::create(array(
     'objectid' => $certificate->id,
     'context' => $context,
 ));
@@ -59,7 +59,7 @@ $completion=new completion_info($course);
 $completion->set_module_viewed($cm);
 
 // Initialize $PAGE, compute blocks
-$PAGE->set_url('/mod/certificate/view.php', array('id' => $cm->id));
+$PAGE->set_url('/mod/accredible/view.php', array('id' => $cm->id));
 $PAGE->set_context($context);
 $PAGE->set_cm($cm);
 $PAGE->set_title(format_string($certificate->name));
@@ -76,12 +76,12 @@ if (($edit != -1) and $PAGE->user_allowed_editing()) {
 if ($PAGE->user_allowed_editing()) {
     $editvalue = $PAGE->user_is_editing() ? 'off' : 'on';
     $strsubmit = $PAGE->user_is_editing() ? get_string('blockseditoff') : get_string('blocksediton');
-    $url = new moodle_url($CFG->wwwroot . '/mod/certificate/view.php', array('id' => $cm->id, 'edit' => $editvalue));
+    $url = new moodle_url($CFG->wwwroot . '/mod/accredible/view.php', array('id' => $cm->id, 'edit' => $editvalue));
     $PAGE->set_button($OUTPUT->single_button($url, $strsubmit));
 }
 
 // Check if the user can view the certificate
-if ($certificate->requiredtime && !has_capability('mod/certificate:manage', $context)) {
+if ($certificate->requiredtime && !has_capability('mod/accredible:manage', $context)) {
     if (certificate_get_course_time($course->id) < ($certificate->requiredtime * 60)) {
         $a = new stdClass;
         $a->requiredtime = $certificate->requiredtime;
@@ -96,20 +96,20 @@ $certrecord = certificate_get_issue($course, $USER, $certificate, $cm);
 make_cache_directory('tcpdf');
 
 // Load the specific certificate type.
-require("$CFG->dirroot/mod/certificate/type/$certificate->certificatetype/certificate.php");
+require("$CFG->dirroot/mod/accredible/type/$certificate->certificatetype/certificate.php");
 
 if (empty($action)) { // Not displaying PDF
     echo $OUTPUT->header();
 
     /// find out current groups mode
-    groups_print_activity_menu($cm, $CFG->wwwroot . '/mod/certificate/view.php?id=' . $cm->id);
+    groups_print_activity_menu($cm, $CFG->wwwroot . '/mod/accredible/view.php?id=' . $cm->id);
     $currentgroup = groups_get_activity_group($cm);
     $groupmode = groups_get_activity_groupmode($cm);
 
-    if (has_capability('mod/certificate:manage', $context)) {
+    if (has_capability('mod/accredible:manage', $context)) {
         $numusers = count(certificate_get_issues($certificate->id, 'ci.timecreated ASC', $groupmode, $cm));
         $url = html_writer::tag('a', get_string('viewcertificateviews', 'certificate', $numusers),
-            array('href' => $CFG->wwwroot . '/mod/certificate/report.php?id=' . $cm->id));
+            array('href' => $CFG->wwwroot . '/mod/accredible/report.php?id=' . $cm->id));
         echo html_writer::tag('div', $url, array('class' => 'reportlink'));
     }
 
@@ -130,7 +130,7 @@ if (empty($action)) { // Not displaying PDF
     echo html_writer::tag('p', $str, array('style' => 'text-align:center'));
     $linkname = get_string('getcertificate', 'certificate');
 
-    $link = new moodle_url('/mod/certificate/view.php?id='.$cm->id.'&action=get');
+    $link = new moodle_url('/mod/accredible/view.php?id='.$cm->id.'&action=get');
     $button = new single_button($link, $linkname);
     $button->add_action(new popup_action('click', $link, 'view'.$cm->id, array('height' => 600, 'width' => 800)));
 

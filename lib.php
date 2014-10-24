@@ -1,5 +1,6 @@
 <?php
-// This file is part of the Certificate module for Moodle - http://moodle.org/
+
+// This file is part of the Accredible Certificate module for Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -18,7 +19,7 @@
  * Certificate module core interaction API
  *
  * @package    mod
- * @subpackage certificate
+ * @subpackage accredible
  * @copyright  Accredible <dev@accredible.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -46,7 +47,7 @@ function certificate_add_instance($post) {
             $certificate['description'] = $post->description;
             $certificate['recipient'] = array('name' => fullname($user), 'email'=> $user->email);
 
-            $curl = curl_init('https://api.accredible.com/v1/credentials');
+            $curl = curl_init('https://staging.accredible.com/v1/credentials');
             curl_setopt($curl, CURLOPT_POST, 1);
             curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query( array('credential' => $certificate) ));
             curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
@@ -64,7 +65,7 @@ function certificate_add_instance($post) {
  * @return stdClass $certificate updated 
  */
 function certificate_update_instance($certificate, $api_key) {
-    $curl = curl_init('https://api.accredible.com/v1/credentials/'.$certificate->id);
+    $curl = curl_init('https://staging.accredible.com/v1/credentials/'.$certificate->id);
     curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "PUT");
     curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($certificate));
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
@@ -83,7 +84,7 @@ function certificate_update_instance($certificate, $api_key) {
  * @return bool true if successful
  */
 function certificate_delete_instance($id, $api_key) {
-    $curl = curl_init('https://api.accredible.com/v1/credentials/'.$certificate->id);
+    $curl = curl_init('https://staging.accredible.com/v1/credentials/'.$certificate->id);
     curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "DELETE");
     curl_setopt( $curl, CURLOPT_HTTPHEADER, array( 'Authorization: Token token="'.$api_key.'"' ) );
     $result = json_decode( curl_exec($curl) );
@@ -101,7 +102,7 @@ function certificate_delete_instance($id, $api_key) {
  */
 function certificate_get_issued($api_key) {
     // TODO - don't have this API method yet. Just simulating a response here
-    $curl = curl_init('https://api.accredible.com/v1/credentials/10000005');
+    $curl = curl_init('https://staging.accredible.com/v1/credentials/10000005');
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
     $result = json_decode( curl_exec($curl) );
     $cert_array = array( $result );

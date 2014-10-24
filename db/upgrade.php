@@ -1,6 +1,6 @@
 <?php
 
-// This file is part of the Certificate module for Moodle - http://moodle.org/
+// This file is part of the Accredible Certificate module for Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -19,15 +19,7 @@
  * This file keeps track of upgrades to the certificate module
  *
  * @package    mod
- * @subpackage accredible_certificate
+ * @subpackage accredible
  * @copyright  Accredible <dev@accredible.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-function xmldb_certificate_upgrade($oldversion=0) {
-
-    global $CFG, $THEME, $DB;
-    $dbman = $DB->get_manager();
-
-    return true;
-}

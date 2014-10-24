@@ -1,6 +1,6 @@
 <?php
 
-// This file is part of the Certificate module for Moodle - http://moodle.org/
+// This file is part of the Accredible Certificate module for Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -19,12 +19,12 @@
  * This page lists all the instances of certificate in a particular course
  *
  * @package    mod
- * @subpackage certificate
- * @copyright  Mark Nelson <markn@moodle.com>
+ * @subpackage accredible
+ * @copyright  Accredible <dev@accredible.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_certificate\event;
+namespace mod_accredible\event;
 
 defined('MOODLE_INTERNAL') || die();
 

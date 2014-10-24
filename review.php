@@ -1,6 +1,6 @@
 <?php
 
-// This file is part of the Certificate module for Moodle - http://moodle.org/
+// This file is part of the Accredible Certificate module for Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -19,8 +19,8 @@
  * This page reviews a certificate
  *
  * @package    mod
- * @subpackage certificate
- * @copyright  Mark Nelson <markn@moodle.com>
+ * @subpackage accredible
+ * @copyright  Accredible <dev@accredible.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -49,10 +49,10 @@ require_course_login($course->id, true, $cm);
 
 // Check the capabilities
 $context = context_module::instance($cm->id);
-require_capability('mod/certificate:view', $context);
+require_capability('mod/accredible:view', $context);
 
 // Initialize $PAGE, compute blocks
-$PAGE->set_url('/mod/certificate/review.php', array('id' => $cm->id));
+$PAGE->set_url('/mod/accredible/review.php', array('id' => $cm->id));
 $PAGE->set_context($context);
 $PAGE->set_cm($cm);
 $PAGE->set_title(format_string($certificate->name));
@@ -65,7 +65,7 @@ if (!$certrecord = $DB->get_record('certificate_issues', array('userid' => $USER
 }
 
 // Load the specific certificatetype
-require ("$CFG->dirroot/mod/certificate/type/$certificate->certificatetype/certificate.php");
+require ("$CFG->dirroot/mod/accredible/type/$certificate->certificatetype/certificate.php");
 
 if ($action) {
     // Remove full-stop at the end if it exists, to avoid "..pdf" being created and being filtered by clean_filename
@@ -77,10 +77,10 @@ if ($action) {
 
 echo $OUTPUT->header();
 
-if (has_capability('mod/certificate:manage', $context)) {
+if (has_capability('mod/accredible:manage', $context)) {
     $numusers = count(certificate_get_issues($certificate->id, 'ci.timecreated ASC', '', $cm));
     $url = html_writer::tag('a', get_string('viewcertificateviews', 'certificate', $numusers),
-        array('href' => $CFG->wwwroot . '/mod/certificate/report.php?id=' . $cm->id));
+        array('href' => $CFG->wwwroot . '/mod/accredible/report.php?id=' . $cm->id));
     echo html_writer::tag('div', $url, array('class' => 'reportlink'));
 }
 
@@ -90,7 +90,7 @@ if (!empty($certificate->intro)) {
 
 echo html_writer::tag('p', get_string('viewed', 'certificate'). '<br />' . userdate($certrecord->timecreated), array('style' => 'text-align:center'));
 
-$link = new moodle_url('/mod/certificate/review.php?id='.$cm->id.'&action=get');
+$link = new moodle_url('/mod/accredible/review.php?id='.$cm->id.'&action=get');
 $linkname = get_string('reviewcertificate', 'certificate');
 $button = new single_button($link, $linkname);
 $button->add_action(new popup_action('click', $link, array('height' => 600, 'width' => 800)));

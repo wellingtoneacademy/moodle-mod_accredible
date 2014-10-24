@@ -1,6 +1,6 @@
 <?php
 
-// This file is part of the Certificate module for Moodle - http://moodle.org/
+// This file is part of the Accredible Certificate module for Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -19,15 +19,15 @@
  * Code fragment to define the version of the certificate module
  *
  * @package    mod
- * @subpackage certificate
- * @copyright  Mark Nelson <markn@moodle.com>
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or late
+ * @subpackage accredible
+ * @copyright  Accredible <dev@accredible.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$plugin->version   = 2014081900; // The current module version (Date: YYYYMMDDXX)
+$plugin->version   = 2014103100; // The current module version (Date: YYYYMMDDXX)
 $plugin->requires  = 2014051200; // Requires this Moodle version
 $plugin->cron      = 0; // Period for cron to check this module (secs)
-$plugin->component = 'mod_certificate';
+$plugin->component = 'mod_accredible';
 
 $plugin->maturity  = MATURITY_STABLE;
 $plugin->release   = "Stable"; // User-friendly version number

@@ -1,6 +1,6 @@
 <?php
 
-// This file is part of the Certificate module for Moodle - http://moodle.org/
+// This file is part of the Accredible Certificate module for Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -16,19 +16,17 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Provides some custom settings for the certificate module
+ * Provides some custom settings for the accredible module
  *
  * @package    mod
- * @subpackage certificate
- * @copyright  Michael Avelar <michaela@moodlerooms.com>
+ * @subpackage accredible
+ * @copyright  Accredible <dev@accredible.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die;
 
-require_once($CFG->dirroot.'/mod/certificate/adminsetting.class.php');
-
-$settings->add(new mod_certificate_admin_setting_upload('certificate/uploadimage',
-    get_string('uploadimage', 'certificate'), get_string('uploadimagedesc', 'certificate'), ''));
-
-?>
+// TODO - language tags
+$settings->add(
+	new mod_accredible_admin_setting_upload('text', 'API Key', 'Enter your API Key from accredible.com', '')
+);

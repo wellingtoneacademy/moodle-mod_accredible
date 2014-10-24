@@ -1,6 +1,6 @@
 <?php
 
-// This file is part of the Certificate module for Moodle - http://moodle.org/
+// This file is part of the Accredible Certificate module for Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -19,14 +19,14 @@
  * Certificate module capability definition
  *
  * @package    mod
- * @subpackage certificate
- * @copyright  Mark Nelson <markn@moodle.com>
+ * @subpackage accredible
+ * @copyright  Accredible <dev@accredible.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 $capabilities = array(
 
-    'mod/certificate:addinstance' => array(
+    'mod/accredible:addinstance' => array(
         'riskbitmask' => RISK_XSS,
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSE,
@@ -37,7 +37,7 @@ $capabilities = array(
         'clonepermissionsfrom' => 'moodle/course:manageactivities'
     ),
 
-    'mod/certificate:view' => array(
+    'mod/accredible:view' => array(
 
         'captype' => 'read',
         'contextlevel' => CONTEXT_MODULE,
@@ -49,7 +49,7 @@ $capabilities = array(
         )
     ),
 
-    'mod/certificate:manage' => array(
+    'mod/accredible:manage' => array(
 
         'captype' => 'read',
         'contextlevel' => CONTEXT_MODULE,
@@ -60,7 +60,7 @@ $capabilities = array(
         )
     ),
 
-    'mod/certificate:printteacher' => array(
+    'mod/accredible:printteacher' => array(
 
         'captype' => 'read',
         'contextlevel' => CONTEXT_MODULE,
