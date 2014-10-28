@@ -35,14 +35,26 @@ class mod_accredible_mod_form extends moodleform_mod {
 
     function definition() {
         global $DB, $OUTPUT, $CFG;
-
-        $id = required_param('course', PARAM_INT);    // Course Module ID
-        if (!$course = $DB->get_record('course', array('id'=> $id))) {
-            print_error('Course ID is wrong');
-        }
-
+        // Check for API key
         if($CFG->accredible_api_key === "") {
             print_error('Please set your API Key first.');
+        }
+        // Check for course id (new record)
+        if(optional_param('course', '', PARAM_INT)) {
+            $id =  optional_param('course', '', PARAM_INT);    // Course ID
+            if (!$course = $DB->get_record('course', array('id'=> $id))) {
+                print_error('Course ID is wrong');
+            }
+        } 
+        elseif (optional_param('update', '', PARAM_INT)) {
+            $cm_id = optional_param('update', '', PARAM_INT);
+            if (!$cm = get_coursemodule_from_id('accredible', $cm_id)) {
+                print_error('Course Module ID was incorrect');
+            }
+            $id = $cm->course;
+            if (!$course = $DB->get_record('course', array('id'=> $id))) {
+                print_error('Course ID is wrong');
+            }
         }
 
         $context = context_course::instance($course->id);
@@ -62,13 +74,13 @@ class mod_accredible_mod_form extends moodleform_mod {
         // TODO - language tag
         $mform->addElement('text', 'achievement_id', 'Achievement ID');
         $mform->setType('achievement_id', PARAM_TEXT);
-        $mform->setDefault('name', $course->shortname);
+        $mform->setDefault('achievement_id', $course->shortname);
         $mform->addRule('achievement_id', null, 'required', null, 'client');
 
         // TODO - language tag
         $mform->addElement('textarea', 'description', 'Description', array('cols'=>'64', 'rows'=>'4', 'wrap'=>'virtual'));
         $mform->setType('description', PARAM_RAW);
-        $mform->setDefault('name', $course->summary);
+        $mform->setDefault('description', $course->summary);
         $mform->addRule('description', null, 'required', null, 'client');
 
         // TODO - language tag
