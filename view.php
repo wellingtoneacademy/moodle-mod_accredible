@@ -55,12 +55,16 @@ $PAGE->set_heading(format_string($course->fullname));
 $certificates = accredible_get_issued($accredible_certificate->achievementid);
 
 $table = new html_table();
+// TODO - language tags
+$table->head  = array ("ID", "Certificate URL");
 
 foreach ($certificates as $certificate) {
     $table->data[] = array ( $certificate->id, "<a href='https://accredible.com/$certificate->id'>https://accredible.com/$certificate->id</a>" );
 }
 
 echo $OUTPUT->header();
-echo "<h1>Certificates for ".$course->fullname."</h1>";
+echo "<h3>Certificates for ".$course->fullname."</h3>";
+echo "<h5>Achievement ID: ".$accredible_certificate->achievementid."</h5>";
+echo '<br />';
 echo html_writer::table($table);
 echo $OUTPUT->footer($course);

@@ -49,16 +49,6 @@ $string['certificate:view'] = 'View a certificate';
 $string['certificatename'] = 'Certificate Name';
 $string['certificatereport'] = 'Certificates Report';
 $string['certificatesfor'] = 'Certificates for';
-$string['certificatetype'] = 'Certificate Type';
-$string['certificatetype_help'] = 'This is where you determine the layout of the certificate. The certificate type folder includes four default certificates:
-A4 Embedded prints on A4 size paper with embedded font.
-A4 Non-Embedded prints on A4 size paper without embedded fonts.
-Letter Embedded prints on letter size paper with embedded font.
-Letter Non-Embedded prints on letter size paper without embedded fonts.
-
-The non-embedded types use the Helvetica and Times fonts.  If you feel your users will not have these fonts on their computer, or if your language uses characters or symbols that are not accommodated by the Helvetica and Times fonts, then choose an embedded type.  The embedded types use the Dejavusans and Dejavuserif fonts.  This will make the pdf files rather large; thus it is not recommended to use an embedded type unless you must.
-
-New type folders can be added to the certificate/type folder. The name of the folder and any new language strings for the new type must be added to the certificate language file.';
 $string['certify'] = 'This is to certify that';
 $string['code'] = 'Code';
 $string['completiondate'] = 'Course Completion';
@@ -121,14 +111,14 @@ $string['imagetype'] = 'Image Type';
 $string['incompletemessage'] = 'In order to download your certificate, you must first complete all required activities. Please return to the course to complete your coursework.';
 $string['intro'] = 'Introduction';
 $string['issueoptions'] = 'Issue Options';
-$string['issued'] = 'Issued';
+  $string['issued'] = 'Issued';
 $string['issueddate'] = 'Date Issued';
 $string['landscape'] = 'Landscape';
 $string['lastviewed'] = 'You last received this certificate on:';
 $string['letter'] = 'Letter';
 $string['lockingoptions'] = 'Locking Options';
-$string['modulename'] = 'Accredible Certificate';
-$string['modulenameplural'] = 'Accredible Certificates';
+  $string['modulename'] = 'Accredible Certificate';
+  $string['modulenameplural'] = 'Accredible Certificates';
 $string['mycertificates'] = 'My Certificates';
 $string['nocertificates'] = 'There are no certificates';
 $string['nocertificatesissued'] = 'There are no certificates that have been issued';
@@ -188,17 +178,9 @@ $string['summaryofattempts'] = 'Summary of Previously Received Certificates';
 $string['textoptions'] = 'Text Options';
 $string['title'] = 'CERTIFICATE of ACHIEVEMENT';
 $string['to'] = 'Awarded to';
-$string['typeA4_embedded'] = 'A4 Embedded';
-$string['typeA4_non_embedded'] = 'A4 Non-Embedded';
-$string['typeletter_embedded'] = 'Letter Embedded';
-$string['typeletter_non_embedded'] = 'Letter Non-Embedded';
-$string['unsupportedfiletype'] = 'File must be a jpeg or png file';
-$string['uploadimage'] = 'Upload image';
-$string['uploadimagedesc'] = 'This button will take you to a new screen where you will be able to upload images.';
 $string['userdateformat'] = 'User\'s Language Date Format';
 $string['validate'] = 'Verify';
 $string['verifycertificate'] = 'Verify Certificate';
 $string['viewcertificateviews'] = 'View {$a} issued certificates';
 $string['viewed'] = 'You received this certificate on:';
 $string['viewtranscript'] = 'View Certificates';
-$string['watermark'] = 'Watermark';
