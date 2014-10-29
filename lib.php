@@ -32,7 +32,6 @@
  */
 function accredible_add_instance($post) {
     global $DB, $CFG;
-    $count = 0;
 
     foreach ($post->users as $user_id => $issue_certificate) {
         if($issue_certificate) {
@@ -51,15 +50,15 @@ function accredible_add_instance($post) {
             curl_setopt( $curl, CURLOPT_HTTPHEADER, array( 'Authorization: Token token="'.$CFG->accredible_api_key.'"' ) );
             curl_exec($curl);
             curl_close($curl);
-
-            $count = $count + 1;
         }
     }
 
     $db_record = new stdClass();
     $db_record->name = $post->name;
+    $db_record->course = $post->course;
+    $db_record->description = $post->description;
     $db_record->achievementid = $post->achievement_id;
-    $db_record->certificates = $count;
+    $db_record->passinggrade = $post->passing_grade;
     $db_record->timecreated = time();
 
     return $DB->insert_record('accredible', $db_record);
@@ -112,7 +111,7 @@ function accredible_delete_instance($id) {
 function accredible_get_issued($achievement_id) {
     global $CFG;
 
-    $curl = curl_init('https://staging.accredible.com/v1/credentials?achievement_id='.urlencode($achievement_id));
+    $curl = curl_init('https://staging.accredible.com/v1/credentials?full_view=true&achievement_id='.urlencode($achievement_id));
     curl_setopt( $curl, CURLOPT_HTTPHEADER, array( 'Authorization: Token token="'.$CFG->accredible_api_key.'"' ) );
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
     $result = json_decode( curl_exec($curl) );
