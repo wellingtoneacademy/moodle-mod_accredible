@@ -83,9 +83,9 @@ class mod_accredible_mod_form extends moodleform_mod {
 
 
         // TODO - language tag
-        $mform->addElement('text', 'achievement_id', 'Achievement ID', array('disabled'=>''));
-        $mform->setType('achievement_id', PARAM_TEXT);
-        $mform->setDefault('achievement_id', $course->shortname);
+        $mform->addElement('text', 'achievementid', 'Achievement ID', array('disabled'=>''));
+        $mform->setType('achievementid', PARAM_TEXT);
+        $mform->setDefault('achievementid', $course->shortname);
 
 
         if($updatingcert) {
@@ -151,9 +151,10 @@ class mod_accredible_mod_form extends moodleform_mod {
 
         // TODO - language tag
         $mform->addElement('header', 'autoissue', 'Automatic Issuing Criteria');
-        $mform->addElement('text', 'passing_grade', 'Passing Grade');
-        $mform->setType('passing_grade', PARAM_INT);
-        $mform->setDefault('passing_grade', 70);
+
+        $mform->addElement('text', 'passinggrade', 'Passing Grade');
+        $mform->setType('passinggrade', PARAM_INT);
+        $mform->setDefault('passinggrade', 70);
 
         $this->standard_coursemodule_elements();
         $this->add_action_buttons();

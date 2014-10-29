@@ -33,32 +33,36 @@
 function accredible_add_instance($post) {
     global $DB, $CFG;
 
-    foreach ($post->users as $user_id => $issue_certificate) {
-        if($issue_certificate) {
-            $user = $DB->get_record('user', array('id'=>$user_id));
+    // Issue certs
+    if( isset($post->users) ) {
+        foreach ($post->users as $user_id => $issue_certificate) {
+            if($issue_certificate) {
+                $user = $DB->get_record('user', array('id'=>$user_id));
 
-            $certificate = array();
-            $certificate['name'] = $post->name;
-            $certificate['achievement_id'] = $post->achievement_id;
-            $certificate['description'] = $post->description;
-            $certificate['recipient'] = array('name' => fullname($user), 'email'=> $user->email);
+                $certificate = array();
+                $certificate['name'] = $post->name;
+                $certificate['achievement_id'] = $post->achievementid;
+                $certificate['description'] = $post->description;
+                $certificate['recipient'] = array('name' => fullname($user), 'email'=> $user->email);
 
-            $curl = curl_init('https://staging.accredible.com/v1/credentials');
-            curl_setopt($curl, CURLOPT_POST, 1);
-            curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query( array('credential' => $certificate) ));
-            curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-            curl_setopt( $curl, CURLOPT_HTTPHEADER, array( 'Authorization: Token token="'.$CFG->accredible_api_key.'"' ) );
-            curl_exec($curl);
-            curl_close($curl);
+                $curl = curl_init('https://staging.accredible.com/v1/credentials');
+                curl_setopt($curl, CURLOPT_POST, 1);
+                curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query( array('credential' => $certificate) ));
+                curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+                curl_setopt( $curl, CURLOPT_HTTPHEADER, array( 'Authorization: Token token="'.$CFG->accredible_api_key.'"' ) );
+                curl_exec($curl);
+                curl_close($curl);
+            }
         }
     }
 
+    // Save record
     $db_record = new stdClass();
     $db_record->name = $post->name;
     $db_record->course = $post->course;
     $db_record->description = $post->description;
-    $db_record->achievementid = $post->achievement_id;
-    $db_record->passinggrade = $post->passing_grade;
+    $db_record->achievementid = $post->achievementid;
+    $db_record->passinggrade = $post->passinggrade;
     $db_record->timecreated = time();
 
     return $DB->insert_record('accredible', $db_record);
@@ -74,28 +78,32 @@ function accredible_update_instance($post) {
     // To update your certificate details, go to accredible.com.
     global $DB, $CFG;
 
-    foreach ($post->users as $user_id => $issue_certificate) {
-        if($issue_certificate) {
-            $user = $DB->get_record('user', array('id'=>$user_id));
+    // Issue certs
+    if( isset($post->users) ) {
+        foreach ($post->users as $user_id => $issue_certificate) {
+            if($issue_certificate) {
+                $user = $DB->get_record('user', array('id'=>$user_id));
 
-            $certificate = array();
-            $certificate['name'] = $post->name;
-            $certificate['achievement_id'] = $post->achievement_id;
-            $certificate['description'] = $post->description;
-            $certificate['recipient'] = array('name' => fullname($user), 'email'=> $user->email);
+                $certificate = array();
+                $certificate['name'] = $post->name;
+                $certificate['achievement_id'] = $post->achievementid;
+                $certificate['description'] = $post->description;
+                $certificate['recipient'] = array('name' => fullname($user), 'email'=> $user->email);
 
-            $curl = curl_init('https://staging.accredible.com/v1/credentials');
-            curl_setopt($curl, CURLOPT_POST, 1);
-            curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query( array('credential' => $certificate) ));
-            curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-            curl_setopt( $curl, CURLOPT_HTTPHEADER, array( 'Authorization: Token token="'.$CFG->accredible_api_key.'"' ) );
-            curl_exec($curl);
-            curl_close($curl);
+                $curl = curl_init('https://staging.accredible.com/v1/credentials');
+                curl_setopt($curl, CURLOPT_POST, 1);
+                curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query( array('credential' => $certificate) ));
+                curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+                curl_setopt( $curl, CURLOPT_HTTPHEADER, array( 'Authorization: Token token="'.$CFG->accredible_api_key.'"' ) );
+                curl_exec($curl);
+                curl_close($curl);
+            }
         }
     }
 
+    // Save record
     $db_record = new stdClass();
-    $db_record->passinggrade = $post->passing_grade;
+    $db_record->passinggrade = $post->passinggrade;
     $db_record->id = $post->instance;
 
     return $DB->update_record('accredible', $db_record);
