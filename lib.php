@@ -70,18 +70,34 @@ function accredible_add_instance($post) {
  * @param stdClass $certificate
  * @return stdClass $certificate updated 
  */
-function accredible_update_instance($certificate) {
-    // To update your certificates, go to accredible.com.
+function accredible_update_instance($post) {
+    // To update your certificate details, go to accredible.com.
+    global $DB, $CFG;
 
-    // global $CFG;
-    // $curl = curl_init('https://staging.accredible.com/v1/credentials/'.$certificate->id);
-    // curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "PUT");
-    // curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($certificate));
-    // curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-    // curl_setopt( $curl, CURLOPT_HTTPHEADER, array( 'Authorization: Token token="'.$CFG->accredible_api_key.'"' ) );
-    // $result = json_decode( curl_exec($curl) );
-    // curl_close($curl);
-    // return $result;
+    foreach ($post->users as $user_id => $issue_certificate) {
+        if($issue_certificate) {
+            $user = $DB->get_record('user', array('id'=>$user_id));
+
+            $certificate = array();
+            $certificate['name'] = $post->name;
+            $certificate['achievement_id'] = $post->achievement_id;
+            $certificate['description'] = $post->description;
+            $certificate['recipient'] = array('name' => fullname($user), 'email'=> $user->email);
+
+            $curl = curl_init('https://staging.accredible.com/v1/credentials');
+            curl_setopt($curl, CURLOPT_POST, 1);
+            curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query( array('credential' => $certificate) ));
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt( $curl, CURLOPT_HTTPHEADER, array( 'Authorization: Token token="'.$CFG->accredible_api_key.'"' ) );
+            curl_exec($curl);
+            curl_close($curl);
+        }
+    }
+
+    $db_record->passinggrade = $post->passing_grade;
+    $db_record->id = $post->instance;
+
+    return $DB->update_record('accredible', $db_record);
 }
 
 /**
@@ -119,4 +135,16 @@ function accredible_get_issued($achievement_id) {
     return $result->credentials;
 }
 
-?>
+/**
+ * Supported feature list
+ *
+ * @uses FEATURE_MOD_INTRO
+ * @param string $feature FEATURE_xx constant for requested feature
+ * @return mixed True if module supports feature, null if doesn't know
+ */
+function accredible_supports($feature) {
+    switch ($feature) {
+        case FEATURE_MOD_INTRO:               return false;
+        default: return null;
+    }
+}

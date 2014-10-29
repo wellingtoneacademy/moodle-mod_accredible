@@ -35,6 +35,7 @@ class mod_accredible_mod_form extends moodleform_mod {
 
     function definition() {
         global $DB, $OUTPUT, $CFG;
+
         // Check for API key
         if($CFG->accredible_api_key === "") {
             print_error('Please set your API Key first.');
