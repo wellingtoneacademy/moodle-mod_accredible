@@ -101,6 +101,7 @@ class mod_accredible_mod_form extends moodleform_mod {
         // TODO - language tag
         if($updatingcert) {
             $mform->addElement('textarea', 'description', 'Description', array('cols'=>'64', 'rows'=>'4', 'wrap'=>'virtual', 'disabled'=>''));
+            $mform->addElement('static', 'dashboardlink','Accredible Dashboard Link', "To delete or style credentials, log in to the <a href='https://accredible.com/issuer/login' target='_blank'>dashboard</a>");
         } else {
             $mform->addElement('textarea', 'description', 'Description', array('cols'=>'64', 'rows'=>'4', 'wrap'=>'virtual'));
             $mform->addRule('description', null, 'required', null, 'client');
@@ -151,6 +152,8 @@ class mod_accredible_mod_form extends moodleform_mod {
 
         // TODO - language tag
         $mform->addElement('header', 'autoissue', 'Automatic Issuing Criteria');
+
+        
 
         $mform->addElement('text', 'passinggrade', 'Passing Grade');
         $mform->setType('passinggrade', PARAM_INT);
