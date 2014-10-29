@@ -94,6 +94,7 @@ function accredible_update_instance($post) {
         }
     }
 
+    $db_record = new stdClass();
     $db_record->passinggrade = $post->passing_grade;
     $db_record->id = $post->instance;
 

@@ -35,28 +35,12 @@ class mod_accredible_mod_form extends moodleform_mod {
 
     function definition() {
         global $DB, $OUTPUT, $CFG;
-
-        // Check for API key
+        // Make sure the API key is set
         if($CFG->accredible_api_key === "") {
             print_error('Please set your API Key first.');
         }
-        // Check for course id (new record)
-        if(optional_param('course', '', PARAM_INT)) {
-            $id =  optional_param('course', '', PARAM_INT);    // Course ID
-            if (!$course = $DB->get_record('course', array('id'=> $id))) {
-                print_error('Course ID is wrong');
-            }
-            // see if other accredible certificates exist for this course
-            $alreadyexists = $DB->record_exists('accredible', array('course' => $id));
-            // if they do, then redirect to edit page
-            if( $alreadyexists ) {
-                $accredible_mod = $DB->get_record('modules', array('name' => 'accredible'));
-                $cm = $DB->get_record('course_modules', array('course' => $id, 'module' => $accredible_mod->id));
-                $url = new moodle_url('/course/modedit.php', array('update' => $cm->id));
-                redirect($url, 'This course already has some certificates. Edit the activity to issue more certificates.');
-            }
-        } 
-        elseif (optional_param('update', '', PARAM_INT)) {
+        // Update form init
+        if (optional_param('update', '', PARAM_INT)) {
             $updatingcert = true;
             $cm_id = optional_param('update', '', PARAM_INT);
             if (!$cm = get_coursemodule_from_id('accredible', $cm_id)) {
@@ -68,6 +52,21 @@ class mod_accredible_mod_form extends moodleform_mod {
             }
             if (!$accredible_certificate = $DB->get_record('accredible', array('id'=> $cm->instance))) {
                 print_error('Course Module is incorrect');
+            }
+        } 
+        // New form init
+        elseif(optional_param('course', '', PARAM_INT)) {
+            $id =  optional_param('course', '', PARAM_INT);
+            if (!$course = $DB->get_record('course', array('id'=> $id))) {
+                print_error('Course ID is wrong');
+            }
+            // see if other accredible certificates already exist for this course
+            $alreadyexists = $DB->record_exists('accredible', array('course' => $id));
+            if( $alreadyexists ) {
+                $accredible_mod = $DB->get_record('modules', array('name' => 'accredible'));
+                $cm = $DB->get_record('course_modules', array('course' => $id, 'module' => $accredible_mod->id));
+                $url = new moodle_url('/course/modedit.php', array('update' => $cm->id));
+                redirect($url, 'This course already has some certificates. Edit the activity to issue more certificates.');
             }
         }
 
@@ -82,38 +81,44 @@ class mod_accredible_mod_form extends moodleform_mod {
 
         $mform->addElement('header', 'general', get_string('general', 'form'));
 
+
         // TODO - language tag
         $mform->addElement('text', 'achievement_id', 'Achievement ID', array('disabled'=>''));
         $mform->setType('achievement_id', PARAM_TEXT);
         $mform->setDefault('achievement_id', $course->shortname);
 
+
         if($updatingcert) {
             $mform->addElement('text', 'name', get_string('certificatename', 'certificate'), array('disabled'=>''));
         } else {
             $mform->addElement('text', 'name', get_string('certificatename', 'certificate'));
+            $mform->addRule('name', null, 'required', null, 'client');
         }
         $mform->setType('name', PARAM_TEXT);
         $mform->setDefault('name', $course->fullname);
-        $mform->addRule('name', null, 'required', null, 'client');
+
 
         // TODO - language tag
         if($updatingcert) {
             $mform->addElement('textarea', 'description', 'Description', array('cols'=>'64', 'rows'=>'4', 'wrap'=>'virtual', 'disabled'=>''));
         } else {
             $mform->addElement('textarea', 'description', 'Description', array('cols'=>'64', 'rows'=>'4', 'wrap'=>'virtual'));
+            $mform->addRule('description', null, 'required', null, 'client');
         }
         $mform->setType('description', PARAM_RAW);
         $mform->setDefault('description', $course->summary);
-        $mform->addRule('description', null, 'required', null, 'client');
+
+
 
         // TODO - language tag
-        $mform->addElement('header', 'chooseusers', 'Choose Recipients');
+        $mform->addElement('header', 'chooseusers', 'Manually Issue Certificates');
 
         $this->add_checkbox_controller(1, 'Select All/None');
-        // make an array of the users' names
         if($updatingcert) {
+            // Grab existing certificates and cross-reference emails
             $certificates = accredible_get_issued($accredible_certificate->achievementid);
             foreach ($users as $user) {
+                $cert_id = null;
                 // check cert emails for this user
                 foreach ($certificates as $certificate) {
                     if($certificate->recipient->email == $user->email) {
@@ -126,8 +131,8 @@ class mod_accredible_mod_form extends moodleform_mod {
                         }
                     }
                 }
-                // show the link if they have a certificate
-                if( isset($cert_id) ) {
+                // show the certificate if they have a certificate
+                if( $cert_id ) {
                     $mform->addElement('static', 'certlink'.$user->id, $user->firstname . ' ' . $user->lastname, "Certificate $cert_id - <a href='https://accredible.com/$cert_link' target='_blank'>link</a>");
                 } // show a checkbox if they don't
                 else {
@@ -135,15 +140,17 @@ class mod_accredible_mod_form extends moodleform_mod {
                 }
             }
         }
+        // For new modules, just list all the users
         else {
             foreach( $users as $user ) { 
                 $mform->addElement('advcheckbox', 'users['.$user->id.']', $user->firstname . ' ' . $user->lastname, null, array('group' => 1));
             }
         }
 
+
+
         // TODO - language tag
         $mform->addElement('header', 'autoissue', 'Automatic Issuing Criteria');
-
         $mform->addElement('text', 'passing_grade', 'Passing Grade');
         $mform->setType('passing_grade', PARAM_INT);
         $mform->setDefault('passing_grade', 70);
