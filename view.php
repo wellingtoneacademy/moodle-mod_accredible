@@ -56,10 +56,10 @@ $certificates = accredible_get_issued($accredible_certificate->achievementid);
 
 $table = new html_table();
 // TODO - language tags
-$table->head  = array ("ID", "Certificate URL");
+$table->head  = array ("ID", "Recipient", "Certificate URL");
 
 foreach ($certificates as $certificate) {
-    $table->data[] = array ( $certificate->id, "<a href='https://accredible.com/$certificate->id'>https://accredible.com/$certificate->id</a>" );
+    $table->data[] = array ( $certificate->id, $certificate->recipient->name, "<a href='https://accredible.com/$certificate->id'>https://accredible.com/$certificate->id</a>" );
 }
 
 echo $OUTPUT->header();
