@@ -35,6 +35,8 @@ function accredible_add_instance($post) {
 
     // Issue certs
     if( isset($post->users) ) {
+        // Checklist array from the form comes in the format:
+        // int user_id => boolean issue_certificate
         foreach ($post->users as $user_id => $issue_certificate) {
             if($issue_certificate) {
                 $user = $DB->get_record('user', array('id'=>$user_id));
@@ -71,7 +73,7 @@ function accredible_add_instance($post) {
 /**
  * Update certificate instance.
  *
- * @param stdClass $certificate
+ * @param stdClass $post
  * @return stdClass $certificate updated 
  */
 function accredible_update_instance($post) {
@@ -80,6 +82,8 @@ function accredible_update_instance($post) {
 
     // Issue certs
     if( isset($post->users) ) {
+        // Checklist array from the form comes in the format:
+        // int user_id => boolean issue_certificate
         foreach ($post->users as $user_id => $issue_certificate) {
             if($issue_certificate) {
                 $user = $DB->get_record('user', array('id'=>$user_id));
@@ -156,4 +160,73 @@ function accredible_supports($feature) {
         case FEATURE_MOD_INTRO:               return false;
         default: return null;
     }
+}
+
+/*
+ * Quiz submission handler (checks for a completed course)
+ *
+ * @param core/event $event quiz mod attempt_submitted event
+ */
+function accredible_quiz_submission_handler($event) {
+    global $DB, $CFG;
+    require_once($CFG->dirroot . '/mod/quiz/lib.php');
+
+    $accredible_certificate = $DB->get_record('accredible', array('course' => $event->courseid));
+    // check for the existance of a certificate and an auto-issue rule
+    if( $accredible_certificate and $accredible_certificate->finalquiz ) {
+        // $course  = $DB->get_record('course', array('id' => $event->courseid));
+        $attempt = $event->get_record_snapshot('quiz_attempts', $event->objectid);
+        $quiz    = $event->get_record_snapshot('quiz', $attempt->quiz);
+        // $cm      = get_coursemodule_from_id('quiz', $event->get_context()->instanceid, $event->courseid);
+
+        // check which quiz is used as the deciding factor in this course
+        if($quiz->id == $accredible_certificate->finalquiz) {
+            $certificates = accredible_get_issued($accredible_certificate->achievementid);
+            $user = $DB->get_record('user', array('id' => $event->relateduserid));
+            $certificate_exists = false;
+
+            foreach ($certificates as $certificate) {
+                if($certificate->recipient->email == $user->email) {
+                    $certificate_exists = true;
+                }
+            }
+
+            // check for an existing certificate
+            if(!$certificate_exists) {
+                $users_grade = ( quiz_get_best_grade($quiz, $user->id) / $quiz->grade ) * 100;
+                $grade_is_high_enough = ($users_grade >= $accredible_certificate->passinggrade);
+
+                // check for pass
+                if($grade_is_high_enough) {
+                    // issue a ceritificate
+                    accredible_issue_default_certificate( $accredible_certificate->id, fullname($user), $user->email );
+                }
+            }
+        }
+    }
+}
+
+/*
+ * accredible_issue_default_certificate
+ * 
+ */
+function accredible_issue_default_certificate($certificate_id, $name, $email) {
+    global $DB, $CFG;
+
+    // Issue certs
+    $accredible_certificate = $DB->get_record('accredible', array('id'=>$certificate_id));
+
+    $certificate = array();
+    $certificate['name'] = $accredible_certificate->name;
+    $certificate['achievement_id'] = $accredible_certificate->achievementid;
+    $certificate['description'] = $accredible_certificate->description;
+    $certificate['recipient'] = array('name' => $name, 'email'=> $email);
+
+    $curl = curl_init('https://staging.accredible.com/v1/credentials');
+    curl_setopt($curl, CURLOPT_POST, 1);
+    curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query( array('credential' => $certificate) ));
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt( $curl, CURLOPT_HTTPHEADER, array( 'Authorization: Token token="'.$CFG->accredible_api_key.'"' ) );
+    curl_exec($curl);
+    curl_close($curl);
 }

@@ -39,6 +39,7 @@ class mod_accredible_mod_form extends moodleform_mod {
         if($CFG->accredible_api_key === "") {
             print_error('Please set your API Key first.');
         }
+        $updatingcert = false;
         // Update form init
         if (optional_param('update', '', PARAM_INT)) {
             $updatingcert = true;
@@ -115,6 +116,7 @@ class mod_accredible_mod_form extends moodleform_mod {
         $mform->addElement('header', 'chooseusers', 'Manually Issue Certificates');
 
         $this->add_checkbox_controller(1, 'Select All/None');
+        // TODO - move to library
         if($updatingcert) {
             // Grab existing certificates and cross-reference emails
             $certificates = accredible_get_issued($accredible_certificate->achievementid);
