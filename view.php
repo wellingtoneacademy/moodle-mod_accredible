@@ -54,16 +54,51 @@ $PAGE->set_heading(format_string($course->fullname));
 // Get array of certificates
 $certificates = accredible_get_issued($accredible_certificate->achievementid);
 
-$table = new html_table();
-$table->head  = array (get_string('id', 'accredible'), get_string('recipient', 'accredible'), get_string('certificateurl', 'accredible'));
+if(has_capability('mod/accredible:manage', $context)) {
+	$table = new html_table();
+	$table->head  = array (get_string('id', 'accredible'), get_string('recipient', 'accredible'), get_string('certificateurl', 'accredible'));
 
-foreach ($certificates as $certificate) {
-    $table->data[] = array ( $certificate->id, $certificate->recipient->name, "<a href='https://accredible.com/$certificate->id' target='_blank'>https://accredible.com/$certificate->id</a>" );
+	foreach ($certificates as $certificate) {
+	    $table->data[] = array ( $certificate->id, $certificate->recipient->name, "<a href='https://accredible.com/$certificate->id' target='_blank'>https://accredible.com/$certificate->id</a>" );
+	}
+
+	echo $OUTPUT->header();
+	echo "<h3>Certificates for ".$course->fullname."</h3>";
+	echo "<h5>Achievement ID: ".$accredible_certificate->achievementid."</h5>";
+	echo '<br />';
+	echo html_writer::table($table);
+	echo $OUTPUT->footer($course);
+} 
+else {
+	// Check for this user's certificate
+	$users_certificate_link = null;
+	foreach ($certificates as $certificate) {
+    if($certificate->recipient->email == $USER->email) {
+      if($certificate->private) {
+      	$users_certificate_link = $certificate->id . '?key=' . $certificate->private_key;
+      }
+      else {
+      	$users_certificate_link = $certificate->id;
+      }
+    }
+	}
+	// Echo the page
+	echo $OUTPUT->header();
+
+	if($users_certificate_link) {
+		echo "<div class='text-center'>";
+		echo "<h3>Congratulations!</h3>";
+		echo "<p>Your certificate is available online.</p>";
+		echo '<br />';
+		echo "<a href='https://accredible.com/$users_certificate_link' class='btn btn-primary btn-large'>View My Certificate</a>";
+		echo "</div>";
+	} 
+	else {
+		echo "<div class='text-center'>";
+		echo "<h4>Course is Still in Progress</h4>";
+		echo "<p>Your course certificate will be available here once it's been issued.</p>";
+		echo "</div>";
+	}
+
+	echo $OUTPUT->footer($course);
 }
-
-echo $OUTPUT->header();
-echo "<h3>Certificates for ".$course->fullname."</h3>";
-echo "<h5>Achievement ID: ".$accredible_certificate->achievementid."</h5>";
-echo '<br />';
-echo html_writer::table($table);
-echo $OUTPUT->footer($course);
