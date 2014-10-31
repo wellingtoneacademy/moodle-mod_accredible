@@ -58,7 +58,7 @@ $table = new html_table();
 $table->head  = array (get_string('id', 'accredible'), get_string('recipient', 'accredible'), get_string('certificateurl', 'accredible'));
 
 foreach ($certificates as $certificate) {
-    $table->data[] = array ( $certificate->id, $certificate->recipient->name, "<a href='https://accredible.com/$certificate->id'>https://accredible.com/$certificate->id</a>" );
+    $table->data[] = array ( $certificate->id, $certificate->recipient->name, "<a href='https://accredible.com/$certificate->id' target='_blank'>https://accredible.com/$certificate->id</a>" );
 }
 
 echo $OUTPUT->header();
