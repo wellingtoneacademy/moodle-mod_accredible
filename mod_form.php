@@ -77,7 +77,7 @@ class mod_accredible_mod_form extends moodleform_mod {
         $users = $DB->get_recordset_sql( $query );
 
         // Load final quiz choices
-        $quiz_choices = array();
+        $quiz_choices = array(0 => 'None');
         if($quizes = $DB->get_records_select('quiz', 'course = :course_id', array('course_id' => $id) )) {
             foreach( $quizes as $quiz ) { 
                 $quiz_choices[$quiz->id] = $quiz->name;
