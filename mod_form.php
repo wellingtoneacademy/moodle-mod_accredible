@@ -36,7 +36,7 @@ class mod_accredible_mod_form extends moodleform_mod {
     function definition() {
         global $DB, $OUTPUT, $CFG;
         // Make sure the API key is set
-        if($CFG->accredible_api_key === "") {
+        if(!isset($CFG->accredible_api_key)) {
             print_error('Please set your API Key first.');
         }
         $updatingcert = false;
@@ -109,7 +109,7 @@ class mod_accredible_mod_form extends moodleform_mod {
             $mform->addRule('description', null, 'required', null, 'client');
         }
         $mform->setType('description', PARAM_RAW);
-        $mform->setDefault('description', $course->summary);
+        $mform->setDefault('description', strip_tags($course->summary));
 
 
 
