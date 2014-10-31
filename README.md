@@ -10,12 +10,12 @@ Information on installing git - http://help.github.com/set-up-git-redirect/
 
 Once you have git installed, simply visit the Moodle /mod directory and clone this repo:
 
-    git clone https://github.com/accredible/moodle-mod_accredible.git certificate
+    git clone https://github.com/accredible/moodle-mod_accredible.git accredible
 
 ### Download the zip
 
 1. Visit https://github.com/accredible/moodle-mod_accredible and download the zip. 
-2. Extract the zip file's contents and rename it 'accredible'. You have to rename it for the plugin to work.
+2. Extract the zip file's contents and **rename it 'accredible'**. You have to rename it for the plugin to work.
 3. Place the folder in your /mod folder, inside your Moodle directory.
 
 ## Instructions
