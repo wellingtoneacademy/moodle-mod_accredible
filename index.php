@@ -58,8 +58,7 @@ if (!$certificates = get_all_instances_in_course('accredible', $course)) {
 
 $table = new html_table();
 
-// TODO - language tags
-$table->head  = array ($strname, "Date Created");
+$table->head  = array ($strname, get_string('datecreated', 'accredible'));
 
 foreach ($certificates as $certificate) {
     $link = html_writer::tag('a', $certificate->name, array('href' => $CFG->wwwroot . '/mod/accredible/view.php?id=' . $certificate->coursemodule));

@@ -76,33 +76,34 @@ class mod_accredible_mod_form extends moodleform_mod {
         $query = 'select u.id as id, firstname, lastname, email from mdl_role_assignments as a, mdl_user as u where contextid=' . $context->id . ' and roleid=5 and a.userid=u.id;';
         $users = $DB->get_recordset_sql( $query );
 
+        // Load final quiz choices
+        $quiz_choices = array();
+        if($quizes = $DB->get_records_select('quiz', 'course = :course_id', array('course_id' => $id) )) {
+            foreach( $quizes as $quiz ) { 
+                $quiz_choices[$quiz->id] = $quiz->name;
+            }
+        }
+
         // Form start
         $mform =& $this->_form;
         $mform->addElement('hidden', 'course', $id);
-
         $mform->addElement('header', 'general', get_string('general', 'form'));
-
-
-        // TODO - language tag
-        $mform->addElement('text', 'achievementid', 'Achievement ID', array('disabled'=>''));
+        $mform->addElement('text', 'achievementid', get_string('achievementid', 'accredible'), array('disabled'=>''));
         $mform->setType('achievementid', PARAM_TEXT);
         $mform->setDefault('achievementid', $course->shortname);
 
-
         if($updatingcert) {
-            $mform->addElement('text', 'name', get_string('certificatename', 'certificate'), array('disabled'=>''));
+            $mform->addElement('text', 'name', get_string('certificatename', 'accredible'), array('disabled'=>''));
         } else {
-            $mform->addElement('text', 'name', get_string('certificatename', 'certificate'));
+            $mform->addElement('text', 'name', get_string('certificatename', 'accredible'));
             $mform->addRule('name', null, 'required', null, 'client');
         }
         $mform->setType('name', PARAM_TEXT);
         $mform->setDefault('name', $course->fullname);
 
-
-        // TODO - language tag
         if($updatingcert) {
-            $mform->addElement('textarea', 'description', 'Description', array('cols'=>'64', 'rows'=>'4', 'wrap'=>'virtual', 'disabled'=>''));
-            $mform->addElement('static', 'dashboardlink','Accredible Dashboard Link', "To delete or style credentials, log in to the <a href='https://accredible.com/issuer/login' target='_blank'>dashboard</a>");
+            $mform->addElement('textarea', 'description', get_string('description', 'accredible'), array('cols'=>'64', 'rows'=>'4', 'wrap'=>'virtual', 'disabled'=>''));
+            $mform->addElement('static', 'dashboardlink', get_string('dashboardlink', 'accredible'), "To delete or style credentials, log in to the <a href='https://accredible.com/issuer/login' target='_blank'>dashboard</a>");
         } else {
             $mform->addElement('textarea', 'description', 'Description', array('cols'=>'64', 'rows'=>'4', 'wrap'=>'virtual'));
             $mform->addRule('description', null, 'required', null, 'client');
@@ -112,11 +113,9 @@ class mod_accredible_mod_form extends moodleform_mod {
 
 
 
-        // TODO - language tag
-        $mform->addElement('header', 'chooseusers', 'Manually Issue Certificates');
-
+        $mform->addElement('header', 'chooseusers', get_string('manualheader', 'accredible'));
         $this->add_checkbox_controller(1, 'Select All/None');
-        // TODO - move to library
+
         if($updatingcert) {
             // Grab existing certificates and cross-reference emails
             $certificates = accredible_get_issued($accredible_certificate->achievementid);
@@ -152,14 +151,13 @@ class mod_accredible_mod_form extends moodleform_mod {
 
 
 
-        // TODO - language tag
-        $mform->addElement('header', 'autoissue', 'Automatic Issuing Criteria');
-
-        
-
-        $mform->addElement('text', 'passinggrade', 'Passing Grade');
+        $mform->addElement('header', 'autoissue', get_string('autoissueheader', 'accredible'));
+        $mform->addElement('select', 'finalquiz', get_string('chooseexam', 'accredible'), $quiz_choices);
+        $mform->addElement('text', 'passinggrade', get_string('passinggrade', 'accredible'));
         $mform->setType('passinggrade', PARAM_INT);
         $mform->setDefault('passinggrade', 70);
+
+
 
         $this->standard_coursemodule_elements();
         $this->add_action_buttons();

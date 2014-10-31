@@ -64,6 +64,7 @@ function accredible_add_instance($post) {
     $db_record->course = $post->course;
     $db_record->description = $post->description;
     $db_record->achievementid = $post->achievementid;
+    $db_record->finalquiz = $post->finalquiz;
     $db_record->passinggrade = $post->passinggrade;
     $db_record->timecreated = time();
 
@@ -108,6 +109,7 @@ function accredible_update_instance($post) {
     // Save record
     $db_record = new stdClass();
     $db_record->passinggrade = $post->passinggrade;
+    $db_record->finalquiz = $post->finalquiz;
     $db_record->id = $post->instance;
 
     return $DB->update_record('accredible', $db_record);

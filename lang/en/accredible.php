@@ -24,9 +24,13 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+$string['achievementid'] = 'Achievement ID';
 $string['addlinklabel'] = 'Add another linked activity option';
 $string['addlinktitle'] = 'Click to add another linked activity option';
 $string['areaintro'] = 'Certificate introduction';
+$string['autoissueheader'] = 'Automatic Issuing Criteria';
+$string['apikeylabel'] = 'API Key';
+$string['apikeyhelp'] = 'Enter your API Key from accredible.com';
 $string['awarded'] = 'Awarded';
 $string['awardedto'] = 'Awarded To';
 $string['back'] = 'Back';
@@ -49,7 +53,9 @@ $string['certificate:view'] = 'View a certificate';
 $string['certificatename'] = 'Certificate Name';
 $string['certificatereport'] = 'Certificates Report';
 $string['certificatesfor'] = 'Certificates for';
+$string['certificateurl'] = 'Certificate URL';
 $string['certify'] = 'This is to certify that';
+$string['chooseexam'] = 'Choose Final Exam';
 $string['code'] = 'Code';
 $string['completiondate'] = 'Course Completion';
 $string['course'] = 'For';
@@ -61,7 +67,9 @@ $string['credithours'] = 'Credit Hours';
 $string['customtext'] = 'Custom Text';
 $string['customtext_help'] = 'If you want the certificate to print different names for the teacher than those who are assigned
 the role of teacher, do not select Print Teacher or any signature image except for the line image.  Enter the teacher names in this text box as you would like them to appear.  By default, this text is placed in the lower left of the certificate. The following html tags are available: &lt;br&gt;, &lt;p&gt;, &lt;b&gt;, &lt;i&gt;, &lt;u&gt;, &lt;img&gt; (src and width (or height) are mandatory), &lt;a&gt; (href is mandatory), &lt;font&gt; (possible attributes are: color, (hex color code), face, (arial, times, courier, helvetica, symbol)).';
+$string['dashboardlink'] = 'Accredible Dashboard Link';
 $string['date'] = 'On';
+  $string['datecreated'] = 'Date Created';
 $string['datefmt'] = 'Date Format';
 $string['datefmt_help'] = 'Choose a date format to print the date on the certificate. Or, choose the last option to have the date printed in the format of the user\'s chosen language.';
 $string['datehelp'] = 'Date';
@@ -72,6 +80,7 @@ Open in Browser: Opens the certificate in a new browser window.
 Force Download: Opens the browser file download window.
 Email Certificate: Choosing this option sends the certificate to the student as an email attachment.
 After a user receives their certificate, if they click on the certificate link from the course homepage, they will see the date they received their certificate and will be able to review their received certificate.';
+$string['description'] = 'Description';
 $string['designoptions'] = 'Design Options';
 $string['download'] = 'Force download';
 $string['emailcertificate'] = 'Email (Must also choose save!)';
@@ -107,6 +116,7 @@ Letter Grade: Prints the percentage grade as a letter.';
 $string['gradeletter'] = 'Letter Grade';
 $string['gradepercent'] = 'Percentage Grade';
 $string['gradepoints'] = 'Points Grade';
+$string['id'] = 'ID';
 $string['imagetype'] = 'Image Type';
 $string['incompletemessage'] = 'In order to download your certificate, you must first complete all required activities. Please return to the course to complete your coursework.';
 $string['intro'] = 'Introduction';
@@ -117,6 +127,7 @@ $string['landscape'] = 'Landscape';
 $string['lastviewed'] = 'You last received this certificate on:';
 $string['letter'] = 'Letter';
 $string['lockingoptions'] = 'Locking Options';
+  $string['manualheader'] = 'Manually Issue Certificates';
   $string['modulename'] = 'Accredible Certificate';
   $string['modulenameplural'] = 'Accredible Certificates';
 $string['mycertificates'] = 'My Certificates';
@@ -137,6 +148,7 @@ $string['openwindow'] = 'Click the button below to open your certificate in a ne
 $string['or'] = 'Or';
 $string['orientation'] = 'Orientation';
 $string['orientation_help'] = 'Choose whether you want your certificate orientation to be portrait or landscape.';
+$string['passinggrade'] = 'Passing Grade';
 $string['pluginadministration'] = 'Certificate administration';
 $string['pluginname'] = 'Accredible Certificates';
 $string['portrait'] = 'Portrait';
@@ -161,6 +173,7 @@ $string['printwmark'] = 'Watermark Image';
 $string['printwmark_help'] = 'A watermark file can be placed in the background of the certificate. A watermark is a faded graphic. A watermark could be a logo, seal, crest, wording, or whatever you want to use as a graphic background.';
 $string['receivedcerts'] = 'Received certificates';
 $string['receiveddate'] = 'Date Received';
+$string['recipient'] = 'Recipient';
 $string['removecert'] = 'Issued certificates removed';
 $string['report'] = 'Report';
 $string['reportcert'] = 'Report Certificates';
