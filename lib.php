@@ -94,6 +94,12 @@ function accredible_update_instance($post) {
                 $certificate['achievement_id'] = $post->achievementid;
                 $certificate['description'] = $post->description;
                 $certificate['recipient'] = array('name' => fullname($user), 'email'=> $user->email);
+                    $DB->set_debug(true);
+                if($post->finalquiz) {
+                    $quiz = $DB->get_record('quiz', array('id'=>$post->finalquiz));
+                    $users_grade = ( quiz_get_best_grade($quiz, $user->id) / $quiz->grade ) * 100;
+                    $certificate['evidence_items'] = array( array('string_object' => (string) $users_grade, 'description' => $quiz->name, 'custom'=> true, 'category' => 'grade'));
+                }
 
                 $curl = curl_init('https://staging.accredible.com/v1/credentials');
                 curl_setopt($curl, CURLOPT_POST, 1);
@@ -201,7 +207,7 @@ function accredible_quiz_submission_handler($event) {
                 // check for pass
                 if($grade_is_high_enough) {
                     // issue a ceritificate
-                    accredible_issue_default_certificate( $accredible_certificate->id, fullname($user), $user->email );
+                    accredible_issue_default_certificate( $accredible_certificate->id, fullname($user), $user->email, (string) $users_grade, $quiz->name);
                 }
             }
         }
@@ -212,7 +218,7 @@ function accredible_quiz_submission_handler($event) {
  * accredible_issue_default_certificate
  * 
  */
-function accredible_issue_default_certificate($certificate_id, $name, $email) {
+function accredible_issue_default_certificate($certificate_id, $name, $email, $grade, $quiz_name) {
     global $DB, $CFG;
 
     // Issue certs
@@ -223,6 +229,7 @@ function accredible_issue_default_certificate($certificate_id, $name, $email) {
     $certificate['achievement_id'] = $accredible_certificate->achievementid;
     $certificate['description'] = $accredible_certificate->description;
     $certificate['recipient'] = array('name' => $name, 'email'=> $email);
+    $certificate['evidence_items'] = array( array('string_object' => $grade, 'description' => $quiz_name, 'custom'=> true, 'category' => 'grade' ));
 
     $curl = curl_init('https://staging.accredible.com/v1/credentials');
     curl_setopt($curl, CURLOPT_POST, 1);
