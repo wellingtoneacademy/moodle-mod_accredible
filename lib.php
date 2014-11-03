@@ -46,6 +46,11 @@ function accredible_add_instance($post) {
                 $certificate['achievement_id'] = $post->achievementid;
                 $certificate['description'] = $post->description;
                 $certificate['recipient'] = array('name' => fullname($user), 'email'=> $user->email);
+                if($post->finalquiz) {
+                    $quiz = $DB->get_record('quiz', array('id'=>$post->finalquiz));
+                    $users_grade = ( quiz_get_best_grade($quiz, $user->id) / $quiz->grade ) * 100;
+                    $certificate['evidence_items'] = array( array('string_object' => (string) $users_grade, 'description' => $quiz->name, 'custom'=> true, 'category' => 'grade'));
+                }
 
                 $curl = curl_init('https://api.accredible.com/v1/credentials');
                 curl_setopt($curl, CURLOPT_POST, 1);
@@ -94,7 +99,6 @@ function accredible_update_instance($post) {
                 $certificate['achievement_id'] = $post->achievementid;
                 $certificate['description'] = $post->description;
                 $certificate['recipient'] = array('name' => fullname($user), 'email'=> $user->email);
-                    $DB->set_debug(true);
                 if($post->finalquiz) {
                     $quiz = $DB->get_record('quiz', array('id'=>$post->finalquiz));
                     $users_grade = ( quiz_get_best_grade($quiz, $user->id) / $quiz->grade ) * 100;
@@ -182,10 +186,8 @@ function accredible_quiz_submission_handler($event) {
     $accredible_certificate = $DB->get_record('accredible', array('course' => $event->courseid));
     // check for the existance of a certificate and an auto-issue rule
     if( $accredible_certificate and $accredible_certificate->finalquiz ) {
-        // $course  = $DB->get_record('course', array('id' => $event->courseid));
         $attempt = $event->get_record_snapshot('quiz_attempts', $event->objectid);
         $quiz    = $event->get_record_snapshot('quiz', $attempt->quiz);
-        // $cm      = get_coursemodule_from_id('quiz', $event->get_context()->instanceid, $event->courseid);
 
         // check which quiz is used as the deciding factor in this course
         if($quiz->id == $accredible_certificate->finalquiz) {
