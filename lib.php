@@ -47,7 +47,7 @@ function accredible_add_instance($post) {
                 $certificate['description'] = $post->description;
                 $certificate['recipient'] = array('name' => fullname($user), 'email'=> $user->email);
 
-                $curl = curl_init('https://staging.accredible.com/v1/credentials');
+                $curl = curl_init('https://api.accredible.com/v1/credentials');
                 curl_setopt($curl, CURLOPT_POST, 1);
                 curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query( array('credential' => $certificate) ));
                 curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
@@ -101,7 +101,7 @@ function accredible_update_instance($post) {
                     $certificate['evidence_items'] = array( array('string_object' => (string) $users_grade, 'description' => $quiz->name, 'custom'=> true, 'category' => 'grade'));
                 }
 
-                $curl = curl_init('https://staging.accredible.com/v1/credentials');
+                $curl = curl_init('https://api.accredible.com/v1/credentials');
                 curl_setopt($curl, CURLOPT_POST, 1);
                 curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query( array('credential' => $certificate) ));
                 curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
@@ -148,7 +148,7 @@ function accredible_delete_instance($id) {
 function accredible_get_issued($achievement_id) {
     global $CFG;
 
-    $curl = curl_init('https://staging.accredible.com/v1/credentials?full_view=true&achievement_id='.urlencode($achievement_id));
+    $curl = curl_init('https://api.accredible.com/v1/credentials?full_view=true&achievement_id='.urlencode($achievement_id));
     curl_setopt( $curl, CURLOPT_HTTPHEADER, array( 'Authorization: Token token="'.$CFG->accredible_api_key.'"' ) );
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
     $result = json_decode( curl_exec($curl) );
@@ -231,7 +231,7 @@ function accredible_issue_default_certificate($certificate_id, $name, $email, $g
     $certificate['recipient'] = array('name' => $name, 'email'=> $email);
     $certificate['evidence_items'] = array( array('string_object' => $grade, 'description' => $quiz_name, 'custom'=> true, 'category' => 'grade' ));
 
-    $curl = curl_init('https://staging.accredible.com/v1/credentials');
+    $curl = curl_init('https://api.accredible.com/v1/credentials');
     curl_setopt($curl, CURLOPT_POST, 1);
     curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query( array('credential' => $certificate) ));
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
