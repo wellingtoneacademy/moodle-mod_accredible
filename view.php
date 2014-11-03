@@ -86,17 +86,19 @@ else {
 	echo $OUTPUT->header();
 
 	if($users_certificate_link) {
+		$src = $OUTPUT->pix_url('complete_cert', 'accredible');
 		echo "<div class='text-center'>";
-		echo "<h3>Congratulations!</h3>";
-		echo "<p>Your certificate is available online.</p>";
-		echo '<br />';
-		echo "<a href='https://accredible.com/$users_certificate_link' class='btn btn-primary btn-large'>View My Certificate</a>";
+		echo "<br />";
+		echo "<a href='https://accredible.com/$users_certificate_link'>";
+		echo "<img src='$src' alt='Click to view your certificate' width='90%' />";
+		echo "</a>";
 		echo "</div>";
 	} 
 	else {
+		$src = $OUTPUT->pix_url('incomplete_cert', 'accredible');
 		echo "<div class='text-center'>";
-		echo "<h4>Course is Still in Progress</h4>";
-		echo "<p>Your course certificate will be available here once it's been issued.</p>";
+		echo "<br />";
+		echo "<img src='$src' alt='Course still in progress' width='90%' />";
 		echo "</div>";
 	}
 
