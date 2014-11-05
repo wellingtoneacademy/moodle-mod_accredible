@@ -22,12 +22,12 @@ Once you have git installed, simply visit the Moodle /mod directory and clone th
 
 ### API Key
 
-Make sure you ahve your API key from Accredible. We should have shared it with you, but it's also on the API Management Console.
+Make sure you have your API key from Accredible. We should have shared it with you, but it's also on the API Management Console.
 
 ### Issue Certificates
 
 Go to the course you want to issue certificates for and add an Accredible Certificates activity. Issuing a certificate is easy, and you can choose whether specific students receive a certificate or not.
 
-Once you've issued the ceritificate, head over to Accredible to edit the appearance.
+Once you've issued the certificate, head over to Accredible to edit the appearance.
 
 Contact us at support@accredible.com if you have issues.
