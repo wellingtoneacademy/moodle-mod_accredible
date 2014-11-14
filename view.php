@@ -56,10 +56,11 @@ $certificates = accredible_get_issued($accredible_certificate->achievementid);
 
 if(has_capability('mod/accredible:manage', $context)) {
 	$table = new html_table();
-	$table->head  = array (get_string('id', 'accredible'), get_string('recipient', 'accredible'), get_string('certificateurl', 'accredible'));
+	$table->head  = array (get_string('id', 'accredible'), get_string('recipient', 'accredible'), get_string('certificateurl', 'accredible'), get_string('datecreated', 'accredible'));
 
 	foreach ($certificates as $certificate) {
-	    $table->data[] = array ( $certificate->id, $certificate->recipient->name, "<a href='https://accredible.com/$certificate->id' target='_blank'>https://accredible.com/$certificate->id</a>" );
+		$issue_date = date_create($certificate->issued_on);
+	  $table->data[] = array ( $certificate->id, $certificate->recipient->name, "<a href='https://accredible.com/$certificate->id' target='_blank'>https://accredible.com/$certificate->id</a>", date_format($issue_date,"M d, Y"));
 	}
 
 	echo $OUTPUT->header();
