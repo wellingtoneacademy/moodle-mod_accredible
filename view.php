@@ -64,7 +64,7 @@ if(has_capability('mod/accredible:manage', $context)) {
 	}
 
 	echo $OUTPUT->header();
-	echo "<h3>Certificates for ".$course->fullname."</h3>";
+	echo "<h3>Certificates for ".$accredible_certificate->name."</h3>";
 	echo "<h5>Achievement ID: ".$accredible_certificate->achievementid."</h5>";
 	echo '<br />';
 	echo html_writer::table($table);

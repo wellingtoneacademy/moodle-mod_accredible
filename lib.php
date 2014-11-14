@@ -118,6 +118,8 @@ function accredible_update_instance($post) {
 
     // Save record
     $db_record = new stdClass();
+    $db_record->name = $post->name;
+    $db_record->description = $post->description;
     $db_record->passinggrade = $post->passinggrade;
     $db_record->finalquiz = $post->finalquiz;
     $db_record->id = $post->instance;

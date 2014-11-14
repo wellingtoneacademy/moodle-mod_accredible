@@ -92,24 +92,18 @@ class mod_accredible_mod_form extends moodleform_mod {
         $mform->setType('achievementid', PARAM_TEXT);
         $mform->setDefault('achievementid', $course->shortname);
 
-        if($updatingcert) {
-            $mform->addElement('text', 'name', get_string('certificatename', 'accredible'), array('disabled'=>''));
-        } else {
-            $mform->addElement('text', 'name', get_string('certificatename', 'accredible'));
-            $mform->addRule('name', null, 'required', null, 'client');
-        }
+        $mform->addElement('text', 'name', get_string('certificatename', 'accredible'));
+        $mform->addRule('name', null, 'required', null, 'client');
         $mform->setType('name', PARAM_TEXT);
         $mform->setDefault('name', $course->fullname);
 
-        if($updatingcert) {
-            $mform->addElement('textarea', 'description', get_string('description', 'accredible'), array('cols'=>'64', 'rows'=>'4', 'wrap'=>'virtual', 'disabled'=>''));
-            $mform->addElement('static', 'dashboardlink', get_string('dashboardlink', 'accredible'), "To delete or style credentials, log in to the <a href='https://accredible.com/issuer/login' target='_blank'>dashboard</a>");
-        } else {
-            $mform->addElement('textarea', 'description', 'Description', array('cols'=>'64', 'rows'=>'4', 'wrap'=>'virtual'));
-            $mform->addRule('description', null, 'required', null, 'client');
-        }
+        $mform->addElement('textarea', 'description', 'Description', array('cols'=>'64', 'rows'=>'4', 'wrap'=>'virtual'));
+        $mform->addRule('description', null, 'required', null, 'client');
         $mform->setType('description', PARAM_RAW);
         $mform->setDefault('description', strip_tags($course->summary));
+        if($updatingcert) {
+            $mform->addElement('static', 'dashboardlink', get_string('dashboardlink', 'accredible'), "To delete or style credentials, log in to the <a href='https://accredible.com/issuer/login' target='_blank'>dashboard</a>");
+        }
 
 
 
