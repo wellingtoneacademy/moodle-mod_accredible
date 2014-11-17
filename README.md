@@ -1,3 +1,7 @@
+## Compatability
+
+This plugin is currently in **Beta**. It was developed for **Moodle versions 27 and greater**.
+
 ## Installation
 
 There are two installation methods that are available. Follow one of these, then log into your Moodle site as an administrator and visit the notifications page to complete the install.
@@ -18,7 +22,7 @@ Once you have git installed, simply visit the Moodle /mod directory and clone th
 2. Extract the zip file's contents and **rename it 'accredible'**. You have to rename it for the plugin to work.
 3. Place the folder in your /mod folder, inside your Moodle directory.
 
-## Instructions
+## Creating a Certificate
 
 ### API Key
 
