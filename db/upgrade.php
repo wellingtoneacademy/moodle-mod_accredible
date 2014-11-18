@@ -29,5 +29,20 @@ function xmldb_accredible_upgrade($oldversion=0) {
     global $CFG, $THEME, $DB;
     $dbman = $DB->get_manager();
 
+    $result = true;
+
+    if ($oldversion < 2014111800) {
+
+        // Changing type of field description on table accredible to text.
+        $table = new xmldb_table('accredible');
+        $field = new xmldb_field('description', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL, null, null, 'achievementid');
+
+        // Launch change of type for field description.
+        $dbman->change_field_type($table, $field);
+
+        // Accredible savepoint reached.
+        upgrade_mod_savepoint(true, 2014111800, 'accredible');
+    }
+
     return true;
 }

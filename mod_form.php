@@ -97,7 +97,7 @@ class mod_accredible_mod_form extends moodleform_mod {
         $mform->setType('name', PARAM_TEXT);
         $mform->setDefault('name', $course->fullname);
 
-        $mform->addElement('textarea', 'description', 'Description', array('cols'=>'64', 'rows'=>'4', 'wrap'=>'virtual'));
+        $mform->addElement('textarea', 'description', 'Description', array('cols'=>'64', 'rows'=>'10', 'wrap'=>'virtual', 'maxlength' => '1000'));
         $mform->addRule('description', null, 'required', null, 'client');
         $mform->setType('description', PARAM_RAW);
         $mform->setDefault('description', strip_tags($course->summary));
