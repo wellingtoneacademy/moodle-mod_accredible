@@ -63,8 +63,16 @@ function accredible_add_instance($post) {
         }
     }
 
+    $completion_activities = array();
+    foreach ($post->activities as $activity_id => $track_activity) {
+        if($track_activity) {
+            $completion_activities[$activity_id] = $activity_id;
+        }
+    }
+
     // Save record
     $db_record = new stdClass();
+    $db_record->completionactivities = serialize_completion_array($completion_activities);
     $db_record->name = $post->name;
     $db_record->course = $post->course;
     $db_record->description = $post->description;
@@ -116,8 +124,16 @@ function accredible_update_instance($post) {
         }
     }
 
+    $completion_activities = array();
+    foreach ($post->activities as $activity_id => $track_activity) {
+        if($track_activity) {
+            $completion_activities[$activity_id] = $activity_id;
+        }
+    }
+
     // Save record
     $db_record = new stdClass();
+    $db_record->completionactivities = serialize_completion_array($completion_activities);
     $db_record->name = $post->name;
     $db_record->description = $post->description;
     $db_record->passinggrade = $post->passinggrade;
@@ -242,4 +258,12 @@ function accredible_issue_default_certificate($certificate_id, $name, $email, $g
     curl_setopt( $curl, CURLOPT_HTTPHEADER, array( 'Authorization: Token token="'.$CFG->accredible_api_key.'"' ) );
     curl_exec($curl);
     curl_close($curl);
+}
+
+function serialize_completion_array($completion_array) {
+    return base64_encode(serialize( (array)$completion_array ));
+}
+
+function unserialize_completion_array($completion_object) {
+    return (array)unserialize(base64_decode( $completion_object ));
 }

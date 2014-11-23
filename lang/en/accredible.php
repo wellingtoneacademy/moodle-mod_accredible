@@ -28,7 +28,6 @@ $string['achievementid'] = 'Achievement ID';
 $string['addlinklabel'] = 'Add another linked activity option';
 $string['addlinktitle'] = 'Click to add another linked activity option';
 $string['areaintro'] = 'Certificate introduction';
-$string['autoissueheader'] = 'Automatic Issuing Criteria';
 $string['apikeylabel'] = 'API Key';
 $string['apikeyhelp'] = 'Enter your API Key from accredible.com';
 $string['awarded'] = 'Awarded';
@@ -58,6 +57,7 @@ $string['certify'] = 'This is to certify that';
 $string['chooseexam'] = 'Choose Final Exam';
 $string['code'] = 'Code';
 $string['completiondate'] = 'Course Completion';
+$string['completionissueheader'] = 'Auto-Issue Criteria: By Activity Completion';
 $string['course'] = 'For';
 $string['coursegrade'] = 'Course Grade';
 $string['coursename'] = 'Course';
@@ -113,6 +113,7 @@ $string['gradefmt_help'] = 'There are three available formats if you choose to p
 Percentage Grade: Prints the grade as a percentage.
 Points Grade: Prints the point value of the grade.
 Letter Grade: Prints the percentage grade as a letter.';
+$string['gradeissueheader'] = 'Auto-Issue Criteria: By Final Exam Grade';
 $string['gradeletter'] = 'Letter Grade';
 $string['gradepercent'] = 'Percentage Grade';
 $string['gradepoints'] = 'Points Grade';

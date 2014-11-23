@@ -145,12 +145,33 @@ class mod_accredible_mod_form extends moodleform_mod {
 
 
 
-        $mform->addElement('header', 'autoissue', get_string('autoissueheader', 'accredible'));
+        $mform->addElement('header', 'gradeissue', get_string('gradeissueheader', 'accredible'));
         $mform->addElement('select', 'finalquiz', get_string('chooseexam', 'accredible'), $quiz_choices);
         $mform->addElement('text', 'passinggrade', get_string('passinggrade', 'accredible'));
         $mform->setType('passinggrade', PARAM_INT);
         $mform->setDefault('passinggrade', 70);
 
+
+
+        $mform->addElement('header', 'completionissue', get_string('completionissueheader', 'accredible'));
+        $this->add_checkbox_controller(2, 'Select All/None');
+        if($updatingcert) {
+            $completion_activity_ids = unserialize_completion_array($accredible_certificate->completionactivities);
+            foreach ($quizes as $quiz) {
+                $mform->addElement('advcheckbox', 'activities['.$quiz->id.']', 'Quiz', $quiz->name, array('group' => 2));
+                foreach ($completion_activity_ids as $quiz_id) {
+                    if($quiz_id == $quiz->id) {
+                        $mform->setDefault('activities['.$quiz->id.']', 1);
+                    }
+                }
+            }
+        } else {
+            if($quizes) {
+                foreach ($quizes as $quiz) {
+                    $mform->addElement('advcheckbox', 'activities['.$quiz->id.']', 'Quiz', $quiz->name, array('group' => 2));
+                }
+            }   
+        }
 
 
         $this->standard_coursemodule_elements();
