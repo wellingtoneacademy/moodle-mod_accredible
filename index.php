@@ -38,7 +38,7 @@ if (!$course = $DB->get_record('course', array('id'=> $id))) {
 require_course_login($course);
 
 // Strings used multiple times
-$strcertificates = get_string('modulenameplural', 'certificate');
+$strcertificates = get_string('modulenameplural', 'accredible');
 $strname  = get_string("name");
 
 // Print the header
