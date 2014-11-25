@@ -24,24 +24,33 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['achievementid'] = 'Achievement ID';
-$string['autoissueheader'] = 'Automatic Issuing Criteria';
-$string['apikeylabel'] = 'API Key';
-$string['apikeyhelp'] = 'Enter your API Key from accredible.com';
+$string['achievementid'] = 'Achievement id';
+$string['autoissueheader'] = 'Automatic issuing criteria';
+$string['apikeylabel'] = 'API key';
+$string['apikeyhelp'] = 'Enter your API key from accredible.com';
 $string['accredible:addinstance'] = 'Add a certificate instance';
 $string['accredible:manage'] = 'Manage a certificate instance';
 $string['accredible:student'] = 'Retrieve a certificate';
 $string['accredible:view'] = 'View a certificate';
-$string['certificatename'] = 'Certificate Name';
-$string['certificateurl'] = 'Certificate URL';
-$string['chooseexam'] = 'Choose Final Exam';
-$string['dashboardlink'] = 'Accredible Dashboard Link';
-$string['datecreated'] = 'Date Created';
+$string['certificatename'] = 'Certificate name';
+$string['certificateurl'] = 'Certificate url';
+$string['chooseexam'] = 'Choose final exam';
+$string['dashboardlink'] = 'Accredible dashboard link';
+$string['datecreated'] = 'Date created';
 $string['id'] = 'ID';
+$string['indexheader'] = 'All certificates for {$a}';
 $string['issued'] = 'Issued';
-$string['manualheader'] = 'Manually Issue Certificates';
-$string['modulename'] = 'Accredible Certificate';
-$string['modulenameplural'] = 'Accredible Certificates';
+$string['manualheader'] = 'Manually issue certificates';
+$string['modulename'] = 'Accredible certificate';
+$string['modulename_help'] = 'The Accredible certificates activity module allows you to issue course certificates to students on accredible.com.
+
+Add the activity wherever you want your students see their certificate.';
+$string['modulename_link'] = 'mod/accredible/view';
+$string['modulenameplural'] = 'Accredible certificates';
 $string['nocertificates'] = 'There are no certificates';
-$string['passinggrade'] = 'Percentage Grade Needed to Pass Course (%)';
+$string['passinggrade'] = 'Percentage grade needed to pass course (%)';
+$string['pluginadministration'] = 'Accredible certificates administration';
+$string['pluginname'] = 'Accredible certificates';
 $string['recipient'] = 'Recipient';
+$string['viewheader'] = 'Certificates for {$a}';
+$string['viewsubheader'] = 'Achievement id: {$a}';
