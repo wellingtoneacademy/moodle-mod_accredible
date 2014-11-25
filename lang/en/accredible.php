@@ -53,4 +53,6 @@ $string['pluginadministration'] = 'Accredible certificates administration';
 $string['pluginname'] = 'Accredible certificates';
 $string['recipient'] = 'Recipient';
 $string['viewheader'] = 'Certificates for {$a}';
+$string['viewimgcomplete'] = 'Click to view your certificate';
+$string['viewimgincomplete'] = 'Course still in progress';
 $string['viewsubheader'] = 'Achievement id: {$a}';

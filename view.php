@@ -89,20 +89,15 @@ else {
 		$src = $OUTPUT->pix_url('complete_cert', 'accredible');
 		echo html_writer::start_div('text-center');
 		echo html_writer::tag( 'br', null );
-		// TODO - language tag
-		// TODO - html writer
-		echo "<a href='https://accredible.com/$users_certificate_link'>";
-		echo "<img src='$src' alt='Click to view your certificate' width='90%' />";
-		echo "</a>";
+		$img = html_writer::img($src, get_string('viewimgcomplete', 'accredible'), array('width' => '90%') );
+		echo html_writer::link( 'https://accredible.com/'.$users_certificate_link, $img, array('target' => '_blank') );
 		echo html_writer::end_div('text-center');
 	} 
 	else {
 		$src = $OUTPUT->pix_url('incomplete_cert', 'accredible');
 		echo html_writer::start_div('text-center');
 		echo html_writer::tag( 'br', null );
-		// TODO - language tag
-		// TODO - html writer
-		echo "<img src='$src' alt='Course still in progress' width='90%' />";
+		echo html_writer::img($src, get_string('viewimgincomplete', 'accredible'), array('width' => '90%') );
 		echo html_writer::end_div('text-center');
 	}
 
