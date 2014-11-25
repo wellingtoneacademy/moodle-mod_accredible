@@ -30,9 +30,7 @@ require_once('lib.php');
 $id = required_param('id', PARAM_INT);           // Course Module ID
 
 // Ensure that the course specified is valid
-if (!$course = $DB->get_record('course', array('id'=> $id))) {
-    print_error('Course ID is incorrect');
-}
+$course = $DB->get_record('course', array('id'=> $id), MUST_EXIST);
 
 // Requires a login
 require_course_login($course);
