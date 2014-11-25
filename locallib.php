@@ -36,7 +36,13 @@ function accredible_get_issued($achievement_id) {
     $curl = curl_init('https://api.accredible.com/v1/credentials?full_view=true&achievement_id='.urlencode($achievement_id));
     curl_setopt( $curl, CURLOPT_HTTPHEADER, array( 'Authorization: Token token="'.$CFG->accredible_api_key.'"' ) );
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-    $result = json_decode( curl_exec($curl) );
+    if(!$result = json_decode( curl_exec($curl) )) {
+      // throw API exception
+      // include the achievement id that triggered the error
+      // direct the user to accredible's support
+      // dump the achievement id to debug_info
+      throw new moodle_exception('getissuederror', 'accredible', 'https://accredible.com/contact/support', $achievement_id, $achievement_id);
+    }
     curl_close($curl);
     return $result->credentials;
 }
@@ -63,7 +69,9 @@ function accredible_issue_default_certificate($certificate_id, $name, $email, $g
     curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query( array('credential' => $certificate) ));
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
     curl_setopt( $curl, CURLOPT_HTTPHEADER, array( 'Authorization: Token token="'.$CFG->accredible_api_key.'"' ) );
-    curl_exec($curl);
+    if(!curl_exec($curl)) {
+    	// TODO - log this because an exception cannot be thrown in an event callback
+    }
     curl_close($curl);
 }
 

@@ -41,7 +41,7 @@ function accredible_add_instance($post) {
         // int user_id => boolean issue_certificate
         foreach ($post->users as $user_id => $issue_certificate) {
             if($issue_certificate) {
-                $user = $DB->get_record('user', array('id'=>$user_id), MUST_EXIST);
+                $user = $DB->get_record('user', array('id'=>$user_id), '*', MUST_EXIST);
 
                 $certificate = array();
                 $certificate['name'] = $post->name;
@@ -49,7 +49,7 @@ function accredible_add_instance($post) {
                 $certificate['description'] = $post->description;
                 $certificate['recipient'] = array('name' => fullname($user), 'email'=> $user->email);
                 if($post->finalquiz) {
-                    $quiz = $DB->get_record('quiz', array('id'=>$post->finalquiz), MUST_EXIST);
+                    $quiz = $DB->get_record('quiz', array('id'=>$post->finalquiz), '*', MUST_EXIST);
                     $users_grade = ( quiz_get_best_grade($quiz, $user->id) / $quiz->grade ) * 100;
                     $certificate['evidence_items'] = array( array('string_object' => (string) $users_grade, 'description' => $quiz->name, 'custom'=> true, 'category' => 'grade'));
                 }
@@ -59,7 +59,13 @@ function accredible_add_instance($post) {
                 curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query( array('credential' => $certificate) ));
                 curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
                 curl_setopt( $curl, CURLOPT_HTTPHEADER, array( 'Authorization: Token token="'.$CFG->accredible_api_key.'"' ) );
-                curl_exec($curl);
+                if(!curl_exec($curl)) {
+                    // throw API exception
+                    // include the user id that triggered the error
+                    // direct the user to accredible's support
+                    // dump the post to debug_info
+                    throw new moodle_exception('manualadderror:add', 'accredible', 'https://accredible.com/contact/support', $user_id, var_dump($post));
+                }
                 curl_close($curl);
             }
         }
@@ -94,7 +100,7 @@ function accredible_update_instance($post) {
         // int user_id => boolean issue_certificate
         foreach ($post->users as $user_id => $issue_certificate) {
             if($issue_certificate) {
-                $user = $DB->get_record('user', array('id'=>$user_id), MUST_EXIST);
+                $user = $DB->get_record('user', array('id'=>$user_id), '*', MUST_EXIST);
 
                 $certificate = array();
                 $certificate['name'] = $post->name;
@@ -102,7 +108,7 @@ function accredible_update_instance($post) {
                 $certificate['description'] = $post->description;
                 $certificate['recipient'] = array('name' => fullname($user), 'email'=> $user->email);
                 if($post->finalquiz) {
-                    $quiz = $DB->get_record('quiz', array('id'=>$post->finalquiz), MUST_EXIST);
+                    $quiz = $DB->get_record('quiz', array('id'=>$post->finalquiz), '*', MUST_EXIST);
                     $users_grade = ( quiz_get_best_grade($quiz, $user->id) / $quiz->grade ) * 100;
                     $certificate['evidence_items'] = array( array('string_object' => (string) $users_grade, 'description' => $quiz->name, 'custom'=> true, 'category' => 'grade'));
                 }
@@ -112,7 +118,13 @@ function accredible_update_instance($post) {
                 curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query( array('credential' => $certificate) ));
                 curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
                 curl_setopt( $curl, CURLOPT_HTTPHEADER, array( 'Authorization: Token token="'.$CFG->accredible_api_key.'"' ) );
-                curl_exec($curl);
+                if(!curl_exec($curl)) {
+                    // throw API exception
+                    // include the user id that triggered the error
+                    // direct the user to accredible's support
+                    // dump the post to debug_info
+                    throw new moodle_exception('manualadderror:edit', 'accredible', 'https://accredible.com/contact/support', $user_id, var_dump($post));
+                }
                 curl_close($curl);
             }
         }

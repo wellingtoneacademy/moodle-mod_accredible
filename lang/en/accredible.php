@@ -16,7 +16,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Language strings for the certificate module
+ * Language strings for the accredible module
  *
  * @package    mod
  * @subpackage accredible

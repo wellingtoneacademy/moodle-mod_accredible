@@ -29,9 +29,9 @@ require_once("$CFG->dirroot/mod/accredible/lib.php");
 
 $id = required_param('id', PARAM_INT);    // Course Module ID
 
-$cm = get_coursemodule_from_id('accredible', $id, MUST_EXIST);
-$course = $DB->get_record('course', array('id'=> $cm->course), MUST_EXIST);
-$accredible_certificate = $DB->get_record('accredible', array('id'=> $cm->instance), MUST_EXIST);
+$cm = get_coursemodule_from_id('accredible', $id, 0, false, MUST_EXIST);
+$course = $DB->get_record('course', array('id'=> $cm->course), '*', MUST_EXIST);
+$accredible_certificate = $DB->get_record('accredible', array('id'=> $cm->instance), '*', MUST_EXIST);
 
 require_login($course->id, false, $cm);
 $context = context_module::instance($cm->id);

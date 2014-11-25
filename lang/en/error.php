@@ -16,24 +16,22 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Add event handlers for the quiz
+ * Language strings for the accredible module's errors
  *
  * @package    mod
  * @subpackage accredible
- * @category   event
  * @copyright  Accredible <dev@accredible.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+$string['getissuederror'] = 'An error occured while fetching the certificates with achievement id = {$a}.
 
-defined('MOODLE_INTERNAL') || die();
+Please contact Accredible\'s support';
+$string['manualadderror:add'] = 'An error occured while issuing a certificate to Accredible for user id = {$a}.
 
-$observers = array(
-    // Listen for finished quizes.
-    array(
-        'eventname' => '\mod_quiz\event\attempt_submitted',
-        'includefile' => '/mod/accredible/locallib.php',
-        'callback' => 'accredible_quiz_submission_handler',
-        'internal' => false
-    ),
-);
+Please contact Accredible\'s support.
+Error Code: Add001';
+$string['manualadderror:edit'] = 'An error occured while issuing a certificate to Accredible for user id = {$a}.
+
+Please contact Accredible\'s support.
+Error Code: Edit001';
