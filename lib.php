@@ -24,7 +24,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once("$CFG->dirroot/mod/accredible/locallib.php");
+require_once($CFG->dirroot . '/mod/accredible/locallib.php');
+require_once($CFG->libdir  . '/eventslib.php');
 
 /**
  * Add certificate instance.
@@ -59,7 +60,7 @@ function accredible_add_instance($post) {
                 curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query( array('credential' => $certificate) ));
                 curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
                 curl_setopt( $curl, CURLOPT_HTTPHEADER, array( 'Authorization: Token token="'.$CFG->accredible_api_key.'"' ) );
-                if(!curl_exec($curl)) {
+                if(!$result = curl_exec($curl)) {
                     // throw API exception
                     // include the user id that triggered the error
                     // direct the user to accredible's support
@@ -67,6 +68,14 @@ function accredible_add_instance($post) {
                     throw new moodle_exception('manualadderror:add', 'accredible', 'https://accredible.com/contact/support', $user_id, var_dump($post));
                 }
                 curl_close($curl);
+
+                // Log the creation
+                $event = accredible_log_creation( 
+                    json_decode($result)->credential->id,
+                    $post->course,
+                    $user_id
+                );
+                $event->trigger();
             }
         }
     }
@@ -118,7 +127,7 @@ function accredible_update_instance($post) {
                 curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query( array('credential' => $certificate) ));
                 curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
                 curl_setopt( $curl, CURLOPT_HTTPHEADER, array( 'Authorization: Token token="'.$CFG->accredible_api_key.'"' ) );
-                if(!curl_exec($curl)) {
+                if(!$result = curl_exec($curl)) {
                     // throw API exception
                     // include the user id that triggered the error
                     // direct the user to accredible's support
@@ -126,6 +135,14 @@ function accredible_update_instance($post) {
                     throw new moodle_exception('manualadderror:edit', 'accredible', 'https://accredible.com/contact/support', $user_id, var_dump($post));
                 }
                 curl_close($curl);
+
+                // Log the creation
+                $event = accredible_log_creation( 
+                    json_decode($result)->credential->id,
+                    $post->course,
+                    $user_id
+                );
+                $event->trigger();
             }
         }
     }

@@ -37,6 +37,7 @@ $string['certificateurl'] = 'Certificate url';
 $string['chooseexam'] = 'Choose final exam';
 $string['dashboardlink'] = 'Accredible dashboard link';
 $string['datecreated'] = 'Date created';
+$string['eventcertificatecreated'] = 'A certificate was posted to Accredible';
 $string['id'] = 'ID';
 $string['indexheader'] = 'All certificates for {$a}';
 $string['issued'] = 'Issued';

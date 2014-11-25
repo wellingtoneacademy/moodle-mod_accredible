@@ -24,6 +24,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+require_once($CFG->libdir . '/eventslib.php');
+
 /**
  * List all of the ceritificates with a specific achievement id
  *
@@ -69,10 +71,29 @@ function accredible_issue_default_certificate($certificate_id, $name, $email, $g
     curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query( array('credential' => $certificate) ));
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
     curl_setopt( $curl, CURLOPT_HTTPHEADER, array( 'Authorization: Token token="'.$CFG->accredible_api_key.'"' ) );
-    if(!curl_exec($curl)) {
+    if(!$result = curl_exec($curl)) {
     	// TODO - log this because an exception cannot be thrown in an event callback
     }
     curl_close($curl);
+    return json_decode($result->credential);
+}
+
+/*
+ * accredible_log_creation
+ */
+function accredible_log_creation($certificate_id, $course_id, $user_id) {
+	global $DB;
+
+	// Get context
+	$accredible_mod = $DB->get_record('modules', array('name' => 'accredible'), '*', MUST_EXIST);
+	$cm = $DB->get_record('course_modules', array('course' => $course_id, 'module' => $accredible_mod->id), '*', MUST_EXIST);
+	$context = context_module::instance($cm->id);
+
+	return \mod_accredible\event\certificate_created::create(array(
+	  'objectid' => $certificate_id,
+	  'context' => $context,
+	  'relateduserid' => $user_id
+	));
 }
 
 /*
@@ -110,7 +131,15 @@ function accredible_quiz_submission_handler($event) {
                 // check for pass
                 if($grade_is_high_enough) {
                     // issue a ceritificate
-                    accredible_issue_default_certificate( $accredible_certificate->id, fullname($user), $user->email, (string) $users_grade, $quiz->name);
+                    $certificate = accredible_issue_default_certificate( $accredible_certificate->id, fullname($user), $user->email, (string) $users_grade, $quiz->name);
+
+                    // Log the creation
+                    $event = \mod_accredible\event\certificate_created::create(array(
+											  'objectid' => $certificate->id,
+											  'context' => context_module::instance($accredible_certificate->id),
+											  'relateduserid' => $event->relateduserid
+                    );
+                    $event->trigger();
                 }
             }
         }
