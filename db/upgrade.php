@@ -44,5 +44,20 @@ function xmldb_accredible_upgrade($oldversion=0) {
         upgrade_mod_savepoint(true, 2014111800, 'accredible');
     }
 
+    if ($oldversion < 2014112600) {
+
+        // Define field completionactivities to be added to accredible.
+        $table = new xmldb_table('accredible');
+        $field = new xmldb_field('completionactivities', XMLDB_TYPE_TEXT, null, null, null, null, null, 'passinggrade');
+
+        // Conditionally launch add field completionactivities.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Accredible savepoint reached.
+        upgrade_mod_savepoint(true, 2014112600, 'accredible');
+    }
+
     return true;
 }

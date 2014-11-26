@@ -30,6 +30,7 @@ if (!defined('MOODLE_INTERNAL')) {
 
 require_once ($CFG->dirroot.'/course/moodleform_mod.php');
 require_once($CFG->dirroot.'/mod/accredible/lib.php');
+require_once($CFG->dirroot.'/mod/accredible/locallib.php');
 
 class mod_accredible_mod_form extends moodleform_mod {
 
@@ -150,10 +151,8 @@ class mod_accredible_mod_form extends moodleform_mod {
             $completion_activity_ids = unserialize_completion_array($accredible_certificate->completionactivities);
             foreach ($quizes as $quiz) {
                 $mform->addElement('advcheckbox', 'activities['.$quiz->id.']', 'Quiz', $quiz->name, array('group' => 2));
-                foreach ($completion_activity_ids as $quiz_id) {
-                    if($quiz_id == $quiz->id) {
-                        $mform->setDefault('activities['.$quiz->id.']', 1);
-                    }
+                if(isset( $completion_activity_ids[$quiz->id] )) {
+                    $mform->setDefault('activities['.$quiz->id.']', 1);
                 }
             }
         } else {
