@@ -111,11 +111,6 @@ function accredible_quiz_submission_handler($event) {
 	$quiz    = $event->get_record_snapshot('quiz', $attempt->quiz);
 	$user 	 = $DB->get_record('user', array('id' => $event->relateduserid));
 
-	// $quiz -> id
-	// $event->courseid
-	// $event->relateduserid
-
-
 	// check for the existance of a certificate and an auto-issue rule
 	if( $accredible_certificate and ($accredible_certificate->finalquiz or $accredible_certificate->completionactivities) ) {
 
@@ -135,8 +130,6 @@ function accredible_quiz_submission_handler($event) {
 				if($grade_is_high_enough) {
 					// issue a ceritificate
 					$api_response = accredible_issue_default_certificate( $accredible_certificate->id, fullname($user), $user->email, (string) $users_grade, $quiz->name);
-
-					// Log the creation
 					$event = \mod_accredible\event\certificate_created::create(array(
 					  'objectid' => $api_response->credential->id,
 					  'context' => $event->context,
@@ -154,7 +147,7 @@ function accredible_quiz_submission_handler($event) {
 			$quiz_attempts = $DB->get_records('quiz_attempts', array('userid' => $user->id, 'state' => 'finished'));
 			foreach($quiz_attempts as $quiz_attempt) {
 				// if this quiz was already attempted, then we shouldn't be issuing a certificate
-				if( $quiz_attempt->quiz == $quiz->id ) {
+				if( $quiz_attempt->quiz == $quiz->id && $quiz_attempt->attempt > 1 ) {
 					return null;
 				}
 				// otherwise, set this quiz as completed
@@ -179,11 +172,9 @@ function accredible_quiz_submission_handler($event) {
 				if(!$certificate_exists) {
 					// and issue a ceritificate
 					$api_response = accredible_issue_default_certificate( $accredible_certificate->id, fullname($user), $user->email, null, null);
-
-					// and log the creation
 					$event = \mod_accredible\event\certificate_created::create(array(
 					  'objectid' => $api_response->credential->id,
-					  'context' => context_module::instance($accredible_certificate->id),
+					  'context' => context_module::instance($event->context),
 					  'relateduserid' => $event->relateduserid
 					));
 					$event->trigger();
