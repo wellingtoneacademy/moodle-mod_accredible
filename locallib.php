@@ -60,7 +60,7 @@ function accredible_issue_default_certificate($certificate_id, $name, $email, $g
 	$accredible_certificate = $DB->get_record('accredible', array('id'=>$certificate_id));
 
 	$certificate = array();
-  $course_url = new moodle_url('/course/view.php', array('id' => $post->course));
+  $course_url = new moodle_url('/course/view.php', array('id' => $accredible_certificate->course));
 	$certificate['name'] = $accredible_certificate->name;
 	$certificate['achievement_id'] = $accredible_certificate->achievementid;
 	$certificate['description'] = $accredible_certificate->description;
@@ -108,10 +108,12 @@ function accredible_log_creation($certificate_id, $course_id, $user_id) {
 function accredible_quiz_submission_handler($event) {
 	global $DB, $CFG;
 	require_once($CFG->dirroot . '/mod/quiz/lib.php');
+
 	$accredible_certificate = $DB->get_record('accredible', array('course' => $event->courseid));
 	$attempt = $event->get_record_snapshot('quiz_attempts', $event->objectid);
 	$quiz    = $event->get_record_snapshot('quiz', $attempt->quiz);
 	$user 	 = $DB->get_record('user', array('id' => $event->relateduserid));
+
 
 	// check for the existance of a certificate and an auto-issue rule
 	if( $accredible_certificate and ($accredible_certificate->finalquiz or $accredible_certificate->completionactivities) ) {
@@ -119,8 +121,7 @@ function accredible_quiz_submission_handler($event) {
 		// check which quiz is used as the deciding factor in this course
 		if($quiz->id == $accredible_certificate->finalquiz) {
 			$certificate_exists = accredible_check_for_existing_certificate (
-				$accredible_certificate->achievementid,
-				$event->relateduserid
+				$accredible_certificate->achievementid, $user
 			);
 
 			// check for an existing certificate
@@ -132,12 +133,12 @@ function accredible_quiz_submission_handler($event) {
 				if($grade_is_high_enough) {
 					// issue a ceritificate
 					$api_response = accredible_issue_default_certificate( $accredible_certificate->id, fullname($user), $user->email, (string) $users_grade, $quiz->name);
-					$event = \mod_accredible\event\certificate_created::create(array(
+					$certificate_event = \mod_accredible\event\certificate_created::create(array(
 					  'objectid' => $api_response->credential->id,
-					  'context' => $event->context,
+					  'context' => context_module::instance($event->contextinstanceid),
 					  'relateduserid' => $event->relateduserid
 					));
-					$event->trigger();
+					$certificate_event->trigger();
 				}
 			}
 		}
@@ -174,12 +175,12 @@ function accredible_quiz_submission_handler($event) {
 				if(!$certificate_exists) {
 					// and issue a ceritificate
 					$api_response = accredible_issue_default_certificate( $accredible_certificate->id, fullname($user), $user->email, null, null);
-					$event = \mod_accredible\event\certificate_created::create(array(
+					$certificate_event = \mod_accredible\event\certificate_created::create(array(
 					  'objectid' => $api_response->credential->id,
-					  'context' => context_module::instance($event->context),
+					  'context' => context_module::instance($event->contextinstanceid),
 					  'relateduserid' => $event->relateduserid
 					));
-					$event->trigger();
+					$certificate_event->trigger();
 				}
 			}
 		}
