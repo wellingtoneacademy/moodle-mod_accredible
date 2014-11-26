@@ -138,7 +138,7 @@ function accredible_quiz_submission_handler($event) {
 											  'objectid' => $certificate->id,
 											  'context' => context_module::instance($accredible_certificate->id),
 											  'relateduserid' => $event->relateduserid
-                    );
+                    ));
                     $event->trigger();
                 }
             }
