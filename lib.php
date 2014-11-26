@@ -55,7 +55,7 @@ function accredible_add_instance($post) {
                     $certificate['evidence_items'] = array( array('string_object' => (string) $users_grade, 'description' => $quiz->name, 'custom'=> true, 'category' => 'grade'));
                 }
 
-                $curl = curl_init('https://api.accredible.com/v1/credentials');
+                $curl = curl_init('https://staging.accredible.com/v1/credentials');
                 curl_setopt($curl, CURLOPT_POST, 1);
                 curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query( array('credential' => $certificate) ));
                 curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
@@ -80,8 +80,16 @@ function accredible_add_instance($post) {
         }
     }
 
+    $completion_activities = array();
+    foreach ($post->activities as $activity_id => $track_activity) {
+        if($track_activity) {
+            $completion_activities[$activity_id] = false;
+        }
+    }
+
     // Save record
     $db_record = new stdClass();
+    $db_record->completionactivities = serialize_completion_array($completion_activities);
     $db_record->name = $post->name;
     $db_record->course = $post->course;
     $db_record->description = $post->description;
@@ -102,6 +110,7 @@ function accredible_add_instance($post) {
 function accredible_update_instance($post) {
     // To update your certificate details, go to accredible.com.
     global $DB, $CFG;
+    $accredible_cm = get_coursemodule_from_id('accredible', $post->coursemodule, 0, false, MUST_EXIST);
 
     // Issue certs
     if( isset($post->users) ) {
@@ -122,7 +131,7 @@ function accredible_update_instance($post) {
                     $certificate['evidence_items'] = array( array('string_object' => (string) $users_grade, 'description' => $quiz->name, 'custom'=> true, 'category' => 'grade'));
                 }
 
-                $curl = curl_init('https://api.accredible.com/v1/credentials');
+                $curl = curl_init('https://staging.accredible.com/v1/credentials');
                 curl_setopt($curl, CURLOPT_POST, 1);
                 curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query( array('credential' => $certificate) ));
                 curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
@@ -147,13 +156,21 @@ function accredible_update_instance($post) {
         }
     }
 
+    $completion_activities = array();
+    foreach ($post->activities as $activity_id => $track_activity) {
+        if($track_activity) {
+            $completion_activities[$activity_id] = false;
+        }
+    }
+
     // Save record
     $db_record = new stdClass();
+    $db_record->id = $post->instance;
+    $db_record->completionactivities = serialize_completion_array($completion_activities);
     $db_record->name = $post->name;
     $db_record->description = $post->description;
     $db_record->passinggrade = $post->passinggrade;
     $db_record->finalquiz = $post->finalquiz;
-    $db_record->id = $post->instance;
 
     return $DB->update_record('accredible', $db_record);
 }

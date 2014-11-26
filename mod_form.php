@@ -30,6 +30,7 @@ if (!defined('MOODLE_INTERNAL')) {
 
 require_once ($CFG->dirroot.'/course/moodleform_mod.php');
 require_once($CFG->dirroot.'/mod/accredible/lib.php');
+require_once($CFG->dirroot.'/mod/accredible/locallib.php');
 
 class mod_accredible_mod_form extends moodleform_mod {
 
@@ -136,12 +137,31 @@ class mod_accredible_mod_form extends moodleform_mod {
 
 
 
-        $mform->addElement('header', 'autoissue', get_string('autoissueheader', 'accredible'));
+        $mform->addElement('header', 'gradeissue', get_string('gradeissueheader', 'accredible'));
         $mform->addElement('select', 'finalquiz', get_string('chooseexam', 'accredible'), $quiz_choices);
         $mform->addElement('text', 'passinggrade', get_string('passinggrade', 'accredible'));
         $mform->setType('passinggrade', PARAM_INT);
         $mform->setDefault('passinggrade', 70);
 
+
+
+        $mform->addElement('header', 'completionissue', get_string('completionissueheader', 'accredible'));
+        $this->add_checkbox_controller(2, 'Select All/None');
+        if($updatingcert) {
+            $completion_activity_ids = unserialize_completion_array($accredible_certificate->completionactivities);
+            foreach ($quizes as $quiz) {
+                $mform->addElement('advcheckbox', 'activities['.$quiz->id.']', 'Quiz', $quiz->name, array('group' => 2));
+                if(isset( $completion_activity_ids[$quiz->id] )) {
+                    $mform->setDefault('activities['.$quiz->id.']', 1);
+                }
+            }
+        } else {
+            if($quizes) {
+                foreach ($quizes as $quiz) {
+                    $mform->addElement('advcheckbox', 'activities['.$quiz->id.']', 'Quiz', $quiz->name, array('group' => 2));
+                }
+            }   
+        }
 
 
         $this->standard_coursemodule_elements();

@@ -33,20 +33,20 @@ require_once($CFG->libdir . '/eventslib.php');
  * @return array[stdClass] $certificates
  */
 function accredible_get_issued($achievement_id) {
-    global $CFG;
+	global $CFG;
 
-    $curl = curl_init('https://api.accredible.com/v1/credentials?full_view=true&achievement_id='.urlencode($achievement_id));
-    curl_setopt( $curl, CURLOPT_HTTPHEADER, array( 'Authorization: Token token="'.$CFG->accredible_api_key.'"' ) );
-    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-    if(!$result = json_decode( curl_exec($curl) )) {
-      // throw API exception
-      // include the achievement id that triggered the error
-      // direct the user to accredible's support
-      // dump the achievement id to debug_info
-      throw new moodle_exception('getissuederror', 'accredible', 'https://accredible.com/contact/support', $achievement_id, $achievement_id);
-    }
-    curl_close($curl);
-    return $result->credentials;
+	$curl = curl_init('https://staging.accredible.com/v1/credentials?full_view=true&achievement_id='.urlencode($achievement_id));
+	curl_setopt( $curl, CURLOPT_HTTPHEADER, array( 'Authorization: Token token="'.$CFG->accredible_api_key.'"' ) );
+	curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+	if(!$result = json_decode( curl_exec($curl) )) {
+	  // throw API exception
+	  // include the achievement id that triggered the error
+	  // direct the user to accredible's support
+	  // dump the achievement id to debug_info
+	  throw new moodle_exception('getissuederror', 'accredible', 'https://accredible.com/contact/support', $achievement_id, $achievement_id);
+	}
+	curl_close($curl);
+	return $result->credentials;
 }
 
 /*
@@ -54,28 +54,30 @@ function accredible_get_issued($achievement_id) {
  * 
  */
 function accredible_issue_default_certificate($certificate_id, $name, $email, $grade, $quiz_name) {
-    global $DB, $CFG;
+	global $DB, $CFG;
 
-    // Issue certs
-    $accredible_certificate = $DB->get_record('accredible', array('id'=>$certificate_id));
+	// Issue certs
+	$accredible_certificate = $DB->get_record('accredible', array('id'=>$certificate_id));
 
-    $certificate = array();
-    $certificate['name'] = $accredible_certificate->name;
-    $certificate['achievement_id'] = $accredible_certificate->achievementid;
-    $certificate['description'] = $accredible_certificate->description;
-    $certificate['recipient'] = array('name' => $name, 'email'=> $email);
-    $certificate['evidence_items'] = array( array('string_object' => $grade, 'description' => $quiz_name, 'custom'=> true, 'category' => 'grade' ));
+	$certificate = array();
+	$certificate['name'] = $accredible_certificate->name;
+	$certificate['achievement_id'] = $accredible_certificate->achievementid;
+	$certificate['description'] = $accredible_certificate->description;
+	$certificate['recipient'] = array('name' => $name, 'email'=> $email);
+	if($grade) {
+		$certificate['evidence_items'] = array( array('string_object' => $grade, 'description' => $quiz_name, 'custom'=> true, 'category' => 'grade' ));
+	}
 
-    $curl = curl_init('https://api.accredible.com/v1/credentials');
-    curl_setopt($curl, CURLOPT_POST, 1);
-    curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query( array('credential' => $certificate) ));
-    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-    curl_setopt( $curl, CURLOPT_HTTPHEADER, array( 'Authorization: Token token="'.$CFG->accredible_api_key.'"' ) );
-    if(!$result = curl_exec($curl)) {
-    	// TODO - log this because an exception cannot be thrown in an event callback
-    }
-    curl_close($curl);
-    return json_decode($result->credential);
+	$curl = curl_init('https://staging.accredible.com/v1/credentials');
+	curl_setopt($curl, CURLOPT_POST, 1);
+	curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query( array('credential' => $certificate) ));
+	curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+	curl_setopt( $curl, CURLOPT_HTTPHEADER, array( 'Authorization: Token token="'.$CFG->accredible_api_key.'"' ) );
+	if(!$result = curl_exec($curl)) {
+		// TODO - log this because an exception cannot be thrown in an event callback
+	}
+	curl_close($curl);
+	return json_decode($result);
 }
 
 /*
@@ -102,46 +104,104 @@ function accredible_log_creation($certificate_id, $course_id, $user_id) {
  * @param core/event $event quiz mod attempt_submitted event
  */
 function accredible_quiz_submission_handler($event) {
-    global $DB, $CFG;
-    require_once($CFG->dirroot . '/mod/quiz/lib.php');
+	global $DB, $CFG;
+	require_once($CFG->dirroot . '/mod/quiz/lib.php');
+	$accredible_certificate = $DB->get_record('accredible', array('course' => $event->courseid));
+	$attempt = $event->get_record_snapshot('quiz_attempts', $event->objectid);
+	$quiz    = $event->get_record_snapshot('quiz', $attempt->quiz);
+	$user 	 = $DB->get_record('user', array('id' => $event->relateduserid));
 
-    $accredible_certificate = $DB->get_record('accredible', array('course' => $event->courseid));
-    // check for the existance of a certificate and an auto-issue rule
-    if( $accredible_certificate and $accredible_certificate->finalquiz ) {
-        $attempt = $event->get_record_snapshot('quiz_attempts', $event->objectid);
-        $quiz    = $event->get_record_snapshot('quiz', $attempt->quiz);
+	// check for the existance of a certificate and an auto-issue rule
+	if( $accredible_certificate and ($accredible_certificate->finalquiz or $accredible_certificate->completionactivities) ) {
 
-        // check which quiz is used as the deciding factor in this course
-        if($quiz->id == $accredible_certificate->finalquiz) {
-            $certificates = accredible_get_issued($accredible_certificate->achievementid);
-            $user = $DB->get_record('user', array('id' => $event->relateduserid));
-            $certificate_exists = false;
+		// check which quiz is used as the deciding factor in this course
+		if($quiz->id == $accredible_certificate->finalquiz) {
+			$certificate_exists = accredible_check_for_existing_certificate (
+				$accredible_certificate->achievementid,
+				$event->relateduserid
+			);
 
-            foreach ($certificates as $certificate) {
-                if($certificate->recipient->email == $user->email) {
-                    $certificate_exists = true;
-                }
-            }
+			// check for an existing certificate
+			if(!$certificate_exists) {
+				$users_grade = ( quiz_get_best_grade($quiz, $user->id) / $quiz->grade ) * 100;
+				$grade_is_high_enough = ($users_grade >= $accredible_certificate->passinggrade);
 
-            // check for an existing certificate
-            if(!$certificate_exists) {
-                $users_grade = ( quiz_get_best_grade($quiz, $user->id) / $quiz->grade ) * 100;
-                $grade_is_high_enough = ($users_grade >= $accredible_certificate->passinggrade);
+				// check for pass
+				if($grade_is_high_enough) {
+					// issue a ceritificate
+					$api_response = accredible_issue_default_certificate( $accredible_certificate->id, fullname($user), $user->email, (string) $users_grade, $quiz->name);
+					$event = \mod_accredible\event\certificate_created::create(array(
+					  'objectid' => $api_response->credential->id,
+					  'context' => $event->context,
+					  'relateduserid' => $event->relateduserid
+					));
+					$event->trigger();
+				}
+			}
+		}
 
-                // check for pass
-                if($grade_is_high_enough) {
-                    // issue a ceritificate
-                    $certificate = accredible_issue_default_certificate( $accredible_certificate->id, fullname($user), $user->email, (string) $users_grade, $quiz->name);
+		$completion_activities = unserialize_completion_array($accredible_certificate->completionactivities);
+		// if this quiz is in the completion activities
+		if( isset($completion_activities[$quiz->id]) ) {
+			$completion_activities[$quiz->id] = true;
+			$quiz_attempts = $DB->get_records('quiz_attempts', array('userid' => $user->id, 'state' => 'finished'));
+			foreach($quiz_attempts as $quiz_attempt) {
+				// if this quiz was already attempted, then we shouldn't be issuing a certificate
+				if( $quiz_attempt->quiz == $quiz->id && $quiz_attempt->attempt > 1 ) {
+					return null;
+				}
+				// otherwise, set this quiz as completed
+				if( isset($completion_activities[$quiz_attempt->quiz]) ) {
+					$completion_activities[$quiz_attempt->quiz] = true;
+				}
+			}
 
-                    // Log the creation
-                    $event = \mod_accredible\event\certificate_created::create(array(
-											  'objectid' => $certificate->id,
-											  'context' => context_module::instance($accredible_certificate->id),
-											  'relateduserid' => $event->relateduserid
-                    ));
-                    $event->trigger();
-                }
-            }
-        }
-    }
+			// but was this the last required activity that was completed?
+			$course_complete = true;
+			foreach($completion_activities as $is_complete) {
+				if(!$is_complete) {
+					$course_complete = false;
+				}
+			}
+			// if it was the final activity
+			if($course_complete) {
+				$certificate_exists = accredible_check_for_existing_certificate (
+					$accredible_certificate->achievementid, $user
+				);
+				// make sure there isn't already a certificate
+				if(!$certificate_exists) {
+					// and issue a ceritificate
+					$api_response = accredible_issue_default_certificate( $accredible_certificate->id, fullname($user), $user->email, null, null);
+					$event = \mod_accredible\event\certificate_created::create(array(
+					  'objectid' => $api_response->credential->id,
+					  'context' => context_module::instance($event->context),
+					  'relateduserid' => $event->relateduserid
+					));
+					$event->trigger();
+				}
+			}
+		}
+	}
 }
+
+function accredible_check_for_existing_certificate($achievement_id, $user) {
+	global $DB;
+	$certificate_exists = false;
+	$certificates = accredible_get_issued($achievement_id);
+
+	foreach ($certificates as $certificate) {
+		if($certificate->recipient->email == $user->email) {
+			$certificate_exists = true;
+		}
+	}
+	return $certificate_exists;
+}
+
+function serialize_completion_array($completion_array) {
+	return base64_encode(serialize( (array)$completion_array ));
+}
+
+function unserialize_completion_array($completion_object) {
+	return (array)unserialize(base64_decode( $completion_object ));
+}
+
