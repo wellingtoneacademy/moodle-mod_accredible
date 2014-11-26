@@ -16,7 +16,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This page lists all the instances of certificate in a particular course
+ * Language strings for the accredible module's errors
  *
  * @package    mod
  * @subpackage accredible
@@ -24,13 +24,14 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_certificate\event;
+$string['getissuederror'] = 'An error occured while fetching the certificates with achievement id = {$a}.
 
-defined('MOODLE_INTERNAL') || die();
+Please contact Accredible\'s support';
+$string['manualadderror:add'] = 'An error occured while issuing a certificate to Accredible for user id = {$a}.
 
-class course_module_viewed extends \core\event\course_module_viewed {
-    protected function init() {
-        $this->data['objecttable'] = 'certificate';
-        parent::init();
-    }
-}
+Please contact Accredible\'s support.
+Error Code: Add001';
+$string['manualadderror:edit'] = 'An error occured while issuing a certificate to Accredible for user id = {$a}.
+
+Please contact Accredible\'s support.
+Error Code: Edit001';

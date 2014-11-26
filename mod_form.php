@@ -35,37 +35,29 @@ class mod_accredible_mod_form extends moodleform_mod {
 
     function definition() {
         global $DB, $OUTPUT, $CFG;
+        $updatingcert = false;
         // Make sure the API key is set
         if(!isset($CFG->accredible_api_key)) {
             print_error('Please set your API Key first.');
         }
-        $updatingcert = false;
         // Update form init
         if (optional_param('update', '', PARAM_INT)) {
             $updatingcert = true;
             $cm_id = optional_param('update', '', PARAM_INT);
-            if (!$cm = get_coursemodule_from_id('accredible', $cm_id)) {
-                print_error('Course Module ID was incorrect');
-            }
+            $cm = get_coursemodule_from_id('accredible', $cm_id, 0, false, MUST_EXIST);
             $id = $cm->course;
-            if (!$course = $DB->get_record('course', array('id'=> $id))) {
-                print_error('Course ID is wrong');
-            }
-            if (!$accredible_certificate = $DB->get_record('accredible', array('id'=> $cm->instance))) {
-                print_error('Course Module is incorrect');
-            }
+            $course = $DB->get_record('course', array('id'=> $id), '*', MUST_EXIST);
+            $accredible_certificate = $DB->get_record('accredible', array('id'=> $cm->instance), '*', MUST_EXIST);
         } 
         // New form init
         elseif(optional_param('course', '', PARAM_INT)) {
             $id =  optional_param('course', '', PARAM_INT);
-            if (!$course = $DB->get_record('course', array('id'=> $id))) {
-                print_error('Course ID is wrong');
-            }
+            $course = $DB->get_record('course', array('id'=> $id), '*', MUST_EXIST);
             // see if other accredible certificates already exist for this course
             $alreadyexists = $DB->record_exists('accredible', array('course' => $id));
             if( $alreadyexists ) {
-                $accredible_mod = $DB->get_record('modules', array('name' => 'accredible'));
-                $cm = $DB->get_record('course_modules', array('course' => $id, 'module' => $accredible_mod->id));
+                $accredible_mod = $DB->get_record('modules', array('name' => 'accredible'), '*', MUST_EXIST);
+                $cm = $DB->get_record('course_modules', array('course' => $id, 'module' => $accredible_mod->id), '*', MUST_EXIST);
                 $url = new moodle_url('/course/modedit.php', array('update' => $cm->id));
                 redirect($url, 'This course already has some certificates. Edit the activity to issue more certificates.');
             }
@@ -73,8 +65,7 @@ class mod_accredible_mod_form extends moodleform_mod {
 
         // Load user data
         $context = context_course::instance($course->id);
-        $query = 'select u.id as id, firstname, lastname, email from mdl_role_assignments as a, mdl_user as u where contextid=' . $context->id . ' and roleid=5 and a.userid=u.id;';
-        $users = $DB->get_recordset_sql( $query );
+        $users = get_enrolled_users($context, "mod/accredible:view", null, 'u.*');
 
         // Load final quiz choices
         $quiz_choices = array(0 => 'None');

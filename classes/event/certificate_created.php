@@ -1,6 +1,5 @@
 <?php
-
-// This file is part of the Accredible Certificate module for Moodle - http://moodle.org/
+// This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -14,19 +13,36 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-
+ 
 /**
- * This page lists all the instances of certificate in a particular course
+ * The certificate_created event.
  *
  * @package    mod
  * @subpackage accredible
  * @copyright  Accredible <dev@accredible.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 namespace mod_accredible\event;
-
 defined('MOODLE_INTERNAL') || die();
-
-class course_module_instance_list_viewed extends \core\event\course_module_instance_list_viewed {
+/**
+ * The accredible event class.
+ *
+ * @since      Moodle 27
+ * @copyright  Accredible <dev@accredible.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class certificate_created extends \core\event\base {
+    protected function init() {
+        $this->data['crud'] = 'c'; // c(reate)
+        $this->data['edulevel'] = self::LEVEL_TEACHING;
+        $this->data['objecttable'] = 'accredible';
+    }
+ 
+    public static function get_name() {
+        return get_string('eventcertificatecreated', 'mod_accredible');
+    }
+ 
+    public function get_description() {
+        return "User {$this->userid} issued certificate id {$this->objectid}.";
+    }
 }

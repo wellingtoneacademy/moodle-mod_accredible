@@ -30,15 +30,13 @@ require_once('lib.php');
 $id = required_param('id', PARAM_INT);           // Course Module ID
 
 // Ensure that the course specified is valid
-if (!$course = $DB->get_record('course', array('id'=> $id))) {
-    print_error('Course ID is incorrect');
-}
+$course = $DB->get_record('course', array('id'=> $id), '*', MUST_EXIST);
 
 // Requires a login
 require_course_login($course);
 
 // Strings used multiple times
-$strcertificates = get_string('modulenameplural', 'certificate');
+$strcertificates = get_string('modulenameplural', 'accredible');
 $strname  = get_string("name");
 
 // Print the header
@@ -61,13 +59,12 @@ $table = new html_table();
 $table->head  = array ($strname, get_string('datecreated', 'accredible'));
 
 foreach ($certificates as $certificate) {
-    $link = html_writer::tag('a', $certificate->name, array('href' => $CFG->wwwroot . '/mod/accredible/view.php?id=' . $certificate->coursemodule));
-    $issued = date("M d, Y",$certificate->timecreated);
-    $table->data[] = array ($link, $issued);
+  $link = html_writer::tag('a', $certificate->name, array('href' => $CFG->wwwroot . '/mod/accredible/view.php?id=' . $certificate->coursemodule));
+  $issued = date("M d, Y",$certificate->timecreated);
+  $table->data[] = array ($link, $issued);
 }
 
 echo $OUTPUT->header();
-echo "<h3>All Certificates for ".$course->fullname."</h3>";
-echo '<br />';
+echo html_writer::tag( 'h3', get_string('indexheader', 'accredible', $course->fullname) );
 echo html_writer::table($table);
 echo $OUTPUT->footer();

@@ -32,7 +32,7 @@ $observers = array(
     // Listen for finished quizes.
     array(
         'eventname' => '\mod_quiz\event\attempt_submitted',
-        'includefile' => '/mod/accredible/lib.php',
+        'includefile' => '/mod/accredible/locallib.php',
         'callback' => 'accredible_quiz_submission_handler',
         'internal' => false
     ),
