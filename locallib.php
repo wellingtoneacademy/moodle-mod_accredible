@@ -35,7 +35,7 @@ require_once($CFG->libdir . '/eventslib.php');
 function accredible_get_issued($achievement_id) {
 	global $CFG;
 
-	$curl = curl_init('https://staging.accredible.com/v1/credentials?full_view=true&achievement_id='.urlencode($achievement_id));
+	$curl = curl_init('https://api.accredible.com/v1/credentials?full_view=true&achievement_id='.urlencode($achievement_id));
 	curl_setopt( $curl, CURLOPT_HTTPHEADER, array( 'Authorization: Token token="'.$CFG->accredible_api_key.'"' ) );
 	curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
 	if(!$result = json_decode( curl_exec($curl) )) {
@@ -60,15 +60,17 @@ function accredible_issue_default_certificate($certificate_id, $name, $email, $g
 	$accredible_certificate = $DB->get_record('accredible', array('id'=>$certificate_id));
 
 	$certificate = array();
+  $course_url = new moodle_url('/course/view.php', array('id' => $post->course));
 	$certificate['name'] = $accredible_certificate->name;
 	$certificate['achievement_id'] = $accredible_certificate->achievementid;
 	$certificate['description'] = $accredible_certificate->description;
+  $certificate['course_link'] = $course_url->__toString();
 	$certificate['recipient'] = array('name' => $name, 'email'=> $email);
 	if($grade) {
 		$certificate['evidence_items'] = array( array('string_object' => $grade, 'description' => $quiz_name, 'custom'=> true, 'category' => 'grade' ));
 	}
 
-	$curl = curl_init('https://staging.accredible.com/v1/credentials');
+	$curl = curl_init('https://api.accredible.com/v1/credentials');
 	curl_setopt($curl, CURLOPT_POST, 1);
 	curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query( array('credential' => $certificate) ));
 	curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
