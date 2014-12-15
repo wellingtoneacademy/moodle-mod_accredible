@@ -37,6 +37,7 @@ class mod_accredible_mod_form extends moodleform_mod {
     function definition() {
         global $DB, $OUTPUT, $CFG;
         $updatingcert = false;
+        $alreadyexists = false;
         // Make sure the API key is set
         if(!isset($CFG->accredible_api_key)) {
             print_error('Please set your API Key first.');
@@ -56,12 +57,6 @@ class mod_accredible_mod_form extends moodleform_mod {
             $course = $DB->get_record('course', array('id'=> $id), '*', MUST_EXIST);
             // see if other accredible certificates already exist for this course
             $alreadyexists = $DB->record_exists('accredible', array('course' => $id));
-            if( $alreadyexists ) {
-                $accredible_mod = $DB->get_record('modules', array('name' => 'accredible'), '*', MUST_EXIST);
-                $cm = $DB->get_record('course_modules', array('course' => $id, 'module' => $accredible_mod->id), '*', MUST_EXIST);
-                $url = new moodle_url('/course/modedit.php', array('update' => $cm->id));
-                redirect($url, 'This course already has some certificates. Edit the activity to issue more certificates.');
-            }
         }
 
         // Load user data
@@ -80,10 +75,17 @@ class mod_accredible_mod_form extends moodleform_mod {
         $mform =& $this->_form;
         $mform->addElement('hidden', 'course', $id);
         $mform->addElement('header', 'general', get_string('general', 'form'));
-        $mform->addElement('text', 'achievementid', get_string('achievementid', 'accredible'), array('disabled'=>''));
+        if($alreadyexists) {
+            $mform->addElement('static', 'additionalActivities', '', get_string('additionalactivitiesone', 'accredible'));
+        }
+        $mform->addElement('text', 'achievementid', get_string('achievementid', 'accredible'));
+        $mform->addRule('achievementid', null, 'required', null, 'client');
         $mform->setType('achievementid', PARAM_TEXT);
         $mform->setDefault('achievementid', $course->shortname);
 
+        if($alreadyexists) {
+            $mform->addElement('static', 'additionalActivities', '', get_string('additionalactivitiestwo', 'accredible'));
+        }
         $mform->addElement('text', 'name', get_string('certificatename', 'accredible'));
         $mform->addRule('name', null, 'required', null, 'client');
         $mform->setType('name', PARAM_TEXT);
@@ -94,7 +96,7 @@ class mod_accredible_mod_form extends moodleform_mod {
         $mform->setType('description', PARAM_RAW);
         $mform->setDefault('description', strip_tags($course->summary));
         if($updatingcert) {
-            $mform->addElement('static', 'dashboardlink', get_string('dashboardlink', 'accredible'), "To delete or style credentials, log in to the <a href='https://accredible.com/issuer/login' target='_blank'>dashboard</a>");
+            $mform->addElement('static', 'dashboardlink', get_string('dashboardlink', 'accredible'), get_string('dashboardlinktext', 'accredible'));
         }
 
 
