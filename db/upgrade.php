@@ -59,5 +59,28 @@ function xmldb_accredible_upgrade($oldversion=0) {
         upgrade_mod_savepoint(true, 2014112600, 'accredible');
     }
 
+    if ($oldversion < 2014121800) {
+
+        // Define field certificatename to be added to accredible.
+        $table = new xmldb_table('accredible');
+        $field = new xmldb_field('certificatename', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null, 'timecreated');
+
+        // Conditionally launch add field certificatename.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Set the certificate names to equal the Activity name
+        if ($accredible_activities = $DB->get_records('accredible')) {
+            foreach ($accredible_activities as $activity) {
+                $activity->certificatename = $activity->name;
+                $DB->update_record('accredible', $activity);
+            }
+        }
+
+        // Accredible savepoint reached.
+        upgrade_mod_savepoint(true, 2014121800, 'accredible');
+    }
+
     return true;
 }

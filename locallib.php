@@ -61,7 +61,7 @@ function accredible_issue_default_certificate($certificate_id, $name, $email, $g
 
 	$certificate = array();
   $course_url = new moodle_url('/course/view.php', array('id' => $accredible_certificate->course));
-	$certificate['name'] = $accredible_certificate->name;
+	$certificate['name'] = $accredible_certificate->certificatename;
 	$certificate['achievement_id'] = $accredible_certificate->achievementid;
 	$certificate['description'] = $accredible_certificate->description;
   $certificate['course_link'] = $course_url->__toString();
@@ -85,12 +85,17 @@ function accredible_issue_default_certificate($certificate_id, $name, $email, $g
 /*
  * accredible_log_creation
  */
-function accredible_log_creation($certificate_id, $course_id, $user_id) {
+function accredible_log_creation($certificate_id, $user_id, $course_id, $cm_id) {
 	global $DB;
 
 	// Get context
 	$accredible_mod = $DB->get_record('modules', array('name' => 'accredible'), '*', MUST_EXIST);
-	$cm = $DB->get_record('course_modules', array('course' => $course_id, 'module' => $accredible_mod->id), '*', MUST_EXIST);
+	if($cm_id) {
+		$cm = $DB->get_record('course_modules', array('id' => $cm_id), '*');
+	} else { // this is an activity add, so we have to use $course_id
+		$course_modules = $DB->get_records('course_modules', array('course' => $course_id, 'module' => $accredible_mod->id));
+		$cm = end($course_modules);
+	}
 	$context = context_module::instance($cm->id);
 
 	return \mod_accredible\event\certificate_created::create(array(
@@ -109,78 +114,79 @@ function accredible_quiz_submission_handler($event) {
 	global $DB, $CFG;
 	require_once($CFG->dirroot . '/mod/quiz/lib.php');
 
-	$accredible_certificate = $DB->get_record('accredible', array('course' => $event->courseid));
 	$attempt = $event->get_record_snapshot('quiz_attempts', $event->objectid);
 	$quiz    = $event->get_record_snapshot('quiz', $attempt->quiz);
 	$user 	 = $DB->get_record('user', array('id' => $event->relateduserid));
+	if($accredible_certificates = $DB->get_records('accredible', array('course' => $event->courseid))) {
+		foreach ($accredible_certificates as $accredible_certificate) {
+			// check for the existance of a certificate and an auto-issue rule
+			if( $accredible_certificate and ($accredible_certificate->finalquiz or $accredible_certificate->completionactivities) ) {
 
+				// check which quiz is used as the deciding factor in this course
+				if($quiz->id == $accredible_certificate->finalquiz) {
+					$certificate_exists = accredible_check_for_existing_certificate (
+						$accredible_certificate->achievementid, $user
+					);
 
-	// check for the existance of a certificate and an auto-issue rule
-	if( $accredible_certificate and ($accredible_certificate->finalquiz or $accredible_certificate->completionactivities) ) {
+					// check for an existing certificate
+					if(!$certificate_exists) {
+						$users_grade = ( quiz_get_best_grade($quiz, $user->id) / $quiz->grade ) * 100;
+						$grade_is_high_enough = ($users_grade >= $accredible_certificate->passinggrade);
 
-		// check which quiz is used as the deciding factor in this course
-		if($quiz->id == $accredible_certificate->finalquiz) {
-			$certificate_exists = accredible_check_for_existing_certificate (
-				$accredible_certificate->achievementid, $user
-			);
-
-			// check for an existing certificate
-			if(!$certificate_exists) {
-				$users_grade = ( quiz_get_best_grade($quiz, $user->id) / $quiz->grade ) * 100;
-				$grade_is_high_enough = ($users_grade >= $accredible_certificate->passinggrade);
-
-				// check for pass
-				if($grade_is_high_enough) {
-					// issue a ceritificate
-					$api_response = accredible_issue_default_certificate( $accredible_certificate->id, fullname($user), $user->email, (string) $users_grade, $quiz->name);
-					$certificate_event = \mod_accredible\event\certificate_created::create(array(
-					  'objectid' => $api_response->credential->id,
-					  'context' => context_module::instance($event->contextinstanceid),
-					  'relateduserid' => $event->relateduserid
-					));
-					$certificate_event->trigger();
+						// check for pass
+						if($grade_is_high_enough) {
+							// issue a ceritificate
+							$api_response = accredible_issue_default_certificate( $accredible_certificate->id, fullname($user), $user->email, (string) $users_grade, $quiz->name);
+							$certificate_event = \mod_accredible\event\certificate_created::create(array(
+							  'objectid' => $api_response->credential->id,
+							  'context' => context_module::instance($event->contextinstanceid),
+							  'relateduserid' => $event->relateduserid
+							));
+							$certificate_event->trigger();
+						}
+					}
 				}
-			}
-		}
 
-		$completion_activities = unserialize_completion_array($accredible_certificate->completionactivities);
-		// if this quiz is in the completion activities
-		if( isset($completion_activities[$quiz->id]) ) {
-			$completion_activities[$quiz->id] = true;
-			$quiz_attempts = $DB->get_records('quiz_attempts', array('userid' => $user->id, 'state' => 'finished'));
-			foreach($quiz_attempts as $quiz_attempt) {
-				// if this quiz was already attempted, then we shouldn't be issuing a certificate
-				if( $quiz_attempt->quiz == $quiz->id && $quiz_attempt->attempt > 1 ) {
-					return null;
-				}
-				// otherwise, set this quiz as completed
-				if( isset($completion_activities[$quiz_attempt->quiz]) ) {
-					$completion_activities[$quiz_attempt->quiz] = true;
-				}
-			}
+				$completion_activities = unserialize_completion_array($accredible_certificate->completionactivities);
+				// if this quiz is in the completion activities
+				if( isset($completion_activities[$quiz->id]) ) {
+					$completion_activities[$quiz->id] = true;
+					$quiz_attempts = $DB->get_records('quiz_attempts', array('userid' => $user->id, 'state' => 'finished'));
+					foreach($quiz_attempts as $quiz_attempt) {
+						// if this quiz was already attempted, then we shouldn't be issuing a certificate
+						if( $quiz_attempt->quiz == $quiz->id && $quiz_attempt->attempt > 1 ) {
+							return null;
+						}
+						// otherwise, set this quiz as completed
+						if( isset($completion_activities[$quiz_attempt->quiz]) ) {
+							$completion_activities[$quiz_attempt->quiz] = true;
+						}
+					}
 
-			// but was this the last required activity that was completed?
-			$course_complete = true;
-			foreach($completion_activities as $is_complete) {
-				if(!$is_complete) {
-					$course_complete = false;
-				}
-			}
-			// if it was the final activity
-			if($course_complete) {
-				$certificate_exists = accredible_check_for_existing_certificate (
-					$accredible_certificate->achievementid, $user
-				);
-				// make sure there isn't already a certificate
-				if(!$certificate_exists) {
-					// and issue a ceritificate
-					$api_response = accredible_issue_default_certificate( $accredible_certificate->id, fullname($user), $user->email, null, null);
-					$certificate_event = \mod_accredible\event\certificate_created::create(array(
-					  'objectid' => $api_response->credential->id,
-					  'context' => context_module::instance($event->contextinstanceid),
-					  'relateduserid' => $event->relateduserid
-					));
-					$certificate_event->trigger();
+					// but was this the last required activity that was completed?
+					$course_complete = true;
+					foreach($completion_activities as $is_complete) {
+						if(!$is_complete) {
+							$course_complete = false;
+						}
+					}
+					// if it was the final activity
+					if($course_complete) {
+						$certificate_exists = accredible_check_for_existing_certificate (
+							$accredible_certificate->achievementid, $user
+						);
+						// make sure there isn't already a certificate
+						if(!$certificate_exists) {
+							// and issue a ceritificate
+							$api_response = accredible_issue_default_certificate( $accredible_certificate->id, fullname($user), $user->email, null, null);
+							$certificate_event = \mod_accredible\event\certificate_created::create(array(
+							  'objectid' => $api_response->credential->id,
+							  'context' => context_module::instance($event->contextinstanceid),
+							  'relateduserid' => $event->relateduserid
+							));
+							$certificate_event->trigger();
+						}
+					}
 				}
 			}
 		}

@@ -24,7 +24,11 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['achievementid'] = 'Achievement id';
+$string['achievementid'] = 'Achievement id (must be unique)';
+$string['activityname'] = 'Activity name';
+$string['additionalactivitiesone'] = 'Warning: You are adding more than one activity to a course.<br/>Both activities are viewable by students, so be sure to give them different names.';
+$string['additionalactivitiestwo'] = 'Certificates will only be listed on the activity page if they were issued with this achievement id.';
+$string['additionalactivitiesthree'] = 'This is the name that will appear on the ceriticate.';
 $string['autoissueheader'] = 'Automatic issuing criteria';
 $string['apikeylabel'] = 'API key';
 $string['apikeyhelp'] = 'Enter your API key from accredible.com';
@@ -37,7 +41,9 @@ $string['certificateurl'] = 'Certificate url';
 $string['chooseexam'] = 'Choose final quiz';
 $string['completionissueheader'] = 'Auto-issue criteria: by activity completion';
 $string['dashboardlink'] = 'Accredible dashboard link';
+$string['dashboardlinktext'] = 'To delete or style credentials, log in to the <a href="https://accredible.com/issuer/login" target="_blank">dashboard</a>';
 $string['datecreated'] = 'Date created';
+$string['description'] = 'Description';
 $string['eventcertificatecreated'] = 'A certificate was posted to Accredible';
 $string['gradeissueheader'] = 'Auto-issue criteria: by final quiz grade';
 $string['id'] = 'ID';
