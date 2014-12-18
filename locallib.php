@@ -61,7 +61,7 @@ function accredible_issue_default_certificate($certificate_id, $name, $email, $g
 
 	$certificate = array();
   $course_url = new moodle_url('/course/view.php', array('id' => $accredible_certificate->course));
-	$certificate['name'] = $accredible_certificate->name;
+	$certificate['name'] = $accredible_certificate->certificatename;
 	$certificate['achievement_id'] = $accredible_certificate->achievementid;
 	$certificate['description'] = $accredible_certificate->description;
   $certificate['course_link'] = $course_url->__toString();
@@ -85,12 +85,17 @@ function accredible_issue_default_certificate($certificate_id, $name, $email, $g
 /*
  * accredible_log_creation
  */
-function accredible_log_creation($certificate_id, $course_id, $user_id) {
+function accredible_log_creation($certificate_id, $user_id, $course_id, $cm_id) {
 	global $DB;
 
 	// Get context
 	$accredible_mod = $DB->get_record('modules', array('name' => 'accredible'), '*', MUST_EXIST);
-	$cm = $DB->get_record('course_modules', array('course' => $course_id, 'module' => $accredible_mod->id), '*', MUST_EXIST);
+	if($cm_id) {
+		$cm = $DB->get_record('course_modules', array('id' => $cm_id), '*');
+	} else { // this is an activity add, so we have to use $course_id
+		$course_modules = $DB->get_records('course_modules', array('course' => $course_id, 'module' => $accredible_mod->id), '', '*');
+		$cm = end($course_modules);
+	}
 	$context = context_module::instance($cm->id);
 
 	return \mod_accredible\event\certificate_created::create(array(

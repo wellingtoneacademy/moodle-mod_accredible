@@ -76,7 +76,15 @@ class mod_accredible_mod_form extends moodleform_mod {
         $mform->addElement('hidden', 'course', $id);
         $mform->addElement('header', 'general', get_string('general', 'form'));
         if($alreadyexists) {
-            $mform->addElement('static', 'additionalActivities', '', get_string('additionalactivitiesone', 'accredible'));
+            $mform->addElement('static', 'additionalactivitiesone', '', get_string('additionalactivitiesone', 'accredible'));
+        }
+        $mform->addElement('text', 'name', get_string('activityname', 'accredible'), array('style'=>'width: 399px'));
+        $mform->addRule('name', null, 'required', null, 'client');
+        $mform->setType('name', PARAM_TEXT);
+        $mform->setDefault('name', $course->fullname);
+
+        if($alreadyexists) {
+            $mform->addElement('static', 'additionalactivitiestwo', '', get_string('additionalactivitiestwo', 'accredible'));
         }
         $mform->addElement('text', 'achievementid', get_string('achievementid', 'accredible'));
         $mform->addRule('achievementid', null, 'required', null, 'client');
@@ -84,14 +92,14 @@ class mod_accredible_mod_form extends moodleform_mod {
         $mform->setDefault('achievementid', $course->shortname);
 
         if($alreadyexists) {
-            $mform->addElement('static', 'additionalActivities', '', get_string('additionalactivitiestwo', 'accredible'));
+            $mform->addElement('static', 'additionalactivitiesthree', '', get_string('additionalactivitiesthree', 'accredible'));
         }
-        $mform->addElement('text', 'name', get_string('certificatename', 'accredible'));
-        $mform->addRule('name', null, 'required', null, 'client');
-        $mform->setType('name', PARAM_TEXT);
-        $mform->setDefault('name', $course->fullname);
+        $mform->addElement('text', 'certificatename', get_string('certificatename', 'accredible'), array('style'=>'width: 399px'));
+        $mform->addRule('certificatename', null, 'required', null, 'client');
+        $mform->setType('certificatename', PARAM_TEXT);
+        $mform->setDefault('certificatename', $course->fullname);
 
-        $mform->addElement('textarea', 'description', 'Description', array('cols'=>'64', 'rows'=>'10', 'wrap'=>'virtual', 'maxlength' => '1000'));
+        $mform->addElement('textarea', 'description', get_string('description', 'accredible'), array('cols'=>'64', 'rows'=>'10', 'wrap'=>'virtual', 'maxlength' => '1000'));
         $mform->addRule('description', null, 'required', null, 'client');
         $mform->setType('description', PARAM_RAW);
         $mform->setDefault('description', strip_tags($course->summary));

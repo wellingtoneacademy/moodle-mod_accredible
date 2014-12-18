@@ -46,7 +46,7 @@ function accredible_add_instance($post) {
 
                 $certificate = array();
                 $course_url = new moodle_url('/course/view.php', array('id' => $post->course));
-                $certificate['name'] = $post->name;
+                $certificate['name'] = $post->certificatename;
                 $certificate['achievement_id'] = $post->achievementid;
                 $certificate['description'] = $post->description;
                 $certificate['course_link'] = $course_url->__toString();
@@ -74,8 +74,9 @@ function accredible_add_instance($post) {
                 // Log the creation
                 $event = accredible_log_creation( 
                     json_decode($result)->credential->id,
+                    $user_id,
                     $post->course,
-                    $user_id
+                    null
                 );
                 $event->trigger();
             }
@@ -99,6 +100,7 @@ function accredible_add_instance($post) {
     $db_record->finalquiz = $post->finalquiz;
     $db_record->passinggrade = $post->passinggrade;
     $db_record->timecreated = time();
+    $db_record->certificatename = $post->certificatename;
 
     return $DB->insert_record('accredible', $db_record);
 }
@@ -124,7 +126,7 @@ function accredible_update_instance($post) {
 
                 $certificate = array();
                 $course_url = new moodle_url('/course/view.php', array('id' => $post->course));
-                $certificate['name'] = $post->name;
+                $certificate['name'] = $post->certificatename;
                 $certificate['achievement_id'] = $post->achievementid;
                 $certificate['description'] = $post->description;
                 $certificate['course_link'] = $course_url->__toString();
@@ -152,8 +154,9 @@ function accredible_update_instance($post) {
                 // Log the creation
                 $event = accredible_log_creation( 
                     json_decode($result)->credential->id,
-                    $post->course,
-                    $user_id
+                    $user_id,
+                    null,
+                    $post->instance
                 );
                 $event->trigger();
             }
@@ -170,8 +173,10 @@ function accredible_update_instance($post) {
     // Save record
     $db_record = new stdClass();
     $db_record->id = $post->instance;
+    $db_record->achievementid = $post->achievementid;
     $db_record->completionactivities = serialize_completion_array($completion_activities);
     $db_record->name = $post->name;
+    $db_record->certificatename = $post->certificatename;
     $db_record->description = $post->description;
     $db_record->passinggrade = $post->passinggrade;
     $db_record->finalquiz = $post->finalquiz;
