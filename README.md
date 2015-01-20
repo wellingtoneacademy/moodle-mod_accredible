@@ -64,3 +64,9 @@ Issuing a certificate is easy - choose from 3 issuing options:
 Once you've issued the certificate, head over to Accredible to edit the appearance.
 
 Contact us at support@accredible.com if you have issues.
+
+## FAQs
+
+#### Why is nothing showing up? I can't see a certificate.
+
+A certificate isn't created until you've either manually created one or had a student go through the criteria you set on the activity. For example if you select some required activities then a certificate won't be created until an enrolled student has completed them. Completing an activity or quiz as a course admin won't create a certificate.
