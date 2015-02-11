@@ -11,11 +11,7 @@ There are two installation methods that are available. Follow one of these, then
 
 #### Git
 
-If you do not have git installed, please see the below link. Please note, it is not necessary to set up the SSH Keys. This is only needed if you are going to create a repository of your own on github.com.
-
-Information on installing git - http://help.github.com/set-up-git-redirect/
-
-Once you have git installed, simply visit the Moodle /mod directory and clone this repo:
+If you have git installed, simply visit the Moodle /mod directory and clone this repo:
 
     git clone https://github.com/accredible/moodle-mod_accredible.git accredible
 
