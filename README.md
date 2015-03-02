@@ -1,5 +1,5 @@
 ## Introduction
-This plugin enables you to issue dynamic, digital certificates for free using the [Accredible](https://accredible.com) API on your Moodle instance. They act as a replacement for the PDF certificates normally generated for your courses. An example output certificate can be viewed at: [https://accredible.com/example](https://accredible.com/example).
+This plugin enables you to issue dynamic, digital certificates using the [Accredible](https://accredible.com) API on your Moodle instance. They act as a replacement for the PDF certificates normally generated for your courses. An example output certificate can be viewed at: [https://accredible.com/example](https://accredible.com/example).
 
 ## Compatability
 
@@ -11,11 +11,7 @@ There are two installation methods that are available. Follow one of these, then
 
 #### Git
 
-If you do not have git installed, please see the below link. Please note, it is not necessary to set up the SSH Keys. This is only needed if you are going to create a repository of your own on github.com.
-
-Information on installing git - http://help.github.com/set-up-git-redirect/
-
-Once you have git installed, simply visit the Moodle /mod directory and clone this repo:
+If you have git installed, simply visit the Moodle /mod directory and clone this repo:
 
     git clone https://github.com/accredible/moodle-mod_accredible.git accredible
 
@@ -64,3 +60,9 @@ Issuing a certificate is easy - choose from 3 issuing options:
 Once you've issued the certificate, head over to Accredible to edit the appearance.
 
 Contact us at support@accredible.com if you have issues.
+
+## FAQs
+
+#### Why is nothing showing up? I can't see a certificate.
+
+A certificate isn't created until you've either manually created one or had a student go through the criteria you set on the activity. For example if you select some required activities then a certificate won't be created until an enrolled student has completed them. Completing an activity or quiz as a course admin won't create a certificate.

@@ -119,7 +119,7 @@ function accredible_quiz_submission_handler($event) {
 	$user 	 = $DB->get_record('user', array('id' => $event->relateduserid));
 	if($accredible_certificates = $DB->get_records('accredible', array('course' => $event->courseid))) {
 		foreach ($accredible_certificates as $accredible_certificate) {
-			// check for the existance of a certificate and an auto-issue rule
+			// check for the existence of a certificate and an auto-issue rule
 			if( $accredible_certificate and ($accredible_certificate->finalquiz or $accredible_certificate->completionactivities) ) {
 
 				// check which quiz is used as the deciding factor in this course
