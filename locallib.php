@@ -91,7 +91,7 @@ function accredible_log_creation($certificate_id, $user_id, $course_id, $cm_id) 
 	// Get context
 	$accredible_mod = $DB->get_record('modules', array('name' => 'accredible'), '*', MUST_EXIST);
 	if($cm_id) {
-		$cm = $DB->get_record('course_modules', array('id' => $cm_id), '*');
+		$cm = $DB->get_record('course_modules', array('id' => (int) $cm_id), '*');
 	} else { // this is an activity add, so we have to use $course_id
 		$course_modules = $DB->get_records('course_modules', array('course' => $course_id, 'module' => $accredible_mod->id));
 		$cm = end($course_modules);
@@ -124,12 +124,12 @@ function accredible_quiz_submission_handler($event) {
 
 				// check which quiz is used as the deciding factor in this course
 				if($quiz->id == $accredible_certificate->finalquiz) {
-					$certificate_exists = accredible_check_for_existing_certificate (
+					$existing_certificate = accredible_check_for_existing_certificate (
 						$accredible_certificate->achievementid, $user
 					);
 
 					// check for an existing certificate
-					if(!$certificate_exists) {
+					if(!$existing_certificate) {
 						$users_grade = ( quiz_get_best_grade($quiz, $user->id) / $quiz->grade ) * 100;
 						$grade_is_high_enough = ($users_grade >= $accredible_certificate->passinggrade);
 
@@ -143,6 +143,18 @@ function accredible_quiz_submission_handler($event) {
 							  'relateduserid' => $event->relateduserid
 							));
 							$certificate_event->trigger();
+						}
+					} 
+					// check the existing grade to see if this one is higher
+					else {
+						foreach ($existing_certificate->evidence_items as $evidence_item) {
+							if($evidence_item->type == "grade") {
+								$highest_grade = ( quiz_get_best_grade($quiz, $user->id) / $quiz->grade ) * 100;
+								// only update if higher
+								if($evidence_item->string_object->grade < $highest_grade) {
+									update_certificate_grade($existing_certificate->id, $evidence_item->id, $highest_grade);
+								}
+							}
 						}
 					}
 				}
@@ -172,11 +184,11 @@ function accredible_quiz_submission_handler($event) {
 					}
 					// if it was the final activity
 					if($course_complete) {
-						$certificate_exists = accredible_check_for_existing_certificate (
+						$existing_certificate = accredible_check_for_existing_certificate (
 							$accredible_certificate->achievementid, $user
 						);
 						// make sure there isn't already a certificate
-						if(!$certificate_exists) {
+						if(!$existing_certificate) {
 							// and issue a ceritificate
 							$api_response = accredible_issue_default_certificate( $accredible_certificate->id, fullname($user), $user->email, null, null);
 							$certificate_event = \mod_accredible\event\certificate_created::create(array(
@@ -193,17 +205,30 @@ function accredible_quiz_submission_handler($event) {
 	}
 }
 
+function update_certificate_grade($certificate_id, $evidence_item_id, $grade) {
+  global $CFG;
+
+	$curl = curl_init('https://api.accredible.com/v1/credentials/'.$certificate_id.'/evidence_items/'.$evidence_item_id);
+	curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+  curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "PUT");
+	curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query( array('evidence_item' => array( 'string_object' => $grade ) ) ));
+	curl_setopt( $curl, CURLOPT_HTTPHEADER, array( 'Authorization: Token token="'.$CFG->accredible_api_key.'"' ) );
+
+	$result = curl_exec($curl);
+	return $result;
+}
+
 function accredible_check_for_existing_certificate($achievement_id, $user) {
 	global $DB;
-	$certificate_exists = false;
+	$existing_certificate = false;
 	$certificates = accredible_get_issued($achievement_id);
 
 	foreach ($certificates as $certificate) {
 		if($certificate->recipient->email == $user->email) {
-			$certificate_exists = true;
+			$existing_certificate = $certificate;
 		}
 	}
-	return $certificate_exists;
+	return $existing_certificate;
 }
 
 function serialize_completion_array($completion_array) {
