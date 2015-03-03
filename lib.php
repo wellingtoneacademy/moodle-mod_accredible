@@ -156,7 +156,7 @@ function accredible_update_instance($post) {
                     json_decode($result)->credential->id,
                     $user_id,
                     null,
-                    $post->instance
+                    $post->coursemodule
                 );
                 $event->trigger();
             }
