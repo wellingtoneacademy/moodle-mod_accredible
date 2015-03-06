@@ -51,11 +51,6 @@ function accredible_add_instance($post) {
                 $certificate['description'] = $post->description;
                 $certificate['course_link'] = $course_url->__toString();
                 $certificate['recipient'] = array('name' => fullname($user), 'email'=> $user->email);
-                if($post->finalquiz) {
-                    $quiz = $DB->get_record('quiz', array('id'=>$post->finalquiz), '*', MUST_EXIST);
-                    $users_grade = ( quiz_get_best_grade($quiz, $user->id) / $quiz->grade ) * 100;
-                    $certificate['evidence_items'] = array( array('string_object' => (string) $users_grade, 'description' => $quiz->name, 'custom'=> true, 'category' => 'grade'));
-                }
 
                 $curl = curl_init('https://api.accredible.com/v1/credentials');
                 curl_setopt($curl, CURLOPT_POST, 1);
@@ -70,6 +65,18 @@ function accredible_add_instance($post) {
                     throw new moodle_exception('manualadderror:add', 'accredible', 'https://accredible.com/contact/support', $user_id, var_dump($post));
                 }
                 curl_close($curl);
+
+                // evidence item posts
+                $credential_id = json_decode($result)->credential->id;
+                if($post->finalquiz) {
+                    $quiz = $DB->get_record('quiz', array('id'=>$post->finalquiz), '*', MUST_EXIST);
+                    $users_grade = ( quiz_get_best_grade($quiz, $user->id) / $quiz->grade ) * 100;
+                    $grade_evidence =  array('string_object' => (string) $users_grade, 'description' => $quiz->name, 'custom'=> true, 'category' => 'grade');
+                    accredible_post_evidence($credential_id, $grade_evidence, true);
+                }
+                if($transcript = get_transcript($post->course, $user_id)) {
+                    accredible_post_evidence($credential_id, $transcript, true);
+                }
 
                 // Log the creation
                 $event = accredible_log_creation( 
@@ -131,11 +138,6 @@ function accredible_update_instance($post) {
                 $certificate['description'] = $post->description;
                 $certificate['course_link'] = $course_url->__toString();
                 $certificate['recipient'] = array('name' => fullname($user), 'email'=> $user->email);
-                if($post->finalquiz) {
-                    $quiz = $DB->get_record('quiz', array('id'=>$post->finalquiz), '*', MUST_EXIST);
-                    $users_grade = ( quiz_get_best_grade($quiz, $user->id) / $quiz->grade ) * 100;
-                    $certificate['evidence_items'] = array( array('string_object' => (string) $users_grade, 'description' => $quiz->name, 'custom'=> true, 'category' => 'grade'));
-                }
 
                 $curl = curl_init('https://api.accredible.com/v1/credentials');
                 curl_setopt($curl, CURLOPT_POST, 1);
@@ -151,9 +153,21 @@ function accredible_update_instance($post) {
                 }
                 curl_close($curl);
 
+                // evidence item posts
+                $credential_id = json_decode($result)->credential->id;
+                if($post->finalquiz) {
+                    $quiz = $DB->get_record('quiz', array('id'=>$post->finalquiz), '*', MUST_EXIST);
+                    $users_grade = ( quiz_get_best_grade($quiz, $user->id) / $quiz->grade ) * 100;
+                    $grade_evidence =  array('string_object' => (string) $users_grade, 'description' => $quiz->name, 'custom'=> true, 'category' => 'grade');
+                    accredible_post_evidence($credential_id, $grade_evidence, true);
+                }
+                if($transcript = get_transcript($post->course, $user_id)) {
+                    accredible_post_evidence($credential_id, $transcript, true);
+                }
+
                 // Log the creation
                 $event = accredible_log_creation( 
-                    json_decode($result)->credential->id,
+                    $credential_id,
                     $user_id,
                     null,
                     $post->coursemodule

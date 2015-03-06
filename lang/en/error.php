@@ -35,3 +35,7 @@ $string['manualadderror:edit'] = 'An error occured while issuing a certificate t
 
 Please contact Accredible\'s support.
 Error Code: Edit001';
+$string['evidenceadderror'] = 'An error occured while adding evidence to Accredible certificate id = {$a}.
+
+Please contact Accredible\'s support.
+Error Code: Evidence001';

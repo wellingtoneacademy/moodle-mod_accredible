@@ -53,7 +53,7 @@ function accredible_get_issued($achievement_id) {
  * accredible_issue_default_certificate
  * 
  */
-function accredible_issue_default_certificate($certificate_id, $name, $email, $grade, $quiz_name) {
+function accredible_issue_default_certificate($user_id, $certificate_id, $name, $email, $grade, $quiz_name) {
 	global $DB, $CFG;
 
 	// Issue certs
@@ -66,9 +66,6 @@ function accredible_issue_default_certificate($certificate_id, $name, $email, $g
 	$certificate['description'] = $accredible_certificate->description;
   $certificate['course_link'] = $course_url->__toString();
 	$certificate['recipient'] = array('name' => $name, 'email'=> $email);
-	if($grade) {
-		$certificate['evidence_items'] = array( array('string_object' => $grade, 'description' => $quiz_name, 'custom'=> true, 'category' => 'grade' ));
-	}
 
 	$curl = curl_init('https://api.accredible.com/v1/credentials');
 	curl_setopt($curl, CURLOPT_POST, 1);
@@ -79,6 +76,17 @@ function accredible_issue_default_certificate($certificate_id, $name, $email, $g
 		// TODO - log this because an exception cannot be thrown in an event callback
 	}
 	curl_close($curl);
+
+	// evidence item posts
+	$credential_id = json_decode($result)->credential->id;
+	if($grade) {
+		$grade_evidence = array('string_object' => $grade, 'description' => $quiz_name, 'custom'=> true, 'category' => 'grade' );
+	  accredible_post_evidence($credential_id, $grade_evidence, false);
+	}
+  if($transcript = get_transcript($accredible_certificate->course, $user_id)) {
+	  accredible_post_evidence($credential_id, $transcript, false);
+	}
+
 	return json_decode($result);
 }
 
@@ -136,7 +144,7 @@ function accredible_quiz_submission_handler($event) {
 						// check for pass
 						if($grade_is_high_enough) {
 							// issue a ceritificate
-							$api_response = accredible_issue_default_certificate( $accredible_certificate->id, fullname($user), $user->email, (string) $users_grade, $quiz->name);
+							$api_response = accredible_issue_default_certificate( $user->id, $accredible_certificate->id, fullname($user), $user->email, (string) $users_grade, $quiz->name);
 							$certificate_event = \mod_accredible\event\certificate_created::create(array(
 							  'objectid' => $api_response->credential->id,
 							  'context' => context_module::instance($event->contextinstanceid),
@@ -190,7 +198,7 @@ function accredible_quiz_submission_handler($event) {
 						// make sure there isn't already a certificate
 						if(!$existing_certificate) {
 							// and issue a ceritificate
-							$api_response = accredible_issue_default_certificate( $accredible_certificate->id, fullname($user), $user->email, null, null);
+							$api_response = accredible_issue_default_certificate( $user->id, $accredible_certificate->id, fullname($user), $user->email, null, null);
 							$certificate_event = \mod_accredible\event\certificate_created::create(array(
 							  'objectid' => $api_response->credential->id,
 							  'context' => context_module::instance($event->contextinstanceid),
@@ -208,7 +216,7 @@ function accredible_quiz_submission_handler($event) {
 function update_certificate_grade($certificate_id, $evidence_item_id, $grade) {
   global $CFG;
 
-	$curl = curl_init('https://api.accredible.com/v1/credentials/'.$certificate_id.'/evidence_items/'.$evidence_item_id);
+	$curl = curl_init('https://api.accredible.com/v1/credentials/' . $certificate_id . '/evidence_items/'.$evidence_item_id);
 	curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
   curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "PUT");
 	curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query( array('evidence_item' => array( 'string_object' => $grade ) ) ));
@@ -216,6 +224,65 @@ function update_certificate_grade($certificate_id, $evidence_item_id, $grade) {
 
 	$result = curl_exec($curl);
 	return $result;
+}
+
+function get_transcript($course_id, $user_id) {
+	global $DB, $CFG;
+
+	$total_items = 0;
+	$total_score = 0;
+	$items_completed = 0;
+	$transcript_items = array();
+	$quizes = $DB->get_records_select('quiz', 'course = :course_id', array('course_id' => $course_id) );
+
+
+	// grab the grades for all quizes
+	foreach ($quizes as $quiz) {
+		$highest_grade = quiz_get_best_grade($quiz, $user_id);
+		if($highest_grade) {
+			$items_completed += 1;
+			array_push($transcript_items, array(
+				'category' => $quiz->name,
+				'percent' => ( $highest_grade / $quiz->grade ) * 100
+			));
+			$total_score += ( $highest_grade / $quiz->grade ) * 100;
+		}
+		$total_items += 1;
+	}
+	
+	// if they've completed over 2/3 of items 
+	// and have a passing average, make a transcript
+	if( $items_completed / $total_items >= 0.66 && $total_score / $items_completed > 50 ) {
+		return array(
+				'description' => 'Course Transcript',
+				'string_object' => json_encode($transcript_items),
+				'category' => 'transcript',
+				'custom' => true,
+				'hidden' => true
+			);
+	} else {
+		return false;
+	}
+}
+
+function accredible_post_evidence($credential_id, $evidence_item, $allow_exceptions) {
+	global $CFG;
+
+	$curl = curl_init('https://api.accredible.com/v1/credentials/' . $credential_id . '/evidence_items');
+	curl_setopt($curl, CURLOPT_POST, true);
+	curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query( array('evidence_item' => $evidence_item) ));
+	curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+	curl_setopt($curl, CURLOPT_FAILONERROR, true);
+	curl_setopt( $curl, CURLOPT_HTTPHEADER, array( 'Authorization: Token token="'.$CFG->accredible_api_key.'"' ) );
+	$result = curl_exec($curl);
+	if(!$result && $allow_exceptions) {
+    // throw API exception
+    // include the user id that triggered the error
+    // direct the user to accredible's support
+    // dump the post to debug_info
+    throw new moodle_exception('evidenceadderror', 'accredible', 'https://accredible.com/contact/support', $credential_id, curl_error($curl));
+	}
+	curl_close($curl);
 }
 
 function accredible_check_for_existing_certificate($achievement_id, $user) {
