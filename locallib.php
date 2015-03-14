@@ -83,7 +83,7 @@ function accredible_issue_default_certificate($user_id, $certificate_id, $name, 
 		$grade_evidence = array('string_object' => $grade, 'description' => $quiz_name, 'custom'=> true, 'category' => 'grade' );
 	  accredible_post_evidence($credential_id, $grade_evidence, false);
 	}
-  if($transcript = get_transcript($accredible_certificate->course, $user_id)) {
+  if($transcript = accredible_get_transcript($accredible_certificate->course, $user_id)) {
 	  accredible_post_evidence($credential_id, $transcript, false);
 	}
 
@@ -160,7 +160,7 @@ function accredible_quiz_submission_handler($event) {
 								$highest_grade = ( quiz_get_best_grade($quiz, $user->id) / $quiz->grade ) * 100;
 								// only update if higher
 								if($evidence_item->string_object->grade < $highest_grade) {
-									update_certificate_grade($existing_certificate->id, $evidence_item->id, $highest_grade);
+									accredible_update_certificate_grade($existing_certificate->id, $evidence_item->id, $highest_grade);
 								}
 							}
 						}
@@ -213,7 +213,7 @@ function accredible_quiz_submission_handler($event) {
 	}
 }
 
-function update_certificate_grade($certificate_id, $evidence_item_id, $grade) {
+function accredible_update_certificate_grade($certificate_id, $evidence_item_id, $grade) {
   global $CFG;
 
 	$curl = curl_init('https://api.accredible.com/v1/credentials/' . $certificate_id . '/evidence_items/'.$evidence_item_id);
@@ -226,7 +226,7 @@ function update_certificate_grade($certificate_id, $evidence_item_id, $grade) {
 	return $result;
 }
 
-function get_transcript($course_id, $user_id) {
+function accredible_get_transcript($course_id, $user_id) {
 	global $DB, $CFG;
 
 	$total_items = 0;

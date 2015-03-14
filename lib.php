@@ -74,7 +74,7 @@ function accredible_add_instance($post) {
                     $grade_evidence =  array('string_object' => (string) $users_grade, 'description' => $quiz->name, 'custom'=> true, 'category' => 'grade');
                     accredible_post_evidence($credential_id, $grade_evidence, true);
                 }
-                if($transcript = get_transcript($post->course, $user_id)) {
+                if($transcript = accredible_get_transcript($post->course, $user_id)) {
                     accredible_post_evidence($credential_id, $transcript, true);
                 }
 
@@ -161,7 +161,7 @@ function accredible_update_instance($post) {
                     $grade_evidence =  array('string_object' => (string) $users_grade, 'description' => $quiz->name, 'custom'=> true, 'category' => 'grade');
                     accredible_post_evidence($credential_id, $grade_evidence, true);
                 }
-                if($transcript = get_transcript($post->course, $user_id)) {
+                if($transcript = accredible_get_transcript($post->course, $user_id)) {
                     accredible_post_evidence($credential_id, $transcript, true);
                 }
 
