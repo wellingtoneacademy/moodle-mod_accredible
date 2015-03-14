@@ -86,6 +86,7 @@ function accredible_issue_default_certificate($user_id, $certificate_id, $name, 
   if($transcript = get_transcript($accredible_certificate->course, $user_id)) {
 	  accredible_post_evidence($credential_id, $transcript, false);
 	}
+	accredible_post_essay_answers($user_id, $accredible_certificate->course, $credential_id);
 
 	return json_decode($result);
 }
@@ -123,6 +124,7 @@ function accredible_quiz_submission_handler($event) {
 	require_once($CFG->dirroot . '/mod/quiz/lib.php');
 
 	$attempt = $event->get_record_snapshot('quiz_attempts', $event->objectid);
+
 	$quiz    = $event->get_record_snapshot('quiz', $attempt->quiz);
 	$user 	 = $DB->get_record('user', array('id' => $event->relateduserid));
 	if($accredible_certificates = $DB->get_records('accredible', array('course' => $event->courseid))) {
@@ -306,3 +308,72 @@ function unserialize_completion_array($completion_object) {
 	return (array)unserialize(base64_decode( $completion_object ));
 }
 
+function accredible_post_essay_answers($user_id, $course_id, $credential_id) {
+	global $DB;
+
+	// grab the course quizes
+	if($quizes = $DB->get_records_select('quiz', 'course = :course_id', array('course_id' => $course_id)) ) {
+		foreach ($quizes as $quiz) {
+			$evidence_item = array('description' => $quiz->name);
+			// grab quiz attempts
+			$quiz_attempt = $DB->get_records('quiz_attempts', array('quiz' => $quiz->id, 'userid' => $user_id), '-attempt', '*', 0, 1);		
+			
+			if($quiz_attempt) {
+				$sql = "SELECT
+				    qa.id,
+				    quiza.quiz,
+				    quiza.id AS quizattemptid,
+				    quiza.timestart,
+				    quiza.timefinish,
+				    qa.slot,
+				    qa.behaviour,
+				    qa.questionsummary AS question,
+				    qa.responsesummary AS answer
+				 
+				FROM mdl_quiz_attempts quiza
+				JOIN mdl_question_usages qu ON qu.id = quiza.uniqueid
+				JOIN mdl_question_attempts qa ON qa.questionusageid = qu.id
+				 
+				WHERE quiza.id = ? && qa.behaviour = 'manualgraded'
+				 
+				ORDER BY quiza.userid, quiza.attempt, qa.slot";
+
+				if( $questions = $DB->get_records_sql($sql, array(reset($quiz_attempt)->id)) ) {
+					$questions_output = "<style>#main {	max-width: 780px;margin-left: auto;margin-right: auto;margin-top: 50px;margin-bottom: 80px; font-family: Arial;} h1, h5 {	text-align: center;} .answer { border: 1px solid grey; padding: 20px; font-size: 14px; line-height: 22px; margin-bottom:30px; margin-top:30px;} p {font-size: 14px; line-height: 18px;} </style>";
+					$questions_output .= "<div id='main'>";
+					$questions_output .= "<h1>" . $quiz->name . "</h1>";
+					$questions_output .= "<h5>Time Taken: ". seconds_to_str( current($questions)->timefinish - current($questions)->timestart ) ."</h5>";
+
+					foreach ($questions as $questionattempt) {
+						$questions_output .= $questionattempt->question;
+						$questions_output .= "<div class='answer'>".$questionattempt->answer."</div>";
+					}
+
+					$questions_output .= "</div>";
+
+					$evidence_item['string_object'] = $questions_output;
+					$evidence_item['hidden'] = true;
+
+					// post the evidence
+					accredible_post_evidence($credential_id, $evidence_item, true);
+				}
+			}
+		}
+	}
+}
+
+function number_ending ($number) {
+  return ($number > 1) ? 's' : '';
+}
+
+function seconds_to_str ($seconds) {
+  $hours = floor(($seconds %= 86400) / 3600);
+  if ($hours) {
+    return $hours . ' hour' . number_ending($hours);
+  }
+  $minutes = floor(($seconds %= 3600) / 60);
+  if ($minutes) {
+    return $minutes . ' minute' . number_ending($minutes);
+  }
+  return $seconds . ' second' . number_ending($seconds);
+}
