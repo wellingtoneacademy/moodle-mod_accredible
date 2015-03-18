@@ -80,10 +80,13 @@ function accredible_issue_default_certificate($user_id, $certificate_id, $name, 
 	// evidence item posts
 	$credential_id = json_decode($result)->credential->id;
 	if($grade) {
-		$grade_evidence = array('string_object' => $grade, 'description' => $quiz_name, 'custom'=> true, 'category' => 'grade' );
+		$grade_evidence = array('string_object' => (string) $grade, 'description' => $quiz_name, 'custom'=> true, 'category' => 'grade' );
+		if($grade < 50) {
+		    $grade_evidence['hidden'] = true;
+		}
 	  accredible_post_evidence($credential_id, $grade_evidence, false);
 	}
-  if($transcript = accredible_get_transcript($accredible_certificate->course, $user_id)) {
+  if($transcript = accredible_get_transcript($accredible_certificate->course, $user_id, $accredible_certificate->finalquiz)) {
 	  accredible_post_evidence($credential_id, $transcript, false);
 	}
 
@@ -138,13 +141,13 @@ function accredible_quiz_submission_handler($event) {
 
 					// check for an existing certificate
 					if(!$existing_certificate) {
-						$users_grade = ( quiz_get_best_grade($quiz, $user->id) / $quiz->grade ) * 100;
+						$users_grade = min( ( quiz_get_best_grade($quiz, $user->id) / $quiz->grade ) * 100, 100);
 						$grade_is_high_enough = ($users_grade >= $accredible_certificate->passinggrade);
 
 						// check for pass
 						if($grade_is_high_enough) {
 							// issue a ceritificate
-							$api_response = accredible_issue_default_certificate( $user->id, $accredible_certificate->id, fullname($user), $user->email, (string) $users_grade, $quiz->name);
+							$api_response = accredible_issue_default_certificate( $user->id, $accredible_certificate->id, fullname($user), $user->email, $users_grade, $quiz->name);
 							$certificate_event = \mod_accredible\event\certificate_created::create(array(
 							  'objectid' => $api_response->credential->id,
 							  'context' => context_module::instance($event->contextinstanceid),
@@ -157,7 +160,7 @@ function accredible_quiz_submission_handler($event) {
 					else {
 						foreach ($existing_certificate->evidence_items as $evidence_item) {
 							if($evidence_item->type == "grade") {
-								$highest_grade = ( quiz_get_best_grade($quiz, $user->id) / $quiz->grade ) * 100;
+								$highest_grade = min( ( quiz_get_best_grade($quiz, $user->id) / $quiz->grade ) * 100, 100);
 								// only update if higher
 								if($evidence_item->string_object->grade < $highest_grade) {
 									accredible_update_certificate_grade($existing_certificate->id, $evidence_item->id, $highest_grade);
@@ -226,7 +229,7 @@ function accredible_update_certificate_grade($certificate_id, $evidence_item_id,
 	return $result;
 }
 
-function accredible_get_transcript($course_id, $user_id) {
+function accredible_get_transcript($course_id, $user_id, $final_quiz_id) {
 	global $DB, $CFG;
 
 	$total_items = 0;
@@ -238,16 +241,18 @@ function accredible_get_transcript($course_id, $user_id) {
 
 	// grab the grades for all quizes
 	foreach ($quizes as $quiz) {
-		$highest_grade = quiz_get_best_grade($quiz, $user_id);
-		if($highest_grade) {
-			$items_completed += 1;
-			array_push($transcript_items, array(
-				'category' => $quiz->name,
-				'percent' => ( $highest_grade / $quiz->grade ) * 100
-			));
-			$total_score += ( $highest_grade / $quiz->grade ) * 100;
+		if($quiz->id !== $final_quiz_id) {
+			$highest_grade = quiz_get_best_grade($quiz, $user_id);
+			if($highest_grade) {
+				$items_completed += 1;
+				array_push($transcript_items, array(
+					'category' => $quiz->name,
+					'percent' => min( ( $highest_grade / $quiz->grade ) * 100, 100 )
+				));
+				$total_score += min( ( $highest_grade / $quiz->grade ) * 100, 100);
+			}
+			$total_items += 1;
 		}
-		$total_items += 1;
 	}
 	
 	// if they've completed over 2/3 of items 

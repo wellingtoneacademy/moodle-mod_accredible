@@ -70,11 +70,14 @@ function accredible_add_instance($post) {
                 $credential_id = json_decode($result)->credential->id;
                 if($post->finalquiz) {
                     $quiz = $DB->get_record('quiz', array('id'=>$post->finalquiz), '*', MUST_EXIST);
-                    $users_grade = ( quiz_get_best_grade($quiz, $user->id) / $quiz->grade ) * 100;
+                    $users_grade = min( ( quiz_get_best_grade($quiz, $user->id) / $quiz->grade ) * 100, 100);
                     $grade_evidence =  array('string_object' => (string) $users_grade, 'description' => $quiz->name, 'custom'=> true, 'category' => 'grade');
+                    if($users_grade < 50) {
+                        $grade_evidence['hidden'] = true;
+                    }
                     accredible_post_evidence($credential_id, $grade_evidence, true);
                 }
-                if($transcript = accredible_get_transcript($post->course, $user_id)) {
+                if($transcript = accredible_get_transcript($post->course, $user_id, $post->finalquiz)) {
                     accredible_post_evidence($credential_id, $transcript, true);
                 }
 
@@ -157,11 +160,14 @@ function accredible_update_instance($post) {
                 $credential_id = json_decode($result)->credential->id;
                 if($post->finalquiz) {
                     $quiz = $DB->get_record('quiz', array('id'=>$post->finalquiz), '*', MUST_EXIST);
-                    $users_grade = ( quiz_get_best_grade($quiz, $user->id) / $quiz->grade ) * 100;
+                    $users_grade = min( ( quiz_get_best_grade($quiz, $user->id) / $quiz->grade ) * 100, 100);
                     $grade_evidence =  array('string_object' => (string) $users_grade, 'description' => $quiz->name, 'custom'=> true, 'category' => 'grade');
+                    if($users_grade < 50) {
+                        $grade_evidence['hidden'] = true;
+                    }
                     accredible_post_evidence($credential_id, $grade_evidence, true);
                 }
-                if($transcript = accredible_get_transcript($post->course, $user_id)) {
+                if($transcript = accredible_get_transcript($post->course, $user_id, $post->finalquiz)) {
                     accredible_post_evidence($credential_id, $transcript, true);
                 }
 
