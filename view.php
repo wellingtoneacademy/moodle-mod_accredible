@@ -73,7 +73,6 @@ else {
 	// Check for this user's certificate
 	$users_certificate_link = null;
 	foreach ($certificates as $certificate) {
-		// if($)
     if($certificate->recipient->email == $USER->email) {
       if($certificate->private) {
       	$users_certificate_link = $certificate->id . '?key=' . $certificate->private_key;

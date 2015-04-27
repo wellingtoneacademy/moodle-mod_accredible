@@ -90,6 +90,7 @@ function accredible_issue_default_certificate($user_id, $certificate_id, $name, 
 	  accredible_post_evidence($credential_id, $transcript, false);
 	}
 	accredible_post_essay_answers($user_id, $accredible_certificate->course, $credential_id);
+	accredible_course_duration_evidence($user_id, $accredible_certificate->course, $credential_id);
 
 	return json_decode($result);
 }
@@ -360,11 +361,37 @@ function accredible_post_essay_answers($user_id, $course_id, $credential_id) {
 					$evidence_item['hidden'] = true;
 
 					// post the evidence
-					accredible_post_evidence($credential_id, $evidence_item, true);
+					accredible_post_evidence($credential_id, $evidence_item, false);
 				}
 			}
 		}
 	}
+}
+
+function accredible_course_duration_evidence($user_id, $course_id, $credential_id) {
+	global $DB;
+
+	$sql = "SELECT enrol.id, enrol.timecreated
+					FROM mdl_enrol enrol, mdl_user_enrolments ue 
+					WHERE enrol.id = ue.enrolid AND ue.userid = ? AND enrol.courseid = ?";
+	$enrolment = $DB->get_record_sql($sql, array($user_id, $course_id));
+	$enrolment_timestamp = $enrolment->timecreated;
+
+	$duration_info = array(
+		'start_date' =>  date("Y-m-d", $enrolment_timestamp),
+		'end_date' => date("Y-m-d"),
+		'duration_in_days' => floor( (time() - $enrolment_timestamp) / 86400)
+	);
+
+	$evidence_item = array(
+		'description' => 'Completed in ' . $duration_info['duration_in_days'] . ' days', 
+		'category' => 'course_duration'
+	);
+	$evidence_item['string_object'] = json_encode($duration_info);
+	$evidence_item['hidden'] = true;
+
+	// post the evidence
+	accredible_post_evidence($credential_id, $evidence_item, false);
 }
 
 function number_ending ($number) {

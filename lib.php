@@ -81,6 +81,7 @@ function accredible_add_instance($post) {
                     accredible_post_evidence($credential_id, $transcript, true);
                 }
                 accredible_post_essay_answers($user_id, $post->course, $credential_id);
+                accredible_course_duration_evidence($user_id, $post->course, $credential_id);
 
                 // Log the creation
                 $event = accredible_log_creation( 
@@ -172,6 +173,7 @@ function accredible_update_instance($post) {
                     accredible_post_evidence($credential_id, $transcript, true);
                 }
                 accredible_post_essay_answers($user_id, $post->course, $credential_id);
+                accredible_course_duration_evidence($user_id, $post->course, $credential_id);
 
                 // Log the creation
                 $event = accredible_log_creation( 
