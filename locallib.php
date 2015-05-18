@@ -371,11 +371,11 @@ function accredible_post_essay_answers($user_id, $course_id, $credential_id) {
 function accredible_course_duration_evidence($user_id, $course_id, $credential_id) {
 	global $DB;
 
-	$sql = "SELECT enrol.id, enrol.timecreated
+	$sql = "SELECT enrol.id, ue.timestart
 					FROM mdl_enrol enrol, mdl_user_enrolments ue 
 					WHERE enrol.id = ue.enrolid AND ue.userid = ? AND enrol.courseid = ?";
 	$enrolment = $DB->get_record_sql($sql, array($user_id, $course_id));
-	$enrolment_timestamp = $enrolment->timecreated;
+	$enrolment_timestamp = $enrolment->timestart;
 
 	$duration_info = array(
 		'start_date' =>  date("Y-m-d", $enrolment_timestamp),
