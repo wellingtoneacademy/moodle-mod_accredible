@@ -39,11 +39,11 @@ function accredible_get_issued($achievement_id) {
 	curl_setopt( $curl, CURLOPT_HTTPHEADER, array( 'Authorization: Token token="'.$CFG->accredible_api_key.'"' ) );
 	curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
 	if(!$result = json_decode( curl_exec($curl) )) {
-	  // throw API exception
-	  // include the achievement id that triggered the error
-	  // direct the user to accredible's support
-	  // dump the achievement id to debug_info
-	  throw new moodle_exception('getissuederror', 'accredible', 'https://accredible.com/contact/support', $achievement_id, $achievement_id);
+		// throw API exception
+		// include the achievement id that triggered the error
+		// direct the user to accredible's support
+		// dump the achievement id to debug_info
+		throw new moodle_exception('getissuederror', 'accredible', 'https://accredible.com/contact/support', $achievement_id, $achievement_id);
 	}
 	curl_close($curl);
 	return $result->credentials;
@@ -60,13 +60,20 @@ function accredible_issue_default_certificate($user_id, $certificate_id, $name, 
 	$accredible_certificate = $DB->get_record('accredible', array('id'=>$certificate_id));
 
 	$certificate = array();
-  $course_url = new moodle_url('/course/view.php', array('id' => $accredible_certificate->course));
+	$course_url = new moodle_url('/course/view.php', array('id' => $accredible_certificate->course));
 	$certificate['name'] = $accredible_certificate->certificatename;
 	$certificate['achievement_id'] = $accredible_certificate->achievementid;
 	$certificate['description'] = $accredible_certificate->description;
-  $certificate['course_link'] = $course_url->__toString();
+	$certificate['course_link'] = $course_url->__toString();
 	$certificate['recipient'] = array('name' => $name, 'email'=> $email);
-	$certificate['template_name'] = "Finanzas";
+	// TODO - get actual values for these custom variables
+	$attributes = array(
+			'City' => 'You will need to fill in the value of the city here', 
+			'Start_Date' => 'You will need to format the date as a string, in Spanish, here', 
+			'End_Date' => 'You will need to format the date as a string, in Spanish, here', 
+			'Hours'=> 0 // insert actual value of hours here
+	);
+	$certificate['template_name'] = $accredible_certificate->achievementid;
 
 	$curl = curl_init('https://api.accredible.com/v1/credentials');
 	curl_setopt($curl, CURLOPT_POST, 1);
@@ -83,12 +90,12 @@ function accredible_issue_default_certificate($user_id, $certificate_id, $name, 
 	if($grade) {
 		$grade_evidence = array('string_object' => (string) $grade, 'description' => $quiz_name, 'custom'=> true, 'category' => 'grade' );
 		if($grade < 50) {
-		    $grade_evidence['hidden'] = true;
+				$grade_evidence['hidden'] = true;
 		}
-	  accredible_post_evidence($credential_id, $grade_evidence, false);
+		accredible_post_evidence($credential_id, $grade_evidence, false);
 	}
-  if($transcript = accredible_get_transcript($accredible_certificate->course, $user_id, $accredible_certificate->finalquiz)) {
-	  accredible_post_evidence($credential_id, $transcript, false);
+	if($transcript = accredible_get_transcript($accredible_certificate->course, $user_id, $accredible_certificate->finalquiz)) {
+		accredible_post_evidence($credential_id, $transcript, false);
 	}
 
 	return json_decode($result);
@@ -111,9 +118,9 @@ function accredible_log_creation($certificate_id, $user_id, $course_id, $cm_id) 
 	$context = context_module::instance($cm->id);
 
 	return \mod_accredible\event\certificate_created::create(array(
-	  'objectid' => $certificate_id,
-	  'context' => $context,
-	  'relateduserid' => $user_id
+		'objectid' => $certificate_id,
+		'context' => $context,
+		'relateduserid' => $user_id
 	));
 }
 
@@ -150,9 +157,9 @@ function accredible_quiz_submission_handler($event) {
 							// issue a ceritificate
 							$api_response = accredible_issue_default_certificate( $user->id, $accredible_certificate->id, fullname($user), $user->email, $users_grade, $quiz->name);
 							$certificate_event = \mod_accredible\event\certificate_created::create(array(
-							  'objectid' => $api_response->credential->id,
-							  'context' => context_module::instance($event->contextinstanceid),
-							  'relateduserid' => $event->relateduserid
+								'objectid' => $api_response->credential->id,
+								'context' => context_module::instance($event->contextinstanceid),
+								'relateduserid' => $event->relateduserid
 							));
 							$certificate_event->trigger();
 						}
@@ -204,9 +211,9 @@ function accredible_quiz_submission_handler($event) {
 							// and issue a ceritificate
 							$api_response = accredible_issue_default_certificate( $user->id, $accredible_certificate->id, fullname($user), $user->email, null, null);
 							$certificate_event = \mod_accredible\event\certificate_created::create(array(
-							  'objectid' => $api_response->credential->id,
-							  'context' => context_module::instance($event->contextinstanceid),
-							  'relateduserid' => $event->relateduserid
+								'objectid' => $api_response->credential->id,
+								'context' => context_module::instance($event->contextinstanceid),
+								'relateduserid' => $event->relateduserid
 							));
 							$certificate_event->trigger();
 						}
@@ -218,11 +225,11 @@ function accredible_quiz_submission_handler($event) {
 }
 
 function accredible_update_certificate_grade($certificate_id, $evidence_item_id, $grade) {
-  global $CFG;
+	global $CFG;
 
 	$curl = curl_init('https://api.accredible.com/v1/credentials/' . $certificate_id . '/evidence_items/'.$evidence_item_id);
 	curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-  curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "PUT");
+	curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "PUT");
 	curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query( array('evidence_item' => array( 'string_object' => $grade ) ) ));
 	curl_setopt( $curl, CURLOPT_HTTPHEADER, array( 'Authorization: Token token="'.$CFG->accredible_api_key.'"' ) );
 
@@ -282,11 +289,11 @@ function accredible_post_evidence($credential_id, $evidence_item, $allow_excepti
 	curl_setopt( $curl, CURLOPT_HTTPHEADER, array( 'Authorization: Token token="'.$CFG->accredible_api_key.'"' ) );
 	$result = curl_exec($curl);
 	if(!$result && $allow_exceptions) {
-    // throw API exception
-    // include the user id that triggered the error
-    // direct the user to accredible's support
-    // dump the post to debug_info
-    throw new moodle_exception('evidenceadderror', 'accredible', 'https://accredible.com/contact/support', $credential_id, curl_error($curl));
+		// throw API exception
+		// include the user id that triggered the error
+		// direct the user to accredible's support
+		// dump the post to debug_info
+		throw new moodle_exception('evidenceadderror', 'accredible', 'https://accredible.com/contact/support', $credential_id, curl_error($curl));
 	}
 	curl_close($curl);
 }

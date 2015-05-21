@@ -51,7 +51,14 @@ function accredible_add_instance($post) {
                 $certificate['description'] = $post->description;
                 $certificate['course_link'] = $course_url->__toString();
                 $certificate['recipient'] = array('name' => fullname($user), 'email'=> $user->email);
-                $certificate['template_name'] = "Finanzas";
+                // TODO - get actual values for these custom variables
+                $attributes = array(
+                    'City' => 'You will need to fill in the value of the city here', 
+                    'Start_Date' => 'You will need to format the date as a string, in Spanish, here', 
+                    'End_Date' => 'You will need to format the date as a string, in Spanish, here', 
+                    'Hours'=> 0 // insert actual value of hours here
+                );
+                $certificate['template_name'] = $post->achievementid;
 
                 $curl = curl_init('https://api.accredible.com/v1/credentials');
                 curl_setopt($curl, CURLOPT_POST, 1);
@@ -142,7 +149,15 @@ function accredible_update_instance($post) {
                 $certificate['description'] = $post->description;
                 $certificate['course_link'] = $course_url->__toString();
                 $certificate['recipient'] = array('name' => fullname($user), 'email'=> $user->email);
-                $certificate['template_name'] = "Finanzas";
+                // TODO - get actual values for these custom variables
+                $attributes = array(
+                    'City' => 'You will need to fill in the value of the city here', 
+                    'Start_Date' => 'You will need to format the date as a string, in Spanish, here', 
+                    'End_Date' => 'You will need to format the date as a string, in Spanish, here', 
+                    'Hours'=> 0 // insert actual value of hours here
+                );
+                $certificate['custom_attributes'] = json_encode($attributes);
+                $certificate['template_name'] = $post->achievementid;
 
                 $curl = curl_init('https://api.accredible.com/v1/credentials');
                 curl_setopt($curl, CURLOPT_POST, 1);
