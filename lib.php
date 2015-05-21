@@ -51,6 +51,7 @@ function accredible_add_instance($post) {
                 $certificate['description'] = $post->description;
                 $certificate['course_link'] = $course_url->__toString();
                 $certificate['recipient'] = array('name' => fullname($user), 'email'=> $user->email);
+                $certificate['template_name'] = "Finanzas";
 
                 $curl = curl_init('https://api.accredible.com/v1/credentials');
                 curl_setopt($curl, CURLOPT_POST, 1);
@@ -80,8 +81,6 @@ function accredible_add_instance($post) {
                 if($transcript = accredible_get_transcript($post->course, $user_id, $post->finalquiz)) {
                     accredible_post_evidence($credential_id, $transcript, true);
                 }
-                accredible_post_essay_answers($user_id, $post->course, $credential_id);
-                accredible_course_duration_evidence($user_id, $post->course, $credential_id);
 
                 // Log the creation
                 $event = accredible_log_creation( 
@@ -143,6 +142,7 @@ function accredible_update_instance($post) {
                 $certificate['description'] = $post->description;
                 $certificate['course_link'] = $course_url->__toString();
                 $certificate['recipient'] = array('name' => fullname($user), 'email'=> $user->email);
+                $certificate['template_name'] = "Finanzas";
 
                 $curl = curl_init('https://api.accredible.com/v1/credentials');
                 curl_setopt($curl, CURLOPT_POST, 1);
@@ -172,8 +172,6 @@ function accredible_update_instance($post) {
                 if($transcript = accredible_get_transcript($post->course, $user_id, $post->finalquiz)) {
                     accredible_post_evidence($credential_id, $transcript, true);
                 }
-                accredible_post_essay_answers($user_id, $post->course, $credential_id);
-                accredible_course_duration_evidence($user_id, $post->course, $credential_id);
 
                 // Log the creation
                 $event = accredible_log_creation( 
