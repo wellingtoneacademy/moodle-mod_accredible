@@ -5,6 +5,11 @@ This plugin enables you to issue dynamic, digital certificates using the [Accred
 
 This plugin is currently in **Beta**. It was developed for **Moodle versions 27 and greater**.
 
+---
+
+##### Note - Not yet compatible with the latest API release
+We have not updated the plugin to use **our more advanced certificate designs** yet. You can still issue certificates with advanced designs in bulk using the Accredible Dashboard. Further Moodle support will be added later this year.
+
 ## Installation
 
 There are two installation methods that are available. Follow one of these, then log into your Moodle site as an administrator and visit the notifications page to complete the install.
