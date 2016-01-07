@@ -69,7 +69,7 @@ function accredible_get_templates() {
 	curl_close($curl);
 	$templates = array();
 	for($i = 0, $size = count($result->templates); $i < $size; ++$i) {
-		array_push($templates, $result->templates[$i]->name);
+		$templates[$result->templates[$i]->name] = $result->templates[$i]->name;
 	}
 	return $templates;
 }
