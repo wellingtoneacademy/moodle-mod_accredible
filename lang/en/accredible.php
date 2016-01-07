@@ -24,7 +24,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['achievementid'] = 'Achievement id (must be unique)';
+$string['achievementid'] = 'Achievement id / cohort name (must be unique)';
 $string['activityname'] = 'Activity name';
 $string['additionalactivitiesone'] = 'Warning: You are adding more than one activity to a course.<br/>Both activities are viewable by students, so be sure to give them different names.';
 $string['additionalactivitiestwo'] = 'Certificates will only be listed on the activity page if they were issued with this achievement id.';
@@ -61,7 +61,7 @@ $string['passinggrade'] = 'Percentage grade needed to pass course (%)';
 $string['pluginadministration'] = 'Accredible certificates administration';
 $string['pluginname'] = 'Accredible certificates';
 $string['recipient'] = 'Recipient';
-$string['usestemplates'] = 'Uses a design template';
+$string['templatename'] = 'Cohort name (from dashboard)';
 $string['usestemplatesdescription'] = 'Make sure you have a cohort on the dashboard with the same name as your achievement id.';
 $string['viewheader'] = 'Certificates for {$a}';
 $string['viewimgcomplete'] = 'Click to view your certificate';

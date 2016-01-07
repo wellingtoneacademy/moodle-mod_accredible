@@ -47,11 +47,7 @@ function accredible_add_instance($post) {
                 $certificate = array();
                 $course_url = new moodle_url('/course/view.php', array('id' => $post->course));
                 $certificate['name'] = $post->certificatename;
-                if($post->usestemplates) {
-                    $certificate['template_name'] = $post->achievementid;
-                } else {
-                    $certificate['achievement_id'] = $post->achievementid;
-                }
+                $certificate['template_name'] = $post->achievementid;
                 $certificate['description'] = $post->description;
                 $certificate['course_link'] = $course_url->__toString();
                 $certificate['recipient'] = array('name' => fullname($user), 'email'=> $user->email);
@@ -117,7 +113,6 @@ function accredible_add_instance($post) {
     $db_record->passinggrade = $post->passinggrade;
     $db_record->timecreated = time();
     $db_record->certificatename = $post->certificatename;
-    $db_record->usestemplates = $post->usestemplates;
 
     return $DB->insert_record('accredible', $db_record);
 }
@@ -144,11 +139,7 @@ function accredible_update_instance($post) {
                 $certificate = array();
                 $course_url = new moodle_url('/course/view.php', array('id' => $post->course));
                 $certificate['name'] = $post->certificatename;
-                if($post->usestemplates) {
-                    $certificate['template_name'] = $post->achievementid;
-                } else {
-                    $certificate['achievement_id'] = $post->achievementid;
-                }
+                $certificate['template_name'] = $post->achievementid;
                 $certificate['description'] = $post->description;
                 $certificate['course_link'] = $course_url->__toString();
                 $certificate['recipient'] = array('name' => fullname($user), 'email'=> $user->email);
@@ -213,7 +204,6 @@ function accredible_update_instance($post) {
     $db_record->description = $post->description;
     $db_record->passinggrade = $post->passinggrade;
     $db_record->finalquiz = $post->finalquiz;
-    $db_record->usestemplates = $post->usestemplates;
 
     return $DB->update_record('accredible', $db_record);
 }

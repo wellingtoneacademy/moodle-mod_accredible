@@ -49,6 +49,31 @@ function accredible_get_issued($achievement_id) {
 	return $result->credentials;
 }
 
+/**
+ * List all of the issuer's templates
+ *
+ * @return array[stdClass] $templates
+ */
+function accredible_get_templates() {
+	global $CFG;
+
+	$curl = curl_init('https://api.accredible.com/v1/issuer/templates');
+	curl_setopt( $curl, CURLOPT_HTTPHEADER, array( 'Authorization: Token token="'.$CFG->accredible_api_key.'"' ) );
+	curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+	if(!$result = json_decode( curl_exec($curl) )) {
+	  // throw API exception
+	  // direct the user to accredible's support
+	  // dump the achievement id to debug_info
+	  throw new moodle_exception('gettemplateserror', 'accredible', 'https://accredible.com/contact/support');
+	}
+	curl_close($curl);
+	$templates = array();
+	for($i = 0, $size = count($result->templates); $i < $size; ++$i) {
+		array_push($templates, $result->templates[$i]->name);
+	}
+	return $templates;
+}
+
 /*
  * accredible_issue_default_certificate
  * 
@@ -62,11 +87,7 @@ function accredible_issue_default_certificate($user_id, $certificate_id, $name, 
 	$certificate = array();
   $course_url = new moodle_url('/course/view.php', array('id' => $accredible_certificate->course));
 	$certificate['name'] = $accredible_certificate->certificatename;
-	if($accredible_certificate->usestemplates) {
-		$certificate['template_name'] = $accredible_certificate->achievementid;
-	} else {
-		$certificate['achievement_id'] = $accredible_certificate->achievementid;
-	}
+	$certificate['template_name'] = $accredible_certificate->achievementid;
 	$certificate['description'] = $accredible_certificate->description;
   $certificate['course_link'] = $course_url->__toString();
 	$certificate['recipient'] = array('name' => $name, 'email'=> $email);

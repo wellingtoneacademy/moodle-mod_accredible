@@ -82,20 +82,5 @@ function xmldb_accredible_upgrade($oldversion=0) {
         upgrade_mod_savepoint(true, 2014121800, 'accredible');
     }
 
-    if ($oldversion < 2016010800) {
-
-        // Define field usestemplates to be added to accredible.
-        $table = new xmldb_table('accredible');
-        $field = new xmldb_field('usestemplates', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'certificatename');
-
-        // Conditionally launch add field usestemplates.
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-        // Accredible savepoint reached.
-        upgrade_mod_savepoint(true, 2016010800, 'accredible');
-    }
-
     return true;
 }
