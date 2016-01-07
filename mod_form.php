@@ -83,6 +83,9 @@ class mod_accredible_mod_form extends moodleform_mod {
         $mform->setType('name', PARAM_TEXT);
         $mform->setDefault('name', $course->fullname);
 
+        $mform->addElement('advcheckbox', 'usestemplates', get_string('usestemplates', 'accredible'), get_string('usestemplatesdescription', 'accredible'));
+        $mform->setDefault('usestemplates', 1);
+        
         if($alreadyexists) {
             $mform->addElement('static', 'additionalactivitiestwo', '', get_string('additionalactivitiestwo', 'accredible'));
         }

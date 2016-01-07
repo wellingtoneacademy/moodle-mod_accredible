@@ -62,7 +62,11 @@ function accredible_issue_default_certificate($user_id, $certificate_id, $name, 
 	$certificate = array();
   $course_url = new moodle_url('/course/view.php', array('id' => $accredible_certificate->course));
 	$certificate['name'] = $accredible_certificate->certificatename;
-	$certificate['achievement_id'] = $accredible_certificate->achievementid;
+	if($accredible_certificate->usestemplates) {
+		$certificate['template_name'] = $accredible_certificate->achievementid;
+	} else {
+		$certificate['achievement_id'] = $accredible_certificate->achievementid;
+	}
 	$certificate['description'] = $accredible_certificate->description;
   $certificate['course_link'] = $course_url->__toString();
 	$certificate['recipient'] = array('name' => $name, 'email'=> $email);
