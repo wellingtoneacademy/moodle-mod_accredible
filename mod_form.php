@@ -86,20 +86,13 @@ class mod_accredible_mod_form extends moodleform_mod {
         if($alreadyexists) {
             $mform->addElement('static', 'additionalactivitiestwo', '', get_string('additionalactivitiestwo', 'accredible'));
         }
-        if(!$updatingcert) {
-            // Grab the list of templates available
-            $templates = accredible_get_templates();
-            $mform->addElement('static', 'usestemplatesdescription', '', get_string('usestemplatesdescription', 'accredible'));
-            $mform->addElement('select', 'achievementid', get_string('templatename', 'accredible'), $templates);
-            $mform->addRule('achievementid', null, 'required', null, 'client');
-            $mform->setType('achievementid', PARAM_TEXT);
-            $mform->setDefault('achievementid', $course->shortname);
-        } else {
-            $mform->addElement('text', 'achievementid', get_string('achievementid', 'accredible'));
-            $mform->addRule('achievementid', null, 'required', null, 'client');
-            $mform->setType('achievementid', PARAM_TEXT);
-            $mform->setDefault('achievementid', $course->shortname);
-        }
+
+        // Grab the list of templates available
+        $templates = accredible_get_templates();
+        $mform->addElement('static', 'usestemplatesdescription', '', get_string('usestemplatesdescription', 'accredible'));
+        $mform->addElement('select', 'achievementid', get_string('templatename', 'accredible'), $templates);
+        $mform->addRule('achievementid', null, 'required', null, 'client');
+        $mform->setDefault('achievementid', $course->shortname);
 
         if($alreadyexists) {
             $mform->addElement('static', 'additionalactivitiesthree', '', get_string('additionalactivitiesthree', 'accredible'));
