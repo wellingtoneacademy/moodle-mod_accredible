@@ -71,6 +71,7 @@ function accredible_get_templates() {
 	for($i = 0, $size = count($result->templates); $i < $size; ++$i) {
 		$templates[$result->templates[$i]->name] = $result->templates[$i]->name;
 	}
+	ksort($templates);
 	return $templates;
 }
 
