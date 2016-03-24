@@ -1,5 +1,5 @@
 ## Introduction
-This plugin enables you to issue dynamic, digital certificates using the [Accredible](https://accredible.com) API on your Moodle instance. They act as a replacement for the PDF certificates normally generated for your courses. An example output certificate can be viewed at: [https://accredible.com/example](https://accredible.com/example).
+This plugin enables you to issue dynamic, digital certificates using the [Accredible](https://www.accredible.com) API on your Moodle instance. They act as a replacement for the PDF certificates normally generated for your courses. An example output certificate can be viewed at: [https://www.accredible.com/example](https://www.accredible.com/example).
 
 ## Compatability
 
@@ -37,7 +37,7 @@ If you have git installed, simply visit the Moodle /mod directory and clone this
 
 #### Get your API key
 
-Make sure you have your API key from Accredible. We should have shared it with you, but it's also on the [API Management Dashboard](https://accredible.com/issuer/dashboard).
+Make sure you have your API key from Accredible. We should have shared it with you, but it's also on the [API Management Dashboard](https://www.accredible.com/issuer/dashboard).
 
 #### Continue Moodle set up
 

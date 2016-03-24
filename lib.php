@@ -67,7 +67,7 @@ function accredible_add_instance($post) {
                     // include the user id that triggered the error
                     // direct the user to accredible's support
                     // dump the post to debug_info
-                    throw new moodle_exception('manualadderror:add', 'accredible', 'https://accredible.com/contact/support', $user_id, var_dump($post));
+                    throw new moodle_exception('manualadderror:add', 'accredible', 'http://help.accredible.com/hc/en-us/requests/new', $user_id, var_dump($post));
                 }
                 curl_close($curl);
 
@@ -164,7 +164,7 @@ function accredible_update_instance($post) {
                     // include the user id that triggered the error
                     // direct the user to accredible's support
                     // dump the post to debug_info
-                    throw new moodle_exception('manualadderror:edit', 'accredible', 'https://accredible.com/contact/support', $user_id, var_dump($post));
+                    throw new moodle_exception('manualadderror:edit', 'accredible', 'http://help.accredible.com/hc/en-us/requests/new', $user_id, var_dump($post));
                 }
                 curl_close($curl);
 

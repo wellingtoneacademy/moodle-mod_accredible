@@ -57,7 +57,7 @@ if(has_capability('mod/accredible:manage', $context)) {
 	  $table->data[] = array ( 
 	  	$certificate->id, 
 	  	$certificate->recipient->name, 
-	  	"<a href='https://accredible.com/$certificate->id' target='_blank'>https://accredible.com/$certificate->id</a>", 
+	  	"<a href='https://www.credential.net/$certificate->id' target='_blank'>https://www.credential.net/$certificate->id</a>", 
 	  	$issue_date
 	  );
 	}
@@ -89,7 +89,7 @@ else {
 		echo html_writer::start_div('text-center');
 		echo html_writer::tag( 'br', null );
 		$img = html_writer::img($src, get_string('viewimgcomplete', 'accredible'), array('width' => '90%') );
-		echo html_writer::link( 'https://accredible.com/'.$users_certificate_link, $img, array('target' => '_blank') );
+		echo html_writer::link( 'https://www.credential.net/'.$users_certificate_link, $img, array('target' => '_blank') );
 		echo html_writer::end_div('text-center');
 	} 
 	else {

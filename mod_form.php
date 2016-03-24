@@ -141,7 +141,7 @@ class mod_accredible_mod_form extends moodleform_mod {
                 }
                 // show the certificate if they have a certificate
                 if( $cert_id ) {
-                    $mform->addElement('static', 'certlink'.$user->id, $user->firstname . ' ' . $user->lastname, "Certificate $cert_id - <a href='https://accredible.com/$cert_link' target='_blank'>link</a>");
+                    $mform->addElement('static', 'certlink'.$user->id, $user->firstname . ' ' . $user->lastname, "Certificate $cert_id - <a href='https://www.accredible.com/$cert_link' target='_blank'>link</a>");
                 } // show a checkbox if they don't
                 else {
                     $mform->addElement('advcheckbox', 'users['.$user->id.']', $user->firstname . ' ' . $user->lastname, null, array('group' => 1));

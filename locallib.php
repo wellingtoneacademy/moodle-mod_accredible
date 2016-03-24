@@ -42,7 +42,7 @@ function accredible_get_issued($achievement_id) {
 		// include the achievement id that triggered the error
 		// direct the user to accredible's support
 		// dump the achievement id to debug_info
-		throw new moodle_exception('getissuederror', 'accredible', 'https://accredible.com/contact/support', $achievement_id, $achievement_id);
+		throw new moodle_exception('getissuederror', 'accredible', 'http://help.accredible.com/hc/en-us/requests/new', $achievement_id, $achievement_id);
 	}
 	curl_close($curl);
 	return $result->credentials;
@@ -63,7 +63,7 @@ function accredible_get_templates() {
 		// throw API exception
 		// direct the user to accredible's support
 		// dump the achievement id to debug_info
-		throw new moodle_exception('gettemplateserror', 'accredible', 'https://accredible.com/contact/support');
+		throw new moodle_exception('gettemplateserror', 'accredible', 'http://help.accredible.com/hc/en-us/requests/new');
 	}
 	curl_close($curl);
 	$templates = array();
@@ -314,7 +314,7 @@ function accredible_post_evidence($credential_id, $evidence_item, $allow_excepti
 		// include the user id that triggered the error
 		// direct the user to accredible's support
 		// dump the post to debug_info
-		throw new moodle_exception('evidenceadderror', 'accredible', 'https://accredible.com/contact/support', $credential_id, curl_error($curl));
+		throw new moodle_exception('evidenceadderror', 'accredible', 'http://help.accredible.com/hc/en-us/requests/new', $credential_id, curl_error($curl));
 	}
 	curl_close($curl);
 }
