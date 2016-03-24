@@ -35,6 +35,11 @@ require_once($CFG->libdir  . '/eventslib.php');
  */
 function accredible_add_instance($post) {
     global $DB, $CFG;
+    if($post->achievementid2 == get_string('templatedefault', 'accredible')) {
+        $achievement_id = $post->achievementid;
+    } else {
+        $achievement_id = $post->achievementid2;
+    }
 
     // Issue certs
     if( isset($post->users) ) {
@@ -47,7 +52,7 @@ function accredible_add_instance($post) {
                 $certificate = array();
                 $course_url = new moodle_url('/course/view.php', array('id' => $post->course));
                 $certificate['name'] = $post->certificatename;
-                $certificate['template_name'] = $post->achievementid;
+                $certificate['template_name'] = $achievement_id;
                 $certificate['description'] = $post->description;
                 $certificate['course_link'] = $course_url->__toString();
                 $certificate['recipient'] = array('name' => fullname($user), 'email'=> $user->email);
@@ -108,7 +113,7 @@ function accredible_add_instance($post) {
     $db_record->name = $post->name;
     $db_record->course = $post->course;
     $db_record->description = $post->description;
-    $db_record->achievementid = $post->achievementid;
+    $db_record->achievementid = $achievement_id;
     $db_record->finalquiz = $post->finalquiz;
     $db_record->passinggrade = $post->passinggrade;
     $db_record->timecreated = time();
@@ -127,6 +132,11 @@ function accredible_update_instance($post) {
     // To update your certificate details, go to accredible.com.
     global $DB, $CFG;
     $accredible_cm = get_coursemodule_from_id('accredible', $post->coursemodule, 0, false, MUST_EXIST);
+    if($post->achievementid2 == get_string('templatedefault', 'accredible')) {
+        $achievement_id = $post->achievementid;
+    } else {
+        $achievement_id = $post->achievementid2;
+    }
 
     // Issue certs
     if( isset($post->users) ) {
@@ -139,7 +149,7 @@ function accredible_update_instance($post) {
                 $certificate = array();
                 $course_url = new moodle_url('/course/view.php', array('id' => $post->course));
                 $certificate['name'] = $post->certificatename;
-                $certificate['template_name'] = $post->achievementid;
+                $certificate['template_name'] = $achievement_id;
                 $certificate['description'] = $post->description;
                 $certificate['course_link'] = $course_url->__toString();
                 $certificate['recipient'] = array('name' => fullname($user), 'email'=> $user->email);
@@ -197,7 +207,7 @@ function accredible_update_instance($post) {
     // Save record
     $db_record = new stdClass();
     $db_record->id = $post->instance;
-    $db_record->achievementid = $post->achievementid;
+    $db_record->achievementid = $achievement_id;
     $db_record->completionactivities = serialize_completion_array($completion_activities);
     $db_record->name = $post->name;
     $db_record->certificatename = $post->certificatename;

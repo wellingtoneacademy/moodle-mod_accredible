@@ -25,7 +25,7 @@
  */
 
 $string['achievementid'] = 'Achievement id / cohort name (must be unique)';
-$string['activityname'] = 'Activity name';
+$string['activityname'] = 'Moodle activity name (displayed to users in Moodle)';
 $string['additionalactivitiesone'] = 'Warning: You are adding more than one activity to a course.<br/>Both activities are viewable by students, so be sure to give them different names.';
 $string['additionalactivitiestwo'] = 'Certificates will only be listed on the activity page if they were issued with this achievement id.';
 $string['additionalactivitiesthree'] = 'This is the name that will appear on the ceriticate.';
@@ -40,8 +40,9 @@ $string['certificatename'] = 'Certificate name';
 $string['certificateurl'] = 'Certificate url';
 $string['chooseexam'] = 'Choose final quiz';
 $string['completionissueheader'] = 'Auto-issue criteria: by activity completion';
+$string['customtemplatename'] = 'Achievement ID (will use the default template)';
 $string['dashboardlink'] = 'Accredible dashboard link';
-$string['dashboardlinktext'] = 'To delete or style credentials, log in to the <a href="https://accredible.com/issuer/login" target="_blank">dashboard</a>';
+$string['dashboardlinktext'] = 'To delete or style credentials, log in to the <a href="https://www.accredible.com/issuer/login" target="_blank">dashboard</a>';
 $string['datecreated'] = 'Date created';
 $string['description'] = 'Description';
 $string['eventcertificatecreated'] = 'A certificate was posted to Accredible';
@@ -61,8 +62,9 @@ $string['passinggrade'] = 'Percentage grade needed to pass course (%)';
 $string['pluginadministration'] = 'Accredible certificates administration';
 $string['pluginname'] = 'Accredible certificates';
 $string['recipient'] = 'Recipient';
+$string['templatedefault'] = ' Choose an existing cohort';
 $string['templatename'] = 'Cohort name (from dashboard)';
-$string['usestemplatesdescription'] = 'Make sure you have a cohort on the dashboard with the same name as your achievement id.';
+$string['usestemplatesdescription'] = 'Choose a cohort from the list on your dashboard, or use the custom name field. Using a custom name will group this courses certificates together, but they will use the default design template. <a href="http://help.accredible.com/hc/en-us/requests/new" target="_blank">Contact us if you have questions.</a>';
 $string['viewheader'] = 'Certificates for {$a}';
 $string['viewimgcomplete'] = 'Click to view your certificate';
 $string['viewimgincomplete'] = 'Course still in progress';
