@@ -415,8 +415,10 @@ function accredible_course_duration_evidence($user_id, $course_id, $credential_i
 	$evidence_item['string_object'] = json_encode($duration_info);
 	$evidence_item['hidden'] = true;
 
-	// post the evidence
-	accredible_post_evidence($credential_id, $evidence_item, false);
+	// post the evidence if the startdate exists and isn't 0 (epoch)
+	if($enrolment_timestamp && $enrolment_timestamp != 0){
+		accredible_post_evidence($credential_id, $evidence_item, false);	
+	}
 }
 
 function number_ending ($number) {
