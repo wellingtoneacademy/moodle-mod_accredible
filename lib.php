@@ -80,7 +80,6 @@ function accredible_add_instance($post) {
                 if($transcript = accredible_get_transcript($post->course, $user_id, $post->finalquiz)) {
                     accredible_post_evidence($credential_id, $transcript, true);
                 }
-                accredible_post_essay_answers($user_id, $post->course, $credential_id);
                 accredible_course_duration_evidence($user_id, $post->course, $credential_id);
 
                 // Log the creation
@@ -172,7 +171,6 @@ function accredible_update_instance($post) {
                 if($transcript = accredible_get_transcript($post->course, $user_id, $post->finalquiz)) {
                     accredible_post_evidence($credential_id, $transcript, true);
                 }
-                accredible_post_essay_answers($user_id, $post->course, $credential_id);
                 accredible_course_duration_evidence($user_id, $post->course, $credential_id);
 
                 // Log the creation
