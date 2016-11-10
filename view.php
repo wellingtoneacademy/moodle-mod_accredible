@@ -48,6 +48,8 @@ $PAGE->set_heading(format_string($course->fullname));
 // Get array of certificates
 $certificates = accredible_get_issued($accredible_certificate->achievementid);
 
+var_dump($certificates);
+
 if(has_capability('mod/accredible:manage', $context)) {
 	$table = new html_table();
 	$table->head  = array (get_string('id', 'accredible'), get_string('recipient', 'accredible'), get_string('certificateurl', 'accredible'), get_string('datecreated', 'accredible'));

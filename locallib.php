@@ -26,6 +26,32 @@
 
 require_once($CFG->libdir . '/eventslib.php');
 
+// For composer dependencies
+require __DIR__ . '/vendor/autoload.php';
+
+use ACMS\Api;
+
+// /**
+//  * Create credential
+//  * @param stdClass $user
+//  * @param stdClass $course
+//  * @return stdClass
+//  */
+// function create_credential($user, $course){
+// 	global $CFG;
+
+// 	$api = new Api($CFG->accredible_api_key, true);
+
+// 	$course_url = new moodle_url('/course/view.php', array('id' => $post->course));
+//                 $certificate['name'] = $post->certificatename;
+//                 $certificate['template_name'] = $post->achievementid;
+//                 $certificate['description'] = $post->description;
+//                 $certificate['course_link'] = $course_url->__toString();
+
+// 	$response = $api->create_credential(fullname($user), $user->email, $group_id);
+// }
+
+
 /**
  * List all of the ceritificates with a specific achievement id
  *

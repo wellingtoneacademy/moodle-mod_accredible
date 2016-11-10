@@ -36,6 +36,8 @@ require_once($CFG->libdir  . '/eventslib.php');
 function accredible_add_instance($post) {
     global $DB, $CFG;
 
+    $course = $DB->get_record('course', array('id'=> $post->course), '*', MUST_EXIST);
+
     // Issue certs
     if( isset($post->users) ) {
         // Checklist array from the form comes in the format:
@@ -52,7 +54,7 @@ function accredible_add_instance($post) {
                 $certificate['course_link'] = $course_url->__toString();
                 $certificate['recipient'] = array('name' => fullname($user), 'email'=> $user->email);
 
-                $curl = curl_init('https://api.accredible.com/v1/credentials');
+                $curl = curl_init('https://staging.accredible.com/v1/credentials');
                 curl_setopt($curl, CURLOPT_POST, 1);
                 curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query( array('credential' => $certificate) ));
                 curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
@@ -144,7 +146,7 @@ function accredible_update_instance($post) {
                 $certificate['course_link'] = $course_url->__toString();
                 $certificate['recipient'] = array('name' => fullname($user), 'email'=> $user->email);
 
-                $curl = curl_init('https://api.accredible.com/v1/credentials');
+                $curl = curl_init('https://staging.accredible.com/v1/credentials');
                 curl_setopt($curl, CURLOPT_POST, 1);
                 curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query( array('credential' => $certificate) ));
                 curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
