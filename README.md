@@ -1,5 +1,18 @@
-## Introduction
-This plugin enables you to issue dynamic, digital certificates using the [Accredible](https://accredible.com) API on your Moodle instance. They act as a replacement for the PDF certificates normally generated for your courses. An example output certificate can be viewed at: [https://accredible.com/example](https://accredible.com/example).
+![Accredible Logo](https://s3.amazonaws.com/accredible-cdn/accredible_logo_sm.png)
+
+# Accredible Moodle Activity Plugin
+
+## Overview
+The Accredible platform enables organizations to create, manage and distribute digital credentials as digital certificates or open badges.
+
+An example digital certificate and badge can be viewed here: https://www.credential.net/10000005
+
+This plugin enables you to issue dynamic, digital certificates or open badges on your Moodle instance. They act as a replacement for the PDF certificates normally generated for your courses.
+
+## Example Output
+![Example Digital Certificate](https://s3.amazonaws.com/accredible-cdn/example-digital-certificate.png)
+
+![Example Open Badge](https://s3.amazonaws.com/accredible-cdn/example-digital-badge.png)
 
 ## Compatability
 
@@ -74,6 +87,12 @@ Issuing a certificate is easy - choose from 3 issuing options:
 Once you've issued the certificate, head over to Accredible to edit the appearance.
 
 Contact us at support@accredible.com if you have issues.
+
+### Bug reports
+
+If you discover any bugs, feel free to create an issue on GitHub. Please add as much information as possible to help us fixing the possible bug. We also encourage you to help even more by forking and sending us a pull request.
+
+https://github.com/accredible/acms-php-api/issues
 
 ## FAQs
 
