@@ -31,6 +31,97 @@ require __DIR__ . '/vendor/autoload.php';
 
 use ACMS\Api;
 
+/**
+ * Sync the selected course information with a group on Accredible - returns a group ID
+ *
+ * @param stdClass $course 
+ * @param int|null $instance_id
+ * @return int $groupid
+ */
+function sync_course_with_accredible($course, $instance_id = null) {
+	global $DB, $CFG;
+
+	$api = new Api($CFG->accredible_api_key, true);
+
+	// Update an existing
+	if(null !== $instance_id){
+		// get the group id
+		$accredible_certificate = $DB->get_record('accredible', array('id'=> $instance_id), '*', MUST_EXIST);
+
+		try {
+		    // Update the group
+			$group = $api->update_group($accredible_certificate->groupid, null, $course->fullname, $course->summary, new moodle_url('/course/view.php', array('id' => $course->id)));
+
+			return $group->group->id;
+		} catch (ClientException $e) {
+		    // throw API exception
+		  	// include the achievement id that triggered the error
+		  	// direct the user to accredible's support
+		  	// dump the achievement id to debug_info
+		  	throw new moodle_exception('groupsyncerror', 'accredible', 'https://accredible.com/contact/support', $course->id, $course->id);
+		}
+	// making a new group
+	} else {
+		try {
+		    // Make a new Group on Accredible - use a random number to deal with duplicate course names.
+			$group = $api->create_group($course->shortname . mt_rand(), $course->fullname, $course->summary, new moodle_url('/course/view.php', array('id' => $course->id)));
+
+			return $group->group->id;
+		} catch (ClientException $e) {
+		    // throw API exception
+		  	// include the achievement id that triggered the error
+		  	// direct the user to accredible's support
+		  	// dump the achievement id to debug_info
+		  	throw new moodle_exception('groupsyncerror', 'accredible', 'https://accredible.com/contact/support', $course->id, $course->id);
+		}
+	}
+}
+
+/**
+ * List all of the ceritificates with a specific achievement id
+ *
+ * @param string $group_id
+ * @return array[stdClass] $credentials
+ */
+function accredible_get_credentials($group_id) {
+	global $CFG;
+
+	$api = new Api($CFG->accredible_api_key, true);
+
+	try {
+		$credentials = $api->get_credentials($group_id);
+
+		return $credentials->credentials;
+	} catch (ClientException $e) {
+	    // throw API exception
+	  	// include the achievement id that triggered the error
+	  	// direct the user to accredible's support
+	  	// dump the achievement id to debug_info
+	  	throw new moodle_exception('groupsyncerror', 'accredible', 'https://accredible.com/contact/support', $group_id, $group_id);
+	}
+}	
+
+
+
+	// $course_group_mapping = $DB->get_record('accredible_course_group', array('course_id'=>$course->id));
+
+	// //check if we have a group already
+	// if($course_group_mapping){
+	// 	// if yes then update the group
+	// 	$group = $api->update_group((string)$course_group_mapping->group_id, $course->shortname, $course->fullname, $course->summary, new moodle_url('/course/view.php', array('id' => $course->id)));
+
+	// } else {
+	// 	// if not then make a new group
+	// 	$group = $api->create_group($course->shortname, $course->fullname, $course->summary, new moodle_url('/course/view.php', array('id' => $course->id)));
+
+	// 	// Save record
+	//     $db_record = new stdClass();
+	//     $db_record->course_id = (string)$course->id;
+	//     $db_record->group_id = (string)$group->group->id;
+
+	//     $DB->insert_record('accredible_course_group', $db_record);
+	// }
+
 // /**
 //  * Create credential
 //  * @param stdClass $user

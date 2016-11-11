@@ -46,7 +46,11 @@ $PAGE->set_title(format_string($accredible_certificate->name));
 $PAGE->set_heading(format_string($course->fullname));
 
 // Get array of certificates
-$certificates = accredible_get_issued($accredible_certificate->achievementid);
+if($accredible_certificate->achievementid){ // legacy achievment ID
+	$certificates = accredible_get_issued($accredible_certificate->achievementid);
+} else { // group id
+	$certificates = accredible_get_credentials($accredible_certificate->groupid);
+}
 
 if(has_capability('mod/accredible:manage', $context)) {
 	$table = new html_table();
@@ -54,17 +58,22 @@ if(has_capability('mod/accredible:manage', $context)) {
 
 	foreach ($certificates as $certificate) {
 		$issue_date = date_format( date_create($certificate->issued_on), "M d, Y" ) ;
-	  $table->data[] = array ( 
-	  	$certificate->id, 
-	  	$certificate->recipient->name, 
-	  	"<a href='https://www.credential.net/$certificate->id' target='_blank'>https://www.credential.net/$certificate->id</a>", 
-	  	$issue_date
-	  );
+	  	$table->data[] = array ( 
+	  		$certificate->id, 
+	  		$certificate->recipient->name, 
+	  		"<a href='$certificate->url' target='_blank'>$certificate->url</a>", 
+	  		$issue_date
+	  	);
 	}
 
 	echo $OUTPUT->header();
 	echo html_writer::tag( 'h3', get_string('viewheader', 'accredible', $accredible_certificate->name) );
-	echo html_writer::tag( 'h5', get_string('viewsubheader', 'accredible', $accredible_certificate->achievementid) );
+	if($accredible_certificate->groupid){
+		echo html_writer::tag( 'h5', get_string('viewsubheader', 'accredible', $accredible_certificate->groupid) );
+	} else {
+		echo html_writer::tag( 'h5', get_string('viewsubheaderold', 'accredible', $accredible_certificate->achievementid) );
+	}
+	
 	echo html_writer::tag( 'br', null );
 	echo html_writer::table($table);
 	echo $OUTPUT->footer($course);
@@ -89,6 +98,7 @@ else {
 		echo html_writer::start_div('text-center');
 		echo html_writer::tag( 'br', null );
 		$img = html_writer::img($src, get_string('viewimgcomplete', 'accredible'), array('width' => '90%') );
+		// TODO : Remove this hard coded link
 		echo html_writer::link( 'https://www.credential.net/'.$users_certificate_link, $img, array('target' => '_blank') );
 		echo html_writer::end_div('text-center');
 	} 

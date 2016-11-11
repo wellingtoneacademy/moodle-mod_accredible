@@ -66,4 +66,5 @@ $string['usestemplatesdescription'] = 'Make sure you have a cohort on the dashbo
 $string['viewheader'] = 'Certificates for {$a}';
 $string['viewimgcomplete'] = 'Click to view your certificate';
 $string['viewimgincomplete'] = 'Course still in progress';
-$string['viewsubheader'] = 'Achievement id: {$a}';
+$string['viewsubheaderold'] = 'Achievement ID: {$a}';
+$string['viewsubheader'] = 'Group ID: {$a}';
