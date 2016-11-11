@@ -44,7 +44,7 @@ function sync_course_with_accredible($course, $instance_id = null) {
 	$api = new Api($CFG->accredible_api_key, true);
 
 	// Update an existing
-	if(null !== $instance_id){
+	if(null != $instance_id){
 		// get the group id
 		$accredible_certificate = $DB->get_record('accredible', array('id'=> $instance_id), '*', MUST_EXIST);
 
