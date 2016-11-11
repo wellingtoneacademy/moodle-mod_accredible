@@ -40,7 +40,7 @@ class mod_accredible_mod_form extends moodleform_mod {
         $alreadyexists = false;
         // Make sure the API key is set
         if(!isset($CFG->accredible_api_key)) {
-            print_error('Please set your API Key first.');
+            print_error('Please set your API Key first in the plugin settings.');
         }
         // Update form init
         if (optional_param('update', '', PARAM_INT)) {
@@ -75,6 +75,7 @@ class mod_accredible_mod_form extends moodleform_mod {
         $mform =& $this->_form;
         $mform->addElement('hidden', 'course', $id);
         $mform->addElement('header', 'general', get_string('general', 'form'));
+        $mform->addElement('static', 'description', get_string('overview', 'accredible'), get_string('activitydescription', 'accredible'));
         if($alreadyexists) {
             $mform->addElement('static', 'additionalactivitiesone', '', get_string('additionalactivitiesone', 'accredible'));
         }
@@ -147,7 +148,7 @@ class mod_accredible_mod_form extends moodleform_mod {
                 $mform->addElement('advcheckbox', 'users['.$user->id.']', $user->firstname . ' ' . $user->lastname, null, array('group' => 1));
             }
         }
-        
+
 
         $mform->addElement('header', 'gradeissue', get_string('gradeissueheader', 'accredible'));
         $mform->addElement('select', 'finalquiz', get_string('chooseexam', 'accredible'), $quiz_choices);
