@@ -68,3 +68,5 @@ $string['viewimgcomplete'] = 'Click to view your certificate';
 $string['viewimgincomplete'] = 'Course still in progress';
 $string['viewsubheaderold'] = 'Achievement ID: {$a}';
 $string['viewsubheader'] = 'Group ID: {$a}';
+
+$string['gotodashboard'] = 'To update the appearance of your badges and certificates, visit: <a href="https://www.accredible.com/issuer/dashboard" target="_blank">https://www.accredible.com/issuer/dashboard</a>';

@@ -73,6 +73,8 @@ if(has_capability('mod/accredible:manage', $context)) {
 	} else {
 		echo html_writer::tag( 'h5', get_string('viewsubheaderold', 'accredible', $accredible_certificate->achievementid) );
 	}
+
+	echo html_writer::tag( 'p', get_string('gotodashboard', 'accredible') );
 	
 	echo html_writer::tag( 'br', null );
 	echo html_writer::table($table);
