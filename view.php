@@ -99,7 +99,11 @@ else {
 		$src = $OUTPUT->pix_url('complete_cert', 'accredible');
 		echo html_writer::start_div('text-center');
 		echo html_writer::tag( 'br', null );
-		$img = html_writer::img($src, get_string('viewimgcomplete', 'accredible'), array('width' => '90%') );
+		if($certificates[0]->seo_image){
+			$img = html_writer::img($certificates[0]->seo_image, get_string('viewimgcomplete', 'accredible'), array('width' => '90%') );
+		} else {
+			$img = html_writer::img($src, get_string('viewimgcomplete', 'accredible'), array('width' => '90%') );
+		}
 		// TODO : Remove this hard coded link
 		echo html_writer::link( 'https://www.credential.net/'.$users_certificate_link, $img, array('target' => '_blank') );
 		echo html_writer::end_div('text-center');
