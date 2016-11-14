@@ -75,7 +75,7 @@ class mod_accredible_mod_form extends moodleform_mod {
         $mform =& $this->_form;
         $mform->addElement('hidden', 'course', $id);
         $mform->addElement('header', 'general', get_string('general', 'form'));
-        $mform->addElement('static', 'description', get_string('overview', 'accredible'), get_string('activitydescription', 'accredible'));
+        $mform->addElement('static', 'overview', get_string('overview', 'accredible'), get_string('activitydescription', 'accredible'));
         if($alreadyexists) {
             $mform->addElement('static', 'additionalactivitiesone', '', get_string('additionalactivitiesone', 'accredible'));
         }
