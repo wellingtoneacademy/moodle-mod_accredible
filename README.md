@@ -9,6 +9,8 @@ An example digital certificate and badge can be viewed here: https://www.credent
 
 This plugin enables you to issue dynamic, digital certificates or open badges on your Moodle instance. They act as a replacement for the PDF certificates normally generated for your courses.
 
+Here's a video showing a tutorial on how to install and start using the plugin: https://youtu.be/h0ORng5TBnU
+
 ## Example Output
 ![Example Digital Certificate](https://s3.amazonaws.com/accredible-cdn/example-digital-certificate.png)
 
