@@ -41,7 +41,7 @@ use ACMS\Api;
 function sync_course_with_accredible($course, $instance_id = null) {
 	global $DB, $CFG;
 
-	$api = new Api($CFG->accredible_api_key, true);
+	$api = new Api($CFG->accredible_api_key);
 
 	// Update an existing
 	if(null != $instance_id){
@@ -86,7 +86,7 @@ function sync_course_with_accredible($course, $instance_id = null) {
 function accredible_get_credentials($group_id) {
 	global $CFG;
 
-	$api = new Api($CFG->accredible_api_key, true);
+	$api = new Api($CFG->accredible_api_key);
 
 	try {
 		$credentials = $api->get_credentials($group_id);
@@ -131,7 +131,7 @@ function accredible_get_credentials($group_id) {
 // function create_credential($user, $course){
 // 	global $CFG;
 
-// 	$api = new Api($CFG->accredible_api_key, true);
+// 	$api = new Api($CFG->accredible_api_key);
 
 // 	$course_url = new moodle_url('/course/view.php', array('id' => $post->course));
 //                 $certificate['name'] = $post->certificatename;
