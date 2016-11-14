@@ -82,5 +82,49 @@ function xmldb_accredible_upgrade($oldversion=0) {
         upgrade_mod_savepoint(true, 2014121800, 'accredible');
     }
 
+    if ($oldversion < 2016111000) {
+
+        // Define field groupid to be added to accredible.
+        $table = new xmldb_table('accredible');
+        $field = new xmldb_field('groupid', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'certificatename');
+
+        // Conditionally launch add field groupid.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Changing nullability of field name on table accredible to null.
+        $table = new xmldb_table('accredible');
+        $field = new xmldb_field('name', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'id');
+
+        // Launch change of nullability for field name.
+        $dbman->change_field_notnull($table, $field);
+
+        // Changing nullability of field course on table accredible to null.
+        $table = new xmldb_table('accredible');
+        $field = new xmldb_field('course', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'name');
+
+        // Launch change of nullability for field course.
+        $dbman->change_field_notnull($table, $field);
+
+        // Changing nullability of field achievementid on table accredible to null.
+        $table = new xmldb_table('accredible');
+        $field = new xmldb_field('achievementid', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'course');
+
+        // Launch change of nullability for field achievementid.
+        $dbman->change_field_notnull($table, $field);
+
+        // Changing nullability of field description on table accredible to null.
+        $table = new xmldb_table('accredible');
+        $field = new xmldb_field('description', XMLDB_TYPE_TEXT, null, null, null, null, null, 'achievementid');
+
+        // Launch change of nullability for field description.
+        $dbman->change_field_notnull($table, $field);
+
+        // Accredible savepoint reached.
+        upgrade_mod_savepoint(true, 2016111000, 'accredible');
+
+    }
+
     return true;
 }

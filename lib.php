@@ -38,6 +38,8 @@ function accredible_add_instance($post) {
 
     $course = $DB->get_record('course', array('id'=> $post->course), '*', MUST_EXIST);
 
+    $group_id = sync_course_with_accredible($course, $post->instance);
+
     // Issue certs
     if( isset($post->users) ) {
         // Checklist array from the form comes in the format:
@@ -47,11 +49,7 @@ function accredible_add_instance($post) {
                 $user = $DB->get_record('user', array('id'=>$user_id), '*', MUST_EXIST);
 
                 $certificate = array();
-                $course_url = new moodle_url('/course/view.php', array('id' => $post->course));
-                $certificate['name'] = $post->certificatename;
-                $certificate['template_name'] = $post->achievementid;
-                $certificate['description'] = $post->description;
-                $certificate['course_link'] = $course_url->__toString();
+                $certificate['group_id'] = $group_id;
                 $certificate['recipient'] = array('name' => fullname($user), 'email'=> $user->email);
 
                 $curl = curl_init('https://staging.accredible.com/v1/credentials');
@@ -109,12 +107,10 @@ function accredible_add_instance($post) {
     $db_record->completionactivities = serialize_completion_array($completion_activities);
     $db_record->name = $post->name;
     $db_record->course = $post->course;
-    $db_record->description = $post->description;
-    $db_record->achievementid = $post->achievementid;
     $db_record->finalquiz = $post->finalquiz;
     $db_record->passinggrade = $post->passinggrade;
     $db_record->timecreated = time();
-    $db_record->certificatename = $post->certificatename;
+    $db_record->groupid = $group_id;
 
     return $DB->insert_record('accredible', $db_record);
 }
@@ -128,7 +124,18 @@ function accredible_add_instance($post) {
 function accredible_update_instance($post) {
     // To update your certificate details, go to accredible.com.
     global $DB, $CFG;
+
+    // don't know what this is
     $accredible_cm = get_coursemodule_from_id('accredible', $post->coursemodule, 0, false, MUST_EXIST);
+
+    $accredible_certificate = $DB->get_record('accredible', array('id'=> $post->instance), '*', MUST_EXIST);
+
+    $course = $DB->get_record('course', array('id'=> $post->course), '*', MUST_EXIST);
+
+    // Update the group if we have one to sync with
+    if($accredible_certificate->groupid){
+        sync_course_with_accredible($course, $post->instance);
+    }
 
     // Issue certs
     if( isset($post->users) ) {
@@ -138,27 +145,47 @@ function accredible_update_instance($post) {
             if($issue_certificate) {
                 $user = $DB->get_record('user', array('id'=>$user_id), '*', MUST_EXIST);
 
-                $certificate = array();
-                $course_url = new moodle_url('/course/view.php', array('id' => $post->course));
-                $certificate['name'] = $post->certificatename;
-                $certificate['template_name'] = $post->achievementid;
-                $certificate['description'] = $post->description;
-                $certificate['course_link'] = $course_url->__toString();
-                $certificate['recipient'] = array('name' => fullname($user), 'email'=> $user->email);
+                if($accredible_certificate->achievementid){
+                    $certificate = array();
+                    $course_url = new moodle_url('/course/view.php', array('id' => $post->course));
+                    $certificate['name'] = $post->certificatename;
+                    $certificate['template_name'] = $post->achievementid;
+                    $certificate['description'] = $post->description;
+                    $certificate['course_link'] = $course_url->__toString();
+                    $certificate['recipient'] = array('name' => fullname($user), 'email'=> $user->email);
 
-                $curl = curl_init('https://staging.accredible.com/v1/credentials');
-                curl_setopt($curl, CURLOPT_POST, 1);
-                curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query( array('credential' => $certificate) ));
-                curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-                curl_setopt( $curl, CURLOPT_HTTPHEADER, array( 'Authorization: Token token="'.$CFG->accredible_api_key.'"' ) );
-                if(!$result = curl_exec($curl)) {
-                    // throw API exception
-                    // include the user id that triggered the error
-                    // direct the user to accredible's support
-                    // dump the post to debug_info
-                    throw new moodle_exception('manualadderror:edit', 'accredible', 'https://accredible.com/contact/support', $user_id, var_dump($post));
+                    $curl = curl_init('https://staging.accredible.com/v1/credentials');
+                    curl_setopt($curl, CURLOPT_POST, 1);
+                    curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query( array('credential' => $certificate) ));
+                    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+                    curl_setopt( $curl, CURLOPT_HTTPHEADER, array( 'Authorization: Token token="'.$CFG->accredible_api_key.'"' ) );
+                    if(!$result = curl_exec($curl)) {
+                        // throw API exception
+                        // include the user id that triggered the error
+                        // direct the user to accredible's support
+                        // dump the post to debug_info
+                        throw new moodle_exception('manualadderror:edit', 'accredible', 'https://accredible.com/contact/support', $user_id, var_dump($post));
+                    }
+                    curl_close($curl);
+                } else {
+                    $certificate = array();
+                    $certificate['group_id'] = $accredible_certificate->groupid;
+                    $certificate['recipient'] = array('name' => fullname($user), 'email'=> $user->email);
+
+                    $curl = curl_init('https://staging.accredible.com/v1/credentials');
+                    curl_setopt($curl, CURLOPT_POST, 1);
+                    curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query( array('credential' => $certificate) ));
+                    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+                    curl_setopt( $curl, CURLOPT_HTTPHEADER, array( 'Authorization: Token token="'.$CFG->accredible_api_key.'"' ) );
+                    if(!$result = curl_exec($curl)) {
+                        // throw API exception
+                        // include the user id that triggered the error
+                        // direct the user to accredible's support
+                        // dump the post to debug_info
+                        throw new moodle_exception('manualadderror:add', 'accredible', 'https://accredible.com/contact/support', $user_id, var_dump($post));
+                    }
+                    curl_close($curl);
                 }
-                curl_close($curl);
 
                 // evidence item posts
                 $credential_id = json_decode($result)->credential->id;
@@ -197,15 +224,27 @@ function accredible_update_instance($post) {
     }
 
     // Save record
-    $db_record = new stdClass();
-    $db_record->id = $post->instance;
-    $db_record->achievementid = $post->achievementid;
-    $db_record->completionactivities = serialize_completion_array($completion_activities);
-    $db_record->name = $post->name;
-    $db_record->certificatename = $post->certificatename;
-    $db_record->description = $post->description;
-    $db_record->passinggrade = $post->passinggrade;
-    $db_record->finalquiz = $post->finalquiz;
+    if($accredible_certificate->achievementid){
+        $db_record = new stdClass();
+        $db_record->id = $post->instance;
+        $db_record->achievementid = $post->achievementid;
+        $db_record->completionactivities = serialize_completion_array($completion_activities);
+        $db_record->name = $post->name;
+        $db_record->certificatename = $post->certificatename;
+        $db_record->description = $post->description;
+        $db_record->passinggrade = $post->passinggrade;
+        $db_record->finalquiz = $post->finalquiz;
+    } else {
+        $db_record = new stdClass();
+        $db_record->id = $post->instance;
+        $db_record->completionactivities = serialize_completion_array($completion_activities);
+        $db_record->name = $post->name;
+        $db_record->course = $post->course;
+        $db_record->finalquiz = $post->finalquiz;
+        $db_record->passinggrade = $post->passinggrade;
+        $db_record->timecreated = time();
+        $db_record->groupid = $accredible_certificate->groupid;
+    }
 
     return $DB->update_record('accredible', $db_record);
 }
