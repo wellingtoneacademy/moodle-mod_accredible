@@ -30,4 +30,4 @@ $plugin->cron      = 0; // Period for cron to check this module (secs)
 $plugin->component = 'mod_accredible';
 
 $plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = "V1.1.0"; // User-friendly version number
+$plugin->release   = "V1.1.2"; // User-friendly version number
