@@ -62,6 +62,7 @@ $string['pluginadministration'] = 'Accredible certificates/badges administration
 $string['pluginname'] = 'Accredible certificates & badges';
 $string['recipient'] = 'Recipient';
 $string['templatename'] = 'Cohort name (from dashboard)';
+$string['groupselect'] = 'Group';
 $string['usestemplatesdescription'] = 'Make sure you have a cohort on the dashboard with the same name as your achievement id.';
 $string['viewheader'] = 'Certificates & badges for {$a}';
 $string['viewimgcomplete'] = 'Click to view your certificate or badge';

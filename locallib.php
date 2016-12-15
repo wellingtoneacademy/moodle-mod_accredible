@@ -165,6 +165,32 @@ function create_credential($user, $group_id, $event = null){
 	}
 }
 
+/**
+ * Get the groups for the issuer
+ * @return type
+ */
+function accredible_get_groups() {
+	global $CFG;
+
+	$api = new Api($CFG->accredible_api_key);
+
+	try {
+		$response = $api->get_groups(10000,1);
+
+		$groups = array();
+		for($i = 0, $size = count($response->groups); $i < $size; ++$i) {
+			$groups[$response->groups[$i]->id] = $response->groups[$i]->name;
+		}
+		return $groups;
+
+	} catch (ClientException $e) {
+	    // throw API exception
+	  	// include the achievement id that triggered the error
+	  	// direct the user to accredible's support
+	  	// dump the achievement id to debug_info
+	  	throw new moodle_exception('getgroupserror', 'accredible', 'https://accredible.com/contact/support');
+	}
+}
 
 // old below here
 

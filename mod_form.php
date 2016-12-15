@@ -88,11 +88,21 @@ class mod_accredible_mod_form extends moodleform_mod {
             $mform->addElement('static', 'additionalactivitiestwo', '', get_string('additionalactivitiestwo', 'accredible'));
         }
 
+        // If we're updating and have a group then let the issuer choose to edit this
+        if($updatingcert && $accredible_certificate->groupid){
+            // Grab the list of groups available
+            $templates = accredible_get_groups();
+            $mform->addElement('static', 'usestemplatesdescription', '', get_string('usestemplatesdescription', 'accredible'));
+            $mform->addElement('select', 'groupid', get_string('templatename', 'accredible'), $templates);
+            $mform->addRule('groupid', null, 'required', null, 'client');
+            $mform->setDefault('groupid', $accredible_certificate->groupid);
+        }
+
         if($updatingcert && $accredible_certificate->achievementid){
             // Grab the list of templates available
             $templates = accredible_get_templates();
             $mform->addElement('static', 'usestemplatesdescription', '', get_string('usestemplatesdescription', 'accredible'));
-            $mform->addElement('select', 'achievementid', get_string('templatename', 'accredible'), $templates);
+            $mform->addElement('select', 'achievementid', get_string('groupselect', 'accredible'), $templates);
             $mform->addRule('achievementid', null, 'required', null, 'client');
             $mform->setDefault('achievementid', $course->shortname);
 
