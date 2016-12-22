@@ -99,7 +99,7 @@ else {
 		$src = $OUTPUT->pix_url('complete_cert', 'accredible');
 		echo html_writer::start_div('text-center');
 		echo html_writer::tag( 'br', null );
-		if($certificates[0]->seo_image){
+		if($certificates && $certificates[0] && $certificates[0]->seo_image){
 			$img = html_writer::img($certificates[0]->seo_image, get_string('viewimgcomplete', 'accredible'), array('width' => '90%') );
 		} else {
 			$img = html_writer::img($src, get_string('viewimgcomplete', 'accredible'), array('width' => '90%') );
