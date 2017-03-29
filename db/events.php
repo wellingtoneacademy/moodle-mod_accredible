@@ -39,5 +39,9 @@ $observers = array(
      array(
         'eventname'   => '\core\event\course_completed',
         'callback'    => 'accredible_course_completed_handler',
+    ),
+     array(
+        'eventname'   => '\core\event\course_module_completion_updated',
+        'callback'    => 'accredible_course_completed_handler',
     )
 );
