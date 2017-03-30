@@ -78,9 +78,10 @@ function sync_course_with_accredible($course, $instance_id = null) {
 }
 
 /**
- * List all of the ceritificates with a specific achievement id
+ * List all of the certificates with a specific achievement id
  *
- * @param string $group_id
+ * @param string $group_id Limit the returned Credentials to a specific group ID.
+ * @param string|null $email Limit the returned Credentials to a specific recipient's email address.
  * @return array[stdClass] $credentials
  */
 function accredible_get_credentials($group_id) {
@@ -97,7 +98,11 @@ function accredible_get_credentials($group_id) {
 	  	// include the achievement id that triggered the error
 	  	// direct the user to accredible's support
 	  	// dump the achievement id to debug_info
-	  	throw new moodle_exception('groupsyncerror', 'accredible', 'https://accredible.com/contact/support', $group_id, $group_id);
+        $exceptionparam = new stdClass();
+        $exceptionparam->group_id = $group_id;
+        $exceptionparam->email = $email;
+        $exceptionparam->response = $credentials;
+	  	throw new moodle_exception('getcredentialserror', 'accredible', 'https://accredible.com/contact/support', $exceptionparam);
 	}
 }	
 
