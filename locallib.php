@@ -84,14 +84,15 @@ function sync_course_with_accredible($course, $instance_id = null) {
  * @param string|null $email Limit the returned Credentials to a specific recipient's email address.
  * @return array[stdClass] $credentials
  */
-function accredible_get_credentials($group_id) {
+function accredible_get_credentials($group_id, $email= null) {
 	global $CFG;
 
 	$api = new Api($CFG->accredible_api_key);
 
 	try {
-		$credentials = $api->get_credentials($group_id);
+		$credentials = $api->get_credentials($group_id, $email);
 
+		// TODO: handle paginated responses
 		return $credentials->credentials;
 	} catch (ClientException $e) {
 	    // throw API exception
