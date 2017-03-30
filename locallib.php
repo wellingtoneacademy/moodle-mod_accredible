@@ -640,7 +640,7 @@ function accredible_post_evidence($credential_id, $evidence_item, $allow_excepti
 function accredible_check_for_existing_certificate($achievement_id, $user) {
 	global $DB;
 	$existing_certificate = false;
-	$certificates = accredible_get_issued($achievement_id, $user->email);
+	$certificates = accredible_get_credentials($achievement_id, $user->email);
 
 	foreach ($certificates as $certificate) {
 		if($certificate->recipient->email == $user->email) {
