@@ -47,7 +47,7 @@ $PAGE->set_heading(format_string($course->fullname));
 
 // Get array of certificates
 if($accredible_certificate->achievementid){ // legacy achievment ID
-	$certificates = accredible_get_issued($accredible_certificate->achievementid);
+	$certificates = accredible_get_credentials($accredible_certificate->achievementid);
 } else { // group id
 	$certificates = accredible_get_credentials($accredible_certificate->groupid);
 }
