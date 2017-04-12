@@ -85,11 +85,12 @@ else {
 	$users_certificate_link = null;
 	foreach ($certificates as $certificate) {
     if($certificate->recipient->email == $USER->email) {
-      if($certificate->private) {
-      	$users_certificate_link = $certificate->id . '?key=' . $certificate->private_key;
-      } else {
-      	$users_certificate_link = $certificate->id;
-      }
+	    if(isset($certificate->url)) {
+	        $users_certificate_link = $certificate->url;
+	    }
+	    else {
+	        $users_certificate_link = 'https://www.credential.net/'.$certificate->id;
+	    }
     }
 	}
 	// Echo the page
@@ -105,7 +106,7 @@ else {
 			$img = html_writer::img($src, get_string('viewimgcomplete', 'accredible'), array('width' => '90%') );
 		}
 		// TODO : Remove this hard coded link
-		echo html_writer::link( 'https://www.credential.net/'.$users_certificate_link, $img, array('target' => '_blank') );
+		echo html_writer::link( $users_certificate_link, $img, array('target' => '_blank') );
 		echo html_writer::end_div('text-center');
 	} 
 	else {
