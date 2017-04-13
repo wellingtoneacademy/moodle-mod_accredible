@@ -58,10 +58,16 @@ if(has_capability('mod/accredible:manage', $context)) {
 
 	foreach ($certificates as $certificate) {
 		$issue_date = date_format( date_create($certificate->issued_on), "M d, Y" ) ;
+	    if(isset($certificate->url)) {
+	        $certificate_link = $certificate->url;
+	    }
+	    else {
+	        $certificate_link = 'https://www.credential.net/'.$certificate->id;
+	    }
 	  	$table->data[] = array ( 
 	  		$certificate->id, 
 	  		$certificate->recipient->name, 
-	  		"<a href='$certificate->url' target='_blank'>$certificate->url</a>", 
+	  		"<a href='$certificate_link' target='_blank'>$certificate_link</a>", 
 	  		$issue_date
 	  	);
 	}
@@ -105,7 +111,7 @@ else {
 		} else {
 			$img = html_writer::img($src, get_string('viewimgcomplete', 'accredible'), array('width' => '90%') );
 		}
-		// TODO : Remove this hard coded link
+
 		echo html_writer::link( $users_certificate_link, $img, array('target' => '_blank') );
 		echo html_writer::end_div('text-center');
 	} 
