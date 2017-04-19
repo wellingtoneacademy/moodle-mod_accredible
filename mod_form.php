@@ -128,7 +128,7 @@ class mod_accredible_mod_form extends moodleform_mod {
 
         if($updatingcert) {
             // Grab existing certificates and cross-reference emails
-            $certificates = accredible_get_issued($accredible_certificate->achievementid);
+            $certificates = accredible_get_credentials($accredible_certificate->achievementid);
             foreach ($users as $user) {
                 $cert_id = null;
                 // check cert emails for this user
