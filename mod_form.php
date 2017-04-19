@@ -160,12 +160,12 @@ class mod_accredible_mod_form extends moodleform_mod {
                 }
 
                 if (!$existing_certificate) {
-                    if (!$unissuedheader) {
+                    if (!$unissued_header) {
                         // The header has not been added to the form yet and is needed
                         $mform->addElement('header', 'chooseunissuedusers', get_string('unissuedheader', 'accredible'));
                         $mform->addElement('static', 'unissueddescription', '', get_string('unissueddescription', 'accredible'));
                         $this->add_checkbox_controller(2, 'Select All/None');
-                        $unissuedheader = true;
+                        $unissued_header = true;
                     }
                     // No existing certificate, add this user to the unissued users list
                     $mform->addElement('advcheckbox', 'unissuedusers['.$user->id.']', $user->firstname . ' ' . $user->lastname . '    ' . $user->email, null, array('group' => 2));
