@@ -223,30 +223,6 @@ function accredible_get_groups() {
 
 // old below here
 
-
-/**
- * List all of the ceritificates with a specific achievement id
- *
- * @param string $achievement_id
- * @return array[stdClass] $certificates
- */
-function accredible_get_issued($achievement_id) {
-	global $CFG;
-
-	$curl = curl_init('https://api.accredible.com/v1/credentials?full_view=true&achievement_id='.urlencode($achievement_id));
-	curl_setopt( $curl, CURLOPT_HTTPHEADER, array( 'Authorization: Token token="'.$CFG->accredible_api_key.'"' ) );
-	curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-	if(!$result = json_decode( curl_exec($curl) )) {
-	  // throw API exception
-	  // include the achievement id that triggered the error
-	  // direct the user to accredible's support
-	  // dump the achievement id to debug_info
-	  throw new moodle_exception('getissuederror', 'accredible', 'https://accredible.com/contact/support', $achievement_id, $achievement_id);
-	}
-	curl_close($curl);
-	return $result->credentials;
-}
-
 /**
  * List all of the issuer's templates
  *

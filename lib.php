@@ -48,26 +48,10 @@ function accredible_add_instance($post) {
             if($issue_certificate) {
                 $user = $DB->get_record('user', array('id'=>$user_id), '*', MUST_EXIST);
 
-                $certificate = array();
-                $certificate['group_id'] = $group_id;
-                $certificate['recipient'] = array('name' => fullname($user), 'email'=> $user->email);
-
-                $curl = curl_init('https://api.accredible.com/v1/credentials');
-                curl_setopt($curl, CURLOPT_POST, 1);
-                curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query( array('credential' => $certificate) ));
-                curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-                curl_setopt( $curl, CURLOPT_HTTPHEADER, array( 'Authorization: Token token="'.$CFG->accredible_api_key.'"' ) );
-                if(!$result = curl_exec($curl)) {
-                    // throw API exception
-                    // include the user id that triggered the error
-                    // direct the user to accredible's support
-                    // dump the post to debug_info
-                    throw new moodle_exception('manualadderror:add', 'accredible', 'https://accredible.com/contact/support', $user_id, var_dump($post));
-                }
-                curl_close($curl);
+                $credential = create_credential($user, $group_id);
 
                 // evidence item posts
-                $credential_id = json_decode($result)->credential->id;
+                $credential_id = $credential->id;
                 if($post->finalquiz) {
                     $quiz = $DB->get_record('quiz', array('id'=>$post->finalquiz), '*', MUST_EXIST);
                     $users_grade = min( ( quiz_get_best_grade($quiz, $user->id) / $quiz->grade ) * 100, 100);
@@ -82,15 +66,6 @@ function accredible_add_instance($post) {
                 }
                 accredible_post_essay_answers($user_id, $post->course, $credential_id);
                 accredible_course_duration_evidence($user_id, $post->course, $credential_id);
-
-                // Log the creation
-                $event = accredible_log_creation( 
-                    json_decode($result)->credential->id,
-                    $user_id,
-                    $post->course,
-                    null
-                );
-                $event->trigger();
             }
         }
     }
@@ -161,23 +136,7 @@ function accredible_update_instance($post) {
                     }
                     curl_close($curl);
                 } else {
-                    $certificate = array();
-                    $certificate['group_id'] = $accredible_certificate->groupid;
-                    $certificate['recipient'] = array('name' => fullname($user), 'email'=> $user->email);
-
-                    $curl = curl_init('https://api.accredible.com/v1/credentials');
-                    curl_setopt($curl, CURLOPT_POST, 1);
-                    curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query( array('credential' => $certificate) ));
-                    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-                    curl_setopt( $curl, CURLOPT_HTTPHEADER, array( 'Authorization: Token token="'.$CFG->accredible_api_key.'"' ) );
-                    if(!$result = curl_exec($curl)) {
-                        // throw API exception
-                        // include the user id that triggered the error
-                        // direct the user to accredible's support
-                        // dump the post to debug_info
-                        throw new moodle_exception('manualadderror:add', 'accredible', 'https://accredible.com/contact/support', $user_id, var_dump($post));
-                    }
-                    curl_close($curl);
+                    $credential = create_credential($user, $accredible_certificate->groupid);
                 }
 
                 // evidence item posts
