@@ -256,6 +256,25 @@ function accredible_get_groups() {
 	}
 }
 
+/**
+ * Get the SSO link for a recipient
+ * @return type
+ */
+function accredible_get_recipient_sso_linik($group_id, $email) {
+	global $CFG;
+
+	$api = new Api($CFG->accredible_api_key);
+
+	try {
+		$response = $api->recipient_sso_link(null, null, $email, null, $group_id, null);
+
+		return $response->link;
+
+	} catch (Exception $e) {
+	    return null;
+	}
+}
+
 // old below here
 
 /**

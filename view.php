@@ -99,23 +99,25 @@ else {
 	// Regular user, Check for this user's certificate
 	$users_certificate_link = null;
 
-	// Get certificate
-	if($accredible_certificate->achievementid){ // legacy achievment ID
+
+	if($accredible_certificate->groupid){
+		$users_certificate_link = accredible_get_recipient_sso_linik($accredible_certificate->groupid, $USER->email);
+	// legacy achievment ID
+	} else {
 		$certificates = accredible_get_credentials($accredible_certificate->achievementid, $USER->email);
-	} else { // group id
-		$certificates = accredible_get_credentials($accredible_certificate->groupid, $USER->email);
+
+		foreach ($certificates as $certificate) {
+		    if($certificate->recipient->email == $USER->email) {
+			    if(isset($certificate->url)) {
+			        $users_certificate_link = $certificate->url;
+			    }
+			    else {
+			        $users_certificate_link = 'https://www.credential.net/'.$certificate->id;
+			    }
+		    }
+		}
 	}
 
-	foreach ($certificates as $certificate) {
-    if($certificate->recipient->email == $USER->email) {
-	    if(isset($certificate->url)) {
-	        $users_certificate_link = $certificate->url;
-	    }
-	    else {
-	        $users_certificate_link = 'https://www.credential.net/'.$certificate->id;
-	    }
-    }
-	}
 	// Echo the page
 	echo $OUTPUT->header();
 
