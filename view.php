@@ -45,6 +45,7 @@ $PAGE->set_cm($cm);
 $PAGE->set_title(format_string($accredible_certificate->name));
 $PAGE->set_heading(format_string($course->fullname));
 
+
 // Get array of certificates
 if($accredible_certificate->achievementid){ // legacy achievment ID
 	$certificates = accredible_get_credentials($accredible_certificate->achievementid);
@@ -122,7 +123,11 @@ else {
 	echo $OUTPUT->header();
 
 	if($users_certificate_link) {
-		$src = $OUTPUT->pix_url('complete_cert', 'accredible');
+		if (method_exists($PAGE->theme, 'image_url')) {
+			$src = $OUTPUT->image_url('incomplete_cert', 'accredible');
+		} else {
+			$src = $OUTPUT->pix_url('incomplete_cert', 'accredible');
+		}
 		echo html_writer::start_div('text-center');
 		echo html_writer::tag( 'br', null );
 		if($certificates && $certificates[0] && $certificates[0]->seo_image){
@@ -135,7 +140,12 @@ else {
 		echo html_writer::end_div('text-center');
 	} 
 	else {
-		$src = $OUTPUT->pix_url('incomplete_cert', 'accredible');
+		
+		if (method_exists($PAGE->theme, 'image_url')) {
+			$src = $OUTPUT->image_url('incomplete_cert', 'accredible');
+		} else {
+			$src = $OUTPUT->pix_url('incomplete_cert', 'accredible');
+		}
 		echo html_writer::start_div('text-center');
 		echo html_writer::tag( 'br', null );
 		echo html_writer::img($src, get_string('viewimgincomplete', 'accredible'), array('width' => '90%') );
