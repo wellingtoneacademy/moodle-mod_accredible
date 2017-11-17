@@ -114,33 +114,17 @@ function accredible_update_instance($post) {
                 $user = $DB->get_record('user', array('id'=>$user_id), '*', MUST_EXIST);
 
                 if($accredible_certificate->achievementid){
-                    $certificate = array();
-                    $course_url = new moodle_url('/course/view.php', array('id' => $post->course));
-                    $certificate['name'] = $post->certificatename;
-                    $certificate['template_name'] = $post->achievementid;
-                    $certificate['description'] = $post->description;
-                    $certificate['course_link'] = $course_url->__toString();
-                    $certificate['recipient'] = array('name' => fullname($user), 'email'=> $user->email);
 
-                    $curl = curl_init('https://api.accredible.com/v1/credentials');
-                    curl_setopt($curl, CURLOPT_POST, 1);
-                    curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query( array('credential' => $certificate) ));
-                    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-                    curl_setopt( $curl, CURLOPT_HTTPHEADER, array( 'Authorization: Token token="'.$CFG->accredible_api_key.'"' ) );
-                    if(!$result = curl_exec($curl)) {
-                        // throw API exception
-                        // include the user id that triggered the error
-                        // direct the user to accredible's support
-                        // dump the post to debug_info
-                        throw new moodle_exception('manualadderror:edit', 'accredible', 'https://accredible.com/contact/support', $user_id, var_dump($post));
-                    }
-                    curl_close($curl);
+                    $course_url = new moodle_url('/course/view.php', array('id' => $post->course));
+                    $course_link = $course_url->__toString();
+
+                    $credential = create_credential_legacy($user, $post->achievementid, $post->certificatename, $post->description, $course_link);
                 } else {
                     $credential = create_credential($user, $accredible_certificate->groupid);
                 }
 
                 // evidence item posts
-                $credential_id = json_decode($result)->credential->id;
+                $credential_id = $credential->id;
                 if($post->finalquiz) {
                     $quiz = $DB->get_record('quiz', array('id'=>$post->finalquiz), '*', MUST_EXIST);
                     $users_grade = min( ( quiz_get_best_grade($quiz, $user->id) / $quiz->grade ) * 100, 100);

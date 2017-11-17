@@ -200,13 +200,13 @@ function create_credential($user, $group_id, $event = null){
  * @param int $group_id 
  * @return stdObject
  */
-function create_credential_legacy($user, $achievement_name, $event = null){
+function create_credential_legacy($user, $achievement_name, $course_name, $course_description, $course_link, $event = null){
 	global $CFG;
 
 	$api = new Api($CFG->accredible_api_key);
 
 	try {
-		$credential = $api->create_credential_legacy(fullname($user), $user->email, $achievement_name);
+		$credential = $api->create_credential_legacy(fullname($user), $user->email, $achievement_name, null, null, $course_name, $course_description, $course_link);
 
 		// log an event now we've created the credential if possible
 		if($event != null){
@@ -293,32 +293,22 @@ function accredible_issue_default_certificate($user_id, $certificate_id, $name, 
 	// Issue certs
 	$accredible_certificate = $DB->get_record('accredible', array('id'=>$certificate_id));
 
-	$certificate = array();
-  $course_url = new moodle_url('/course/view.php', array('id' => $accredible_certificate->course));
-	$certificate['name'] = $accredible_certificate->certificatename;
-	$certificate['template_name'] = $accredible_certificate->achievementid;
-	$certificate['description'] = $accredible_certificate->description;
-  $certificate['course_link'] = $course_url->__toString();
-	$certificate['recipient'] = array('name' => $name, 'email'=> $email);
+  	$course_url = new moodle_url('/course/view.php', array('id' => $accredible_certificate->course));
+  	$course_link = $course_url->__toString();
 
-	$curl = curl_init('https://api.accredible.com/v1/credentials');
-	curl_setopt($curl, CURLOPT_POST, 1);
-	curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query( array('credential' => $certificate) ));
-	curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-	curl_setopt( $curl, CURLOPT_HTTPHEADER, array( 'Authorization: Token token="'.$CFG->accredible_api_key.'"' ) );
-	if(!$result = curl_exec($curl)) {
-		// TODO - log this because an exception cannot be thrown in an event callback
-	}
-	curl_close($curl);
+  	$api = new Api($CFG->accredible_api_key);
+	$credential = $api->create_credential_legacy($user, $accredible_certificate->achievementid, $accredible_certificate->certificatename, $accredible_certificate->description, $course_link);
 
 	// evidence item posts
-	$credential_id = json_decode($result)->credential->id;
+	$credential_id = $credential->id;
 	if($grade) {
-		$grade_evidence = array('string_object' => (string) $grade, 'description' => $quiz_name, 'custom'=> true, 'category' => 'grade' );
 		if($grade < 50) {
-		    $grade_evidence['hidden'] = true;
+		    $hidden = true;
+		} else {
+			$hidden = false;
 		}
-	  accredible_post_evidence($credential_id, $grade_evidence, false);
+
+		$response = $api->create_evidence_item_grade($grade, $quiz_name, $credential_id, $hidden);
 	}
   if($transcript = accredible_get_transcript($accredible_certificate->course, $user_id, $accredible_certificate->finalquiz)) {
 	  accredible_post_evidence($credential_id, $transcript, false);
@@ -724,7 +714,7 @@ function accredible_post_essay_answers($user_id, $course_id, $credential_id) {
 }
 
 function accredible_course_duration_evidence($user_id, $course_id, $credential_id) {
-	global $DB;
+	global $DB, $CFG;
 
 	$sql = "SELECT enrol.id, ue.timestart
 					FROM mdl_enrol enrol, mdl_user_enrolments ue 
@@ -732,23 +722,8 @@ function accredible_course_duration_evidence($user_id, $course_id, $credential_i
 	$enrolment = $DB->get_record_sql($sql, array($user_id, $course_id));
 	$enrolment_timestamp = $enrolment->timestart;
 
-	$duration_info = array(
-		'start_date' =>  date("Y-m-d", $enrolment_timestamp),
-		'end_date' => date("Y-m-d"),
-		'duration_in_days' => floor( (time() - $enrolment_timestamp) / 86400)
-	);
-
-	$evidence_item = array(
-		'description' => 'Completed in ' . $duration_info['duration_in_days'] . ' days', 
-		'category' => 'course_duration'
-	);
-	$evidence_item['string_object'] = json_encode($duration_info);
-	$evidence_item['hidden'] = true;
-
-	// post the evidence if the startdate exists and isn't 0 (epoch)
-	if($enrolment_timestamp && $enrolment_timestamp != 0){
-		accredible_post_evidence($credential_id, $evidence_item, false);	
-	}
+	$api = new Api($CFG->accredible_api_key);
+	$api->create_evidence_item_duration($enrolment_timestamp, date("Y-m-d"), $credential_id, true);
 }
 
 function number_ending ($number) {
