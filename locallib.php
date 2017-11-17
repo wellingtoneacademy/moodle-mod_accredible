@@ -195,6 +195,41 @@ function create_credential($user, $group_id, $event = null){
 }
 
 /**
+ * Create a credential given a user and an existing group
+ * @param stdObject $user 
+ * @param int $group_id 
+ * @return stdObject
+ */
+function create_credential_legacy($user, $achievement_name, $event = null){
+	global $CFG;
+
+	$api = new Api($CFG->accredible_api_key);
+
+	try {
+		$credential = $api->create_credential_legacy(fullname($user), $user->email, $achievement_name);
+
+		// log an event now we've created the credential if possible
+		if($event != null){
+			$certificate_event = \mod_accredible\event\certificate_created::create(array(
+								  'objectid' => $credential->credential->id,
+								  'context' => context_module::instance($event->contextinstanceid),
+								  'relateduserid' => $event->relateduserid
+								));
+			$certificate_event->trigger();
+		}
+		
+		return $credential->credential;
+
+	} catch (ClientException $e) {
+	    // throw API exception
+	  	// include the achievement id that triggered the error
+	  	// direct the user to accredible's support
+	  	// dump the achievement id to debug_info
+	  	throw new moodle_exception('credentialcreateerror', 'accredible', 'https://accredible.com/contact/support', $user->email, $group_id);
+	}
+}
+
+/**
  * Get the groups for the issuer
  * @return type
  */
