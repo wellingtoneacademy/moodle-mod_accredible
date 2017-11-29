@@ -58,7 +58,7 @@ function sync_course_with_accredible($course, $instance_id = null) {
 		  	// include the achievement id that triggered the error
 		  	// direct the user to accredible's support
 		  	// dump the achievement id to debug_info
-		  	throw new moodle_exception('groupsyncerror', 'accredible', 'https://accredible.com/contact/support', $course->id, $course->id);
+		  	throw new moodle_exception('groupsyncerror', 'accredible', 'https://help.accredible.com/hc/en-us', $course->id, $course->id);
 		}
 	// making a new group
 	} else {
@@ -72,7 +72,7 @@ function sync_course_with_accredible($course, $instance_id = null) {
 		  	// include the achievement id that triggered the error
 		  	// direct the user to accredible's support
 		  	// dump the achievement id to debug_info
-		  	throw new moodle_exception('groupsyncerror', 'accredible', 'https://accredible.com/contact/support', $course->id, $course->id);
+		  	throw new moodle_exception('groupsyncerror', 'accredible', 'https://help.accredible.com/hc/en-us', $course->id, $course->id);
 		}
 	}
 }
@@ -126,7 +126,7 @@ function accredible_get_credentials($group_id, $email= null) {
         $exceptionparam->group_id = $group_id;
         $exceptionparam->email = $email;
         $exceptionparam->last_response = $credentials_page;
-	  	throw new moodle_exception('getcredentialserror', 'accredible', 'https://accredible.com/contact/support', $exceptionparam);
+	  	throw new moodle_exception('getcredentialserror', 'accredible', 'https://help.accredible.com/hc/en-us', $exceptionparam);
 	}
 }	
 
@@ -155,7 +155,7 @@ function accredible_check_for_existing_credential($group_id, $email) {
 	  	// include the achievement id that triggered the error
 	  	// direct the user to accredible's support
 	  	// dump the achievement id to debug_info
-	  	throw new moodle_exception('groupsyncerror', 'accredible', 'https://accredible.com/contact/support', $group_id, $group_id);
+	  	throw new moodle_exception('groupsyncerror', 'accredible', 'https://help.accredible.com/hc/en-us', $group_id, $group_id);
 	}
 }
 
@@ -262,7 +262,7 @@ function create_credential($user, $group_id, $event = null, $issued_on = null){
 	  	// include the achievement id that triggered the error
 	  	// direct the user to accredible's support
 	  	// dump the achievement id to debug_info
-	  	throw new moodle_exception('credentialcreateerror', 'accredible', 'https://accredible.com/contact/support', $user->email, $group_id);
+	  	throw new moodle_exception('credentialcreateerror', 'accredible', 'https://help.accredible.com/hc/en-us', $user->email, $group_id);
 	}
 }
 
@@ -297,7 +297,7 @@ function create_credential_legacy($user, $achievement_name, $course_name, $cours
 	  	// include the achievement id that triggered the error
 	  	// direct the user to accredible's support
 	  	// dump the achievement id to debug_info
-	  	throw new moodle_exception('credentialcreateerror', 'accredible', 'https://accredible.com/contact/support', $user->email, $group_id);
+	  	throw new moodle_exception('credentialcreateerror', 'accredible', 'https://help.accredible.com/hc/en-us', $user->email, $group_id);
 	}
 }
 
@@ -324,7 +324,7 @@ function accredible_get_groups() {
 	  	// include the achievement id that triggered the error
 	  	// direct the user to accredible's support
 	  	// dump the achievement id to debug_info
-	  	throw new moodle_exception('getgroupserror', 'accredible', 'https://accredible.com/contact/support');
+	  	throw new moodle_exception('getgroupserror', 'accredible', 'https://help.accredible.com/hc/en-us');
 	}
 }
 
@@ -364,7 +364,7 @@ function accredible_get_templates() {
 	  // throw API exception
 	  // direct the user to accredible's support
 	  // dump the achievement id to debug_info
-	  throw new moodle_exception('gettemplateserror', 'accredible', 'https://accredible.com/contact/support');
+	  throw new moodle_exception('gettemplateserror', 'accredible', 'https://help.accredible.com/hc/en-us');
 	}
 	curl_close($curl);
 	$templates = array();
@@ -730,7 +730,7 @@ function accredible_post_evidence($credential_id, $evidence_item, $allow_excepti
     // include the user id that triggered the error
     // direct the user to accredible's support
     // dump the post to debug_info
-    throw new moodle_exception('evidenceadderror', 'accredible', 'https://accredible.com/contact/support', $credential_id, curl_error($curl));
+    throw new moodle_exception('evidenceadderror', 'accredible', 'https://help.accredible.com/hc/en-us', $credential_id, curl_error($curl));
 	}
 	curl_close($curl);
 }
