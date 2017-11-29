@@ -123,11 +123,13 @@ else {
 	echo $OUTPUT->header();
 
 	if($users_certificate_link) {
+
 		if (method_exists($PAGE->theme, 'image_url')) {
 			$src = $OUTPUT->image_url('incomplete_cert', 'accredible');
 		} else {
 			$src = $OUTPUT->pix_url('incomplete_cert', 'accredible');
 		}
+
 		echo html_writer::start_div('text-center');
 		echo html_writer::tag( 'br', null );
 		if($certificates && $certificates[0] && $certificates[0]->seo_image){
@@ -138,14 +140,14 @@ else {
 
 		echo html_writer::link( $users_certificate_link, $img, array('target' => '_blank') );
 		echo html_writer::end_div('text-center');
-	} 
-	else {
+	} else {
 		
 		if (method_exists($PAGE->theme, 'image_url')) {
 			$src = $OUTPUT->image_url('incomplete_cert', 'accredible');
 		} else {
 			$src = $OUTPUT->pix_url('incomplete_cert', 'accredible');
 		}
+
 		echo html_writer::start_div('text-center');
 		echo html_writer::tag( 'br', null );
 		echo html_writer::img($src, get_string('viewimgincomplete', 'accredible'), array('width' => '90%') );
