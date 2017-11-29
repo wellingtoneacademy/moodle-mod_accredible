@@ -45,6 +45,7 @@ $PAGE->set_cm($cm);
 $PAGE->set_title(format_string($accredible_certificate->name));
 $PAGE->set_heading(format_string($course->fullname));
 
+
 // Get array of certificates
 if($accredible_certificate->achievementid){ // legacy achievment ID
 	$certificates = accredible_get_credentials($accredible_certificate->achievementid);
@@ -99,28 +100,36 @@ else {
 	// Regular user, Check for this user's certificate
 	$users_certificate_link = null;
 
-	// Get certificate
-	if($accredible_certificate->achievementid){ // legacy achievment ID
+
+	if($accredible_certificate->groupid){
+		$users_certificate_link = accredible_get_recipient_sso_linik($accredible_certificate->groupid, $USER->email);
+	// legacy achievment ID
+	} else {
 		$certificates = accredible_get_credentials($accredible_certificate->achievementid, $USER->email);
-	} else { // group id
-		$certificates = accredible_get_credentials($accredible_certificate->groupid, $USER->email);
+
+		foreach ($certificates as $certificate) {
+		    if($certificate->recipient->email == $USER->email) {
+			    if(isset($certificate->url)) {
+			        $users_certificate_link = $certificate->url;
+			    }
+			    else {
+			        $users_certificate_link = 'https://www.credential.net/'.$certificate->id;
+			    }
+		    }
+		}
 	}
 
-	foreach ($certificates as $certificate) {
-    if($certificate->recipient->email == $USER->email) {
-	    if(isset($certificate->url)) {
-	        $users_certificate_link = $certificate->url;
-	    }
-	    else {
-	        $users_certificate_link = 'https://www.credential.net/'.$certificate->id;
-	    }
-    }
-	}
 	// Echo the page
 	echo $OUTPUT->header();
 
 	if($users_certificate_link) {
-		$src = $OUTPUT->pix_url('complete_cert', 'accredible');
+
+		if (method_exists($PAGE->theme, 'image_url')) {
+			$src = $OUTPUT->image_url('incomplete_cert', 'accredible');
+		} else {
+			$src = $OUTPUT->pix_url('incomplete_cert', 'accredible');
+		}
+
 		echo html_writer::start_div('text-center');
 		echo html_writer::tag( 'br', null );
 		if($certificates && $certificates[0] && $certificates[0]->seo_image){
@@ -131,9 +140,14 @@ else {
 
 		echo html_writer::link( $users_certificate_link, $img, array('target' => '_blank') );
 		echo html_writer::end_div('text-center');
-	} 
-	else {
-		$src = $OUTPUT->pix_url('incomplete_cert', 'accredible');
+	} else {
+		
+		if (method_exists($PAGE->theme, 'image_url')) {
+			$src = $OUTPUT->image_url('incomplete_cert', 'accredible');
+		} else {
+			$src = $OUTPUT->pix_url('incomplete_cert', 'accredible');
+		}
+
 		echo html_writer::start_div('text-center');
 		echo html_writer::tag( 'br', null );
 		echo html_writer::img($src, get_string('viewimgincomplete', 'accredible'), array('width' => '90%') );

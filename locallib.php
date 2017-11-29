@@ -160,18 +160,125 @@ function accredible_check_for_existing_credential($group_id, $email) {
 }
 
 /**
+ * Checks if a user has earned a specific credential according to the activity settings
+ * @param stdObject $record An Accredible activity record
+ * @param stdObject $course
+ * @param stdObject user
+ * @return bool
+ */
+function accredible_check_if_cert_earned($record, $course, $user) {
+	global $DB;
+
+    $earned = false;
+
+    // check for the existence of an activity instance and an auto-issue rule
+    if( $record and ($record->finalquiz or $record->completionactivities) ) {
+
+        // Check if we have a groupid or achievementid. Logic is same for both
+        if($record->groupid) {
+            $groupid = $record->groupid;
+        }
+        elseif($record->achievementid) {
+            $groupid = $record->achievementid;
+        }
+
+        if($record->finalquiz) {
+            $quiz = $DB->get_record('quiz', array('id'=> $record->finalquiz), '*', MUST_EXIST);
+            
+            // create that credential if it doesn't exist
+            $users_grade = min( ( quiz_get_best_grade($quiz, $user->id) / $quiz->grade ) * 100, 100);
+            $grade_is_high_enough = ($users_grade >= $record->passinggrade);
+
+            // check for pass
+            if($grade_is_high_enough) {
+                // Student earned certificate through final quiz
+                $earned = true;
+            }
+        }
+
+        $completion_activities = unserialize_completion_array($record->completionactivities);
+        // if this quiz is in the completion activities
+        if( isset($completion_activities[$quiz->id]) ) {
+            $completion_activities[$quiz->id] = true;
+            $quiz_attempts = $DB->get_records('quiz_attempts', array('userid' => $user->id, 'state' => 'finished'));
+            foreach($quiz_attempts as $quiz_attempt) {
+                // if this quiz was already attempted, then we shouldn't be issuing a certificate
+                if( $quiz_attempt->quiz == $quiz->id && $quiz_attempt->attempt > 1 ) {
+                    return null;
+                }
+                // otherwise, set this quiz as completed
+                if( isset($completion_activities[$quiz_attempt->quiz]) ) {
+                    $completion_activities[$quiz_attempt->quiz] = true;
+                }
+            }
+
+            // but was this the last required activity that was completed?
+            $course_complete = true;
+            foreach($completion_activities as $is_complete) {
+                if(!$is_complete) {
+                    $course_complete = false;
+                }
+            }
+            // if it was the final activity
+            if($course_complete) {
+                // Student earned certificate by completing completion activities
+                $earned = true;
+            }
+        }
+        
+    }
+    return $earned;
+}
+
+/**
  * Create a credential given a user and an existing group
  * @param stdObject $user 
  * @param int $group_id 
  * @return stdObject
  */
-function create_credential($user, $group_id, $event = null){
+function create_credential($user, $group_id, $event = null, $issued_on = null){
 	global $CFG;
 
 	$api = new Api($CFG->accredible_api_key);
 
 	try {
-		$credential = $api->create_credential(fullname($user), $user->email, $group_id);
+		$credential = $api->create_credential(fullname($user), $user->email, $group_id, $issued_on);
+
+		// log an event now we've created the credential if possible
+		if($event != null){
+			$certificate_event = \mod_accredible\event\certificate_created::create(array(
+								  'objectid' => $credential->credential->id,
+								  'context' => context_module::instance($event->contextinstanceid),
+								  'relateduserid' => $event->relateduserid,
+								  'issued_on' => $issued_on
+								));
+			$certificate_event->trigger();
+		}
+		
+		return $credential->credential;
+
+	} catch (ClientException $e) {
+	    // throw API exception
+	  	// include the achievement id that triggered the error
+	  	// direct the user to accredible's support
+	  	// dump the achievement id to debug_info
+	  	throw new moodle_exception('credentialcreateerror', 'accredible', 'https://accredible.com/contact/support', $user->email, $group_id);
+	}
+}
+
+/**
+ * Create a credential given a user and an existing group
+ * @param stdObject $user 
+ * @param int $group_id 
+ * @return stdObject
+ */
+function create_credential_legacy($user, $achievement_name, $course_name, $course_description, $course_link, $issued_on, $event = null){
+	global $CFG;
+
+	$api = new Api($CFG->accredible_api_key);
+
+	try {
+		$credential = $api->create_credential_legacy(fullname($user), $user->email, $achievement_name, $issued_on, null, $course_name, $course_description, $course_link);
 
 		// log an event now we've created the credential if possible
 		if($event != null){
@@ -221,31 +328,26 @@ function accredible_get_groups() {
 	}
 }
 
-// old below here
-
-
 /**
- * List all of the ceritificates with a specific achievement id
- *
- * @param string $achievement_id
- * @return array[stdClass] $certificates
+ * Get the SSO link for a recipient
+ * @return type
  */
-function accredible_get_issued($achievement_id) {
+function accredible_get_recipient_sso_linik($group_id, $email) {
 	global $CFG;
 
-	$curl = curl_init('https://api.accredible.com/v1/credentials?full_view=true&achievement_id='.urlencode($achievement_id));
-	curl_setopt( $curl, CURLOPT_HTTPHEADER, array( 'Authorization: Token token="'.$CFG->accredible_api_key.'"' ) );
-	curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-	if(!$result = json_decode( curl_exec($curl) )) {
-	  // throw API exception
-	  // include the achievement id that triggered the error
-	  // direct the user to accredible's support
-	  // dump the achievement id to debug_info
-	  throw new moodle_exception('getissuederror', 'accredible', 'https://accredible.com/contact/support', $achievement_id, $achievement_id);
+	$api = new Api($CFG->accredible_api_key);
+
+	try {
+		$response = $api->recipient_sso_link(null, null, $email, null, $group_id, null);
+
+		return $response->link;
+
+	} catch (Exception $e) {
+	    return null;
 	}
-	curl_close($curl);
-	return $result->credentials;
 }
+
+// old below here
 
 /**
  * List all of the issuer's templates
@@ -276,44 +378,40 @@ function accredible_get_templates() {
  * accredible_issue_default_certificate
  * 
  */
-function accredible_issue_default_certificate($user_id, $certificate_id, $name, $email, $grade, $quiz_name) {
+function accredible_issue_default_certificate($user_id, $certificate_id, $name, $email, $grade, $quiz_name, $completed_timestamp = null) {
 	global $DB, $CFG;
+
+    if (!isset($completed_timestamp)) {
+        $completed_timestamp = time();
+    }
+    $issued_on = date('Y-m-d', (int) $completed_timestamp);
 
 	// Issue certs
 	$accredible_certificate = $DB->get_record('accredible', array('id'=>$certificate_id));
 
-	$certificate = array();
-  $course_url = new moodle_url('/course/view.php', array('id' => $accredible_certificate->course));
-	$certificate['name'] = $accredible_certificate->certificatename;
-	$certificate['template_name'] = $accredible_certificate->achievementid;
-	$certificate['description'] = $accredible_certificate->description;
-  $certificate['course_link'] = $course_url->__toString();
-	$certificate['recipient'] = array('name' => $name, 'email'=> $email);
 
-	$curl = curl_init('https://api.accredible.com/v1/credentials');
-	curl_setopt($curl, CURLOPT_POST, 1);
-	curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query( array('credential' => $certificate) ));
-	curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-	curl_setopt( $curl, CURLOPT_HTTPHEADER, array( 'Authorization: Token token="'.$CFG->accredible_api_key.'"' ) );
-	if(!$result = curl_exec($curl)) {
-		// TODO - log this because an exception cannot be thrown in an event callback
-	}
-	curl_close($curl);
+  	$course_url = new moodle_url('/course/view.php', array('id' => $accredible_certificate->course));
+  	$course_link = $course_url->__toString();
+
+  	$api = new Api($CFG->accredible_api_key);
+	$credential = $api->create_credential_legacy($user, $accredible_certificate->achievementid, $accredible_certificate->certificatename, $accredible_certificate->description, $course_link, $issued_on);
 
 	// evidence item posts
-	$credential_id = json_decode($result)->credential->id;
+	$credential_id = $credential->id;
 	if($grade) {
-		$grade_evidence = array('string_object' => (string) $grade, 'description' => $quiz_name, 'custom'=> true, 'category' => 'grade' );
 		if($grade < 50) {
-		    $grade_evidence['hidden'] = true;
+		    $hidden = true;
+		} else {
+			$hidden = false;
 		}
-	  accredible_post_evidence($credential_id, $grade_evidence, false);
+
+		$response = $api->create_evidence_item_grade($grade, $quiz_name, $credential_id, $hidden);
 	}
-  if($transcript = accredible_get_transcript($accredible_certificate->course, $user_id, $accredible_certificate->finalquiz)) {
+  	if($transcript = accredible_get_transcript($accredible_certificate->course, $user_id, $accredible_certificate->finalquiz)) {
 	  accredible_post_evidence($credential_id, $transcript, false);
 	}
 	accredible_post_essay_answers($user_id, $accredible_certificate->course, $credential_id);
-	accredible_course_duration_evidence($user_id, $accredible_certificate->course, $credential_id);
+	accredible_course_duration_evidence($user_id, $accredible_certificate->course, $credential_id, $completed_timestamp);
 
 	return json_decode($result);
 }
@@ -712,8 +810,9 @@ function accredible_post_essay_answers($user_id, $course_id, $credential_id) {
 	}
 }
 
-function accredible_course_duration_evidence($user_id, $course_id, $credential_id) {
-	global $DB;
+
+function accredible_course_duration_evidence($user_id, $course_id, $credential_id, $completed_timestamp = null) {
+	global $DB, $CFG;
 
 	$sql = "SELECT enrol.id, ue.timestart
 					FROM mdl_enrol enrol, mdl_user_enrolments ue 
@@ -721,23 +820,72 @@ function accredible_course_duration_evidence($user_id, $course_id, $credential_i
 	$enrolment = $DB->get_record_sql($sql, array($user_id, $course_id));
 	$enrolment_timestamp = $enrolment->timestart;
 
-	$duration_info = array(
-		'start_date' =>  date("Y-m-d", $enrolment_timestamp),
-		'end_date' => date("Y-m-d"),
-		'duration_in_days' => floor( (time() - $enrolment_timestamp) / 86400)
-	);
+	if (!isset($completed_timestamp)) {
+        $completed_timestamp = date("Y-m-d");
+    }
 
-	$evidence_item = array(
-		'description' => 'Completed in ' . $duration_info['duration_in_days'] . ' days', 
-		'category' => 'course_duration'
-	);
-	$evidence_item['string_object'] = json_encode($duration_info);
-	$evidence_item['hidden'] = true;
+	$api = new Api($CFG->accredible_api_key);
+	$api->create_evidence_item_duration($enrolment_timestamp, $completed_timestamp, $credential_id, true);
+}
 
-	// post the evidence if the startdate exists and isn't 0 (epoch)
-	if($enrolment_timestamp && $enrolment_timestamp != 0){
-		accredible_post_evidence($credential_id, $evidence_item, false);	
-	}
+/* accredible_manual_issue_completion_timestamp()
+ * 
+ *  Get a timestamp for when a student completed a course. This is
+ *  used when manually issuing certs to get a proper issue date and
+ *  for the course duration item. Currently checking for the date of
+ *  the highest quiz attempt for the final quiz specified for that 
+ *  accredible activity.
+ */
+function accredible_manual_issue_completion_timestamp($accredible_record, $user) {
+    global $DB;
+
+    $completed_timestamp = false;
+
+    if ($accredible_record->finalquiz) {
+        // If there is a finalquiz set, that governs when the course is complete.
+
+        $quiz = $DB->get_record('quiz', array('id' => $accredible_record->finalquiz), '*', MUST_EXIST);
+        $totalrawscore = $quiz->sumgrades;
+        $highest_attempt = null;
+
+        $quiz_attempts = $DB->get_records('quiz_attempts', array('userid' => $user->id, 'state' => 'finished', 'quiz' => $accredible_record->finalquiz));
+        foreach ($quiz_attempts as $quiz_attempt) {
+            if (!isset($highest_attempt)) {
+                // First attempt in the loop, so currently the highest.
+                $highest_attempt = $quiz_attempt;
+                continue;
+            }
+
+            if ($quiz_attempt->sumgrades >= $highest_attempt->sumgrades) {
+                // Compare raw sumgrades from attempt. It seems that moodle
+                // doesn't allow the amount that questions are worth in a quiz
+                // to change so this should be ok - the scale should be constant
+                // across attempts
+                $highest_attempt = $quiz_attempt;
+            }
+        }
+
+        if (isset($highest_attempt)) {
+            // At least one attempt was found
+            $attemptrawscore = $highest_attempt->sumgrades;
+            $grade = ($attemptrawscore/$totalrawscore) * 100;
+            // Check if the grade is passing, and if so set completion time to the attempt timefinish
+            if ($grade >= $accredible_record->passinggrade) {
+                $completed_timestamp = $highest_attempt->timefinish;
+            }        
+        }
+
+    }
+
+    // TODO: When is the completion if there are completion activities set?
+
+
+    // Set timestamp to now if no good timestamp was found.
+    if ($completed_timestamp === false) {
+        $completed_timestamp = time();
+    }
+
+    return (int) $completed_timestamp;
 }
 
 function number_ending ($number) {
