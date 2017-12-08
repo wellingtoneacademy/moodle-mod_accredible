@@ -208,17 +208,17 @@
     },
     {
         "name": "accredible/acms-api-php",
-        "version": "v0.2.2",
-        "version_normalized": "0.2.2.0",
+        "version": "v0.2.4",
+        "version_normalized": "0.2.4.0",
         "source": {
             "type": "git",
             "url": "https://github.com/accredible/acms-php-api.git",
-            "reference": "b5a3ae2f722827e1666578e49a8d691a46eb65fd"
+            "reference": "a7f121267771a799ce2ea61f724feb351f28e44d"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/accredible/acms-php-api/zipball/b5a3ae2f722827e1666578e49a8d691a46eb65fd",
-            "reference": "b5a3ae2f722827e1666578e49a8d691a46eb65fd",
+            "url": "https://api.github.com/repos/accredible/acms-php-api/zipball/a7f121267771a799ce2ea61f724feb351f28e44d",
+            "reference": "a7f121267771a799ce2ea61f724feb351f28e44d",
             "shasum": ""
         },
         "require": {
@@ -228,7 +228,7 @@
         "require-dev": {
             "phpunit/phpunit": "^4.6 || ^5.0"
         },
-        "time": "2017-11-17T10:20:35+00:00",
+        "time": "2017-12-08T10:59:49+00:00",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
