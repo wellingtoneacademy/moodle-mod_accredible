@@ -824,8 +824,10 @@ function accredible_course_duration_evidence($user_id, $course_id, $credential_i
         $completed_timestamp = date("Y-m-d");
     }
 
-	$api = new Api($CFG->accredible_api_key);
-	$api->create_evidence_item_duration($enrolment_timestamp, $completed_timestamp, $credential_id, true);
+    if($enrolment_timestamp && $enrolment_timestamp != 0 && (strtotime($enrolment_timestamp) < strtotime($completed_timestamp))){
+    	$api = new Api($CFG->accredible_api_key);
+		$api->create_evidence_item_duration($enrolment_timestamp, $completed_timestamp, $credential_id, true);
+    }
 }
 
 /* accredible_manual_issue_completion_timestamp()
