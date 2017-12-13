@@ -394,7 +394,7 @@ function accredible_issue_default_certificate($user_id, $certificate_id, $name, 
   	$course_link = $course_url->__toString();
 
   	$api = new Api($CFG->accredible_api_key);
-	$credential = $api->create_credential_legacy($name, $email, $accredible_certificate->achievementid, $issued_on, null, $accredible_certificate->certificatename, $accredible_certificate->description, $course_link, );
+	$credential = $api->create_credential_legacy($name, $email, $accredible_certificate->achievementid, $issued_on, null, $accredible_certificate->certificatename, $accredible_certificate->description, $course_link);
 
 	// evidence item posts
 	$credential_id = $credential->id;
