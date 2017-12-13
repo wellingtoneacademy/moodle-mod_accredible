@@ -397,7 +397,7 @@ function accredible_issue_default_certificate($user_id, $certificate_id, $name, 
 	$credential = $api->create_credential_legacy($name, $email, $accredible_certificate->achievementid, $issued_on, null, $accredible_certificate->certificatename, $accredible_certificate->description, $course_link);
 
 	// evidence item posts
-	$credential_id = $credential->id;
+	$credential_id = $credential->credential->id;
 	if($grade) {
 		if($grade < 50) {
 		    $hidden = true;
