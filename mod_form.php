@@ -38,6 +38,12 @@ class mod_accredible_mod_form extends moodleform_mod {
         global $DB, $OUTPUT, $CFG;
         $updatingcert = false;
         $alreadyexists = false;
+
+        $description = Html2Text\Html2Text::convert($course->summary);
+        if(empty($description)){
+            $description = "Recipient has compeleted the achievement.";
+        }
+
         // Make sure the API key is set
         if(!isset($CFG->accredible_api_key)) {
             print_error('Please set your API Key first in the plugin settings.');
@@ -117,7 +123,7 @@ class mod_accredible_mod_form extends moodleform_mod {
             $mform->addElement('textarea', 'description', get_string('description', 'accredible'), array('cols'=>'64', 'rows'=>'10', 'wrap'=>'virtual', 'maxlength' => '1000'));
             $mform->addRule('description', null, 'required', null, 'client');
             $mform->setType('description', PARAM_RAW);
-            $mform->setDefault('description', strip_tags($course->summary));
+            $mform->setDefault('description', $description);
             if($updatingcert) {
                 $mform->addElement('static', 'dashboardlink', get_string('dashboardlink', 'accredible'), get_string('dashboardlinktext', 'accredible'));
             }

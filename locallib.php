@@ -43,6 +43,11 @@ function sync_course_with_accredible($course, $instance_id = null) {
 
 	$api = new Api($CFG->accredible_api_key);
 
+	$description = Html2Text\Html2Text::convert($course->summary);
+	if(empty($description)){
+		$description = "Recipient has compeleted the achievement.";
+	}
+
 	// Update an existing
 	if(null != $instance_id){
 		// get the group id
@@ -50,7 +55,7 @@ function sync_course_with_accredible($course, $instance_id = null) {
 
 		try {
 		    // Update the group
-			$group = $api->update_group($accredible_certificate->groupid, null, $course->fullname, Html2Text\Html2Text::convert($course->summary), new moodle_url('/course/view.php', array('id' => $course->id)));
+			$group = $api->update_group($accredible_certificate->groupid, null, $course->fullname, $description), new moodle_url('/course/view.php', array('id' => $course->id)));
 
 			return $group->group->id;
 		} catch (ClientException $e) {
@@ -64,7 +69,7 @@ function sync_course_with_accredible($course, $instance_id = null) {
 	} else {
 		try {
 		    // Make a new Group on Accredible - use a random number to deal with duplicate course names.
-			$group = $api->create_group($course->shortname . mt_rand(), $course->fullname, Html2Text\Html2Text::convert($course->summary), new moodle_url('/course/view.php', array('id' => $course->id)));
+			$group = $api->create_group($course->shortname . mt_rand(), $course->fullname, $description, new moodle_url('/course/view.php', array('id' => $course->id)));
 
 			return $group->group->id;
 		} catch (ClientException $e) {
