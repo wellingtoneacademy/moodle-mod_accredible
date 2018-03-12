@@ -38,7 +38,7 @@ function accredible_add_instance($post) {
 
     $course = $DB->get_record('course', array('id'=> $post->course), '*', MUST_EXIST);
 
-    $group_id = sync_course_with_accredible($course, $post->instance);
+    $group_id = sync_course_with_accredible($course, $post->instance, $post->groupid);
 
     // Issue certs
     if( isset($post->users) ) {
@@ -102,7 +102,7 @@ function accredible_update_instance($post) {
 
     // Update the group if we have one to sync with
     if($accredible_certificate->groupid){
-        sync_course_with_accredible($course, $post->instance);
+        sync_course_with_accredible($course, $post->instance, $post->groupid);
     }
 
     // Issue certs for unissued users
