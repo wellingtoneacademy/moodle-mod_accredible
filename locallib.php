@@ -32,13 +32,13 @@ require __DIR__ . '/vendor/autoload.php';
 use ACMS\Api;
 
 /**
- * Sync the selected course information with a group on Accredible - returns a group ID
+ * Sync the selected course information with a group on Accredible - returns a group ID. Optionally takes a group ID so we can set it and change the assigned group.
  *
  * @param stdClass $course 
  * @param int|null $instance_id
  * @return int $groupid
  */
-function sync_course_with_accredible($course, $instance_id = null) {
+function sync_course_with_accredible($course, $instance_id = null, $group_id = null) {
 	global $DB, $CFG;
 
 	$api = new Api($CFG->accredible_api_key);
@@ -48,6 +48,11 @@ function sync_course_with_accredible($course, $instance_id = null) {
 		$description = "Recipient has compeleted the achievement.";
 	}
 
+	// Just use the saved group ID
+	if($group_id == null){
+		$group_id = $accredible_certificate->groupid;
+	}
+
 	// Update an existing
 	if(null != $instance_id){
 		// get the group id
@@ -55,7 +60,7 @@ function sync_course_with_accredible($course, $instance_id = null) {
 
 		try {
 		    // Update the group
-			$group = $api->update_group($accredible_certificate->groupid, null, $course->fullname, $description, new moodle_url('/course/view.php', array('id' => $course->id)));
+			$group = $api->update_group($group_id, null, $course->fullname, $description, new moodle_url('/course/view.php', array('id' => $course->id)));
 
 			return $group->group->id;
 		} catch (ClientException $e) {
