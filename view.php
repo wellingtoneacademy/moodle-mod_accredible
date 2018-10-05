@@ -45,16 +45,8 @@ $PAGE->set_cm($cm);
 $PAGE->set_title(format_string($accredible_certificate->name));
 $PAGE->set_heading(format_string($course->fullname));
 
-
-// Get array of certificates
-if($accredible_certificate->achievementid){ // legacy achievment ID
-	$certificates = accredible_get_credentials($accredible_certificate->achievementid);
-} else { // group id
-	$certificates = accredible_get_credentials($accredible_certificate->groupid);
-}
-
+// User has admin privileges, show table of certificates.
 if(has_capability('mod/accredible:manage', $context)) {
-	// User has admin privileges, show table of certificates.
 
 	// Get array of certificates
 	if($accredible_certificate->achievementid){ // legacy achievment ID
@@ -100,13 +92,16 @@ else {
 	// Regular user, Check for this user's certificate
 	$users_certificate_link = null;
 
+	if($accredible_certificate->achievementid){ // legacy achievment ID
+		$certificates = accredible_get_credentials($accredible_certificate->achievementid, $USER->email);
+	} else { // group id
+		$certificates = accredible_get_credentials($accredible_certificate->groupid, $USER->email);
+	}
 
 	if($accredible_certificate->groupid){
 		$users_certificate_link = accredible_get_recipient_sso_linik($accredible_certificate->groupid, $USER->email);
 	// legacy achievment ID
 	} else {
-		$certificates = accredible_get_credentials($accredible_certificate->achievementid, $USER->email);
-
 		foreach ($certificates as $certificate) {
 		    if($certificate->recipient->email == $USER->email) {
 			    if(isset($certificate->url)) {
@@ -133,7 +128,13 @@ else {
 		echo html_writer::start_div('text-center');
 		echo html_writer::tag( 'br', null );
 		if($certificates && $certificates[0] && $certificates[0]->seo_image){
-			$img = html_writer::img($certificates[0]->seo_image, get_string('viewimgcomplete', 'accredible'), array('width' => '90%') );
+			// if we have a certificate, display a large image - else a small one for a badge
+			if($certificates && $certificates[0] && $certificates[0]->certificate->image->preview && strlen($certificates[0]->certificate->image->preview) > 0) {
+				$img = html_writer::img($certificates[0]->seo_image, get_string('viewimgcomplete', 'accredible'), array('width' => '90%') );	
+			} else {
+				$img = html_writer::img($certificates[0]->seo_image, get_string('viewimgcomplete', 'accredible'), array('width' => '25%') );
+			}
+			
 		} else {
 			$img = html_writer::img($src, get_string('viewimgcomplete', 'accredible'), array('width' => '90%') );
 		}
