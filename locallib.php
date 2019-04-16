@@ -638,29 +638,18 @@ function accredible_course_completed_handler($event) {
 
 				// Check if we have a group mapping - if not use the old logic
 				if($record->groupid){
-					// check for an existing certificate
-					$existing_certificate = accredible_check_for_existing_credential($record->groupid, $user->email);
 					
-					// create that credential if it doesn't exist
-					if(!$existing_certificate) {
-						create_credential($user, $record->groupid);
-					}
+					// create the credential
+					create_credential($user, $record->groupid);
 
 				} else {
-					$existing_certificate = accredible_check_for_existing_certificate ($record->achievementid, $user);
-
-					// check for an existing certificate
-					if(!$existing_certificate) {
-						// issue a ceritificate
-						$api_response = accredible_issue_default_certificate( $user->id, $record->id, fullname($user), $user->email, null, null);
-						$certificate_event = \mod_accredible\event\certificate_created::create(array(
-						  'objectid' => $api_response->credential->id,
-						  'context' => context_module::instance($event->contextinstanceid),
-						  'relateduserid' => $event->relateduserid
-						));
-						$certificate_event->trigger();
-					} 
-
+					$api_response = accredible_issue_default_certificate( $user->id, $record->id, fullname($user), $user->email, null, null);
+					$certificate_event = \mod_accredible\event\certificate_created::create(array(
+					  'objectid' => $api_response->credential->id,
+					  'context' => context_module::instance($event->contextinstanceid),
+					  'relateduserid' => $event->relateduserid
+					));
+					$certificate_event->trigger();
 				}
 
 			}
@@ -786,9 +775,9 @@ function accredible_post_essay_answers($user_id, $course_id, $credential_id) {
 				    qa.questionsummary AS question,
 				    qa.responsesummary AS answer
 				 
-				FROM mdl_quiz_attempts quiza
-				JOIN mdl_question_usages qu ON qu.id = quiza.uniqueid
-				JOIN mdl_question_attempts qa ON qa.questionusageid = qu.id
+				FROM ".$CFG->prefix."quiz_attempts quiza
+				JOIN ".$CFG->prefix."question_usages qu ON qu.id = quiza.uniqueid
+				JOIN ".$CFG->prefix."question_attempts qa ON qa.questionusageid = qu.id
 				 
 				WHERE quiza.id = ? && qa.behaviour = 'manualgraded'
 				 
@@ -823,7 +812,7 @@ function accredible_course_duration_evidence($user_id, $course_id, $credential_i
 	global $DB, $CFG;
 
 	$sql = "SELECT enrol.id, ue.timestart
-					FROM mdl_enrol enrol, mdl_user_enrolments ue 
+					FROM ".$CFG->prefix."enrol enrol, ".$CFG->prefix."user_enrolments ue 
 					WHERE enrol.id = ue.enrolid AND ue.userid = ? AND enrol.courseid = ?";
 	$enrolment = $DB->get_record_sql($sql, array($user_id, $course_id));
 	$enrolment_timestamp = $enrolment->timestart;
