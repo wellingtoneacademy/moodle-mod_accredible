@@ -119,7 +119,7 @@ class Api {
 		    )
 		);
 
-		$client = new \GuzzleHttp\Client();
+		$client = new \GuzzleHttp\Client(['defaults' => [ 'exceptions' => false ]] );
 
 		$params = array('Authorization' => 'Token token="'.$this->getAPIKey().'"');
 
