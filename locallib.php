@@ -713,7 +713,7 @@ function accredible_get_transcript($course_id, $user_id, $final_quiz_id) {
 }
 
 function accredible_post_evidence($credential_id, $evidence_item, $allow_exceptions) {
-	global $CFG;
+/*	global $CFG;
 
 	$curl = curl_init('https://api.accredible.com/v1/credentials/' . $credential_id . '/evidence_items');
 	curl_setopt($curl, CURLOPT_POST, true);
@@ -729,7 +729,7 @@ function accredible_post_evidence($credential_id, $evidence_item, $allow_excepti
     // dump the post to debug_info
     throw new moodle_exception('evidenceadderror', 'accredible', 'https://help.accredible.com/hc/en-us', $credential_id, curl_error($curl));
 	}
-	curl_close($curl);
+	curl_close($curl);*/
 }
 
 function accredible_check_for_existing_certificate($achievement_id, $user) {
