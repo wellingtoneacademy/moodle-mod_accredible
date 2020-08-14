@@ -174,23 +174,9 @@ function accredible_course_completed_handler($event) {
 		foreach ($accredible_certificate_records as $record) {
 			// check for the existence of an activity instance and an auto-issue rule
 			if( $record and ($record->completionactivities && $record->completionactivities != 0) ) {
-
-				// Check if we have a group mapping - if not use the old logic
-				if($record->groupid){
 					
 					// create the credential
 					create_credential($user, $record->groupid);
-
-				} else {
-					$api_response = accredible_issue_default_certificate( $user->id, $record->id, fullname($user), $user->email, null, null);
-					$certificate_event = \mod_accredible\event\certificate_created::create(array(
-					  'objectid' => $api_response->credential->id,
-					  'context' => context_module::instance($event->contextinstanceid),
-					  'relateduserid' => $event->relateduserid
-					));
-					$certificate_event->trigger();
-				}
-
 			}
 		}
 	}
