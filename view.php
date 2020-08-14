@@ -98,10 +98,6 @@ else {
 		$certificates = accredible_get_credentials($accredible_certificate->groupid, $USER->email);
 	}
 
-	if($accredible_certificate->groupid){
-		$users_certificate_link = accredible_get_recipient_sso_linik($accredible_certificate->groupid, $USER->email);
-	// legacy achievment ID
-	} else {
 		foreach ($certificates as $certificate) {
 		    if($certificate->recipient->email == $USER->email) {
 			    if(isset($certificate->url)) {
@@ -112,7 +108,7 @@ else {
 			    }
 		    }
 		}
-	}
+	
 
 	// Echo the page
 	echo $OUTPUT->header();
