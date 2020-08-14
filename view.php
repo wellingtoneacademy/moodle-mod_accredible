@@ -123,7 +123,7 @@ else {
         
 
         $resultkrb = grade_get_course_grades(2, 16);
-        $specific_user_grade = $resultkrb->grades[16]
+        $specific_user_grade = $resultkrb->grades[16];
         $final_course_grade = $specific_user_grade
         echo '<pre>'; print_r($final_course_grade); echo '</pre>';
         
