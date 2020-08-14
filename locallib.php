@@ -26,6 +26,8 @@
 
 // For composer dependencies
 require __DIR__ . '/vendor/autoload.php';
+require_once($CFG->dirroot . '/grade/querylib.php');
+
 
 use ACMS\Api;
 
