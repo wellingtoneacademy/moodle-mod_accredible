@@ -123,7 +123,7 @@ else {
         
 
         $resultkrb = grade_get_course_grades(2, 16);
-        $specific_user_grade = $resultkrb[16];
+        $specific_user_grade = $resultkrb->16->grade;
         echo '<pre>'; print_r($specific_user_grade); echo '</pre>';
         
        /* echo '<div class="accredible-container">';
