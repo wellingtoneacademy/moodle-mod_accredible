@@ -38,7 +38,7 @@ class mod_accredible_mod_form extends moodleform_mod {
         global $DB, $OUTPUT, $CFG;
         $updatingcert = false;
         $alreadyexists = false;
-
+        $course = $DB->get_record('course', array('id'=> $id), '*', MUST_EXIST);
         $description = Html2Text\Html2Text::convert($course->summary);
         if(empty($description)){
             $description = "Recipient has compeleted the achievement.";
@@ -54,7 +54,6 @@ class mod_accredible_mod_form extends moodleform_mod {
             $cm_id = optional_param('update', '', PARAM_INT);
             $cm = get_coursemodule_from_id('accredible', $cm_id, 0, false, MUST_EXIST);
             $id = $cm->course;
-            $course = $DB->get_record('course', array('id'=> $id), '*', MUST_EXIST);
             $accredible_certificate = $DB->get_record('accredible', array('id'=> $cm->instance), '*', MUST_EXIST);
         } 
         // New form init
