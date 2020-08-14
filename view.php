@@ -120,7 +120,7 @@ else {
 		} else {
 			$src = $OUTPUT->pix_url('incomplete_cert', 'accredible');
 		}
-        echo '<iframe src="https://www.credential.net/embed/'.$certificate->id.'" width="800" height="600" frameborder="0" allowfullscreen></iframe>';
+        echo '<iframe src="https://www.credential.net/embed/'.$certificate->id.'" width="100%" min-height="600" frameborder="0" allowfullscreen></iframe>';
 		echo html_writer::start_div('text-center');
 		echo html_writer::tag( 'br', null );
 		if($certificates && $certificates[0] && $certificates[0]->seo_image){
