@@ -159,3 +159,78 @@ function sync_course_with_accredible($course, $instance_id = null, $group_id = n
 		}
 	}
 }
+
+
+
+/*COURSE COMPLETION HANDLER*/
+function accredible_course_completed_handler($event) {
+
+    global $DB, $CFG;
+
+	$user = $DB->get_record('user', array('id' => $event->relateduserid));
+
+	// Check we have a course record
+	if($accredible_certificate_records = $DB->get_records('accredible', array('course' => $event->courseid))) {
+		foreach ($accredible_certificate_records as $record) {
+			// check for the existence of an activity instance and an auto-issue rule
+			if( $record and ($record->completionactivities && $record->completionactivities != 0) ) {
+
+				// Check if we have a group mapping - if not use the old logic
+				if($record->groupid){
+					
+					// create the credential
+					create_credential($user, $record->groupid);
+
+				} else {
+					$api_response = accredible_issue_default_certificate( $user->id, $record->id, fullname($user), $user->email, null, null);
+					$certificate_event = \mod_accredible\event\certificate_created::create(array(
+					  'objectid' => $api_response->credential->id,
+					  'context' => context_module::instance($event->contextinstanceid),
+					  'relateduserid' => $event->relateduserid
+					));
+					$certificate_event->trigger();
+				}
+
+			}
+		}
+	}
+}
+
+
+/**
+ * Create a credential given a user and an existing group
+ * @param stdObject $user 
+ * @param int $group_id 
+ * @return stdObject
+ */
+function create_credential($user, $group_id, $event = null, $issued_on = null){
+	global $CFG;
+
+	$api = new Api($CFG->accredible_api_key);
+
+	try {
+		$credential = $api->create_credential(fullname($user), $user->email, $group_id, $issued_on);
+
+		// log an event now we've created the credential if possible
+		if($event != null){
+			$certificate_event = \mod_accredible\event\certificate_created::create(array(
+								  'objectid' => $credential->credential->id,
+								  'context' => context_module::instance($event->contextinstanceid),
+								  'relateduserid' => $event->relateduserid,
+								  'issued_on' => $issued_on
+								));
+			$certificate_event->trigger();
+		}
+		
+		return $credential->credential;
+
+	} catch (ClientException $e) {
+	    // throw API exception
+	  	// include the achievement id that triggered the error
+	  	// direct the user to accredible's support
+	  	// dump the achievement id to debug_info
+	  	throw new moodle_exception('credentialcreateerror', 'accredible', 'https://help.accredible.com/hc/en-us', $user->email, $group_id);
+	}
+}
+
+
