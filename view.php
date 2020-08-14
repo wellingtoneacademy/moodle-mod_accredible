@@ -120,7 +120,7 @@ else {
 		} else {
 			$src = $OUTPUT->pix_url('incomplete_cert', 'accredible');
 		}
-
+        echo "<h1>TEst</h1>";
 		echo html_writer::start_div('text-center');
 		echo html_writer::tag( 'br', null );
 		if($certificates && $certificates[0] && $certificates[0]->seo_image){
