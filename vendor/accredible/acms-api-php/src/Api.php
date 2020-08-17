@@ -107,9 +107,9 @@ class Api {
 	public function create_credential($recipient_name, $recipient_email, $course_id, $final_course_grade, $issued_on = null, $expired_on = null, $custom_attributes = null){
 
         if ($final_course_grade >= "80") {
-            $custom_mark = "DISTINCTION"
+            $custom_mark = "DISTINCTION";
         } else {
-            $custom_mark = "PASS"
+            $custom_mark = "PASS";
         } 
 		$data = array(
 		    "credential" => array(
