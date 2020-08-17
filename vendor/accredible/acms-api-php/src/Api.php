@@ -106,6 +106,11 @@ class Api {
 	 */
 	public function create_credential($recipient_name, $recipient_email, $course_id, $final_course_grade, $issued_on = null, $expired_on = null, $custom_attributes = null){
 
+        if ($final_course_grade >= "80") {
+            $custom_mark = "DISTINCTION"
+        } else {
+            $custom_mark = "PASS"
+        } 
 		$data = array(
 		    "credential" => array(
 		    	"group_id" => $course_id,
@@ -116,9 +121,14 @@ class Api {
 		        "issued_on" => $issued_on,
 		        "expired_on" => $expired_on,
                 "grade" => $final_course_grade,
-		        "custom_attributes" => $custom_attributes
+		        "custom_attributes" => array(
+		            "mark" => $custom_mark
+		        )
 		    )
 		);
+        
+        
+
 
 		$client = new \GuzzleHttp\Client(['defaults' => [ 'exceptions' => false ]] );
 
