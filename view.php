@@ -120,13 +120,7 @@ else {
 		} else {
 			$src = $OUTPUT->pix_url('incomplete_cert', 'accredible');
 		}
-        
 
-        $resultkrb = grade_get_course_grades($course->id, $USER->id);
-        $specific_user_grade = $resultkrb->grades[$USER->id];
-        $final_course_grade = $specific_user_grade->str_grade;
-        echo '<pre>'; print_r($final_course_grade); echo '</pre>';
-        
        /* echo '<div class="accredible-container">';
         echo '<iframe class="responsive-iframe" src="https://www.credential.net/embed/'.$certificate->id.'"frameborder="0" allowfullscreen></iframe>';
         echo '<div>';*/

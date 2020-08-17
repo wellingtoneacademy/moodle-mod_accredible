@@ -177,8 +177,12 @@ function accredible_course_completed_handler($event) {
 			// check for the existence of an activity instance and an auto-issue rule
 			if( $record and ($record->completionactivities && $record->completionactivities != 0) ) {
 					
+                
+        $resultkrb = grade_get_course_grades($event->courseid, $event->relateduserid);
+        $specific_user_grade = $resultkrb->grades[$event->relateduserid];
+        $final_course_grade = $specific_user_grade->str_grade;
 					// create the credential
-					create_credential($user, $record->groupid);
+					create_credential($user, $record->groupid, $final_course_grade);
 			}
 		}
 	}
@@ -191,13 +195,13 @@ function accredible_course_completed_handler($event) {
  * @param int $group_id 
  * @return stdObject
  */
-function create_credential($user, $group_id, $event = null, $issued_on = null){
+function create_credential($user, $group_id, $final_course_grade, $event = null, $issued_on = null){
 	global $CFG;
 
 	$api = new Api($CFG->accredible_api_key);
 
 	try {
-		$credential = $api->create_credential(fullname($user), $user->email, $group_id, $issued_on);
+		$credential = $api->create_credential(fullname($user), $user->email, $group_id, $final_course_grade, $issued_on);
 
 		// log an event now we've created the credential if possible
 		if($event != null){

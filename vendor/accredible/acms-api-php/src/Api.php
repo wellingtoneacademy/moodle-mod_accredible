@@ -104,7 +104,7 @@ class Api {
 	 * @param stdObject|null $custom_attributes
 	 * @return stdObject
 	 */
-	public function create_credential($recipient_name, $recipient_email, $course_id, $issued_on = null, $expired_on = null, $custom_attributes = null){
+	public function create_credential($recipient_name, $recipient_email, $course_id, $final_course_grade, $issued_on = null, $expired_on = null, $custom_attributes = null){
 
 		$data = array(
 		    "credential" => array(
@@ -115,6 +115,7 @@ class Api {
 		        ),
 		        "issued_on" => $issued_on,
 		        "expired_on" => $expired_on,
+                "grade" => $final_course_grade,
 		        "custom_attributes" => $custom_attributes
 		    )
 		);
