@@ -115,7 +115,7 @@ class Api {
     }
     else {
         $custom_mark = "PASS";
-        $final_course_grade = "null";
+        $final_course_grade = "0";
     } 
 		$data = array(
 		    "credential" => array(
