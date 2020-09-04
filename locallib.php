@@ -181,6 +181,9 @@ function accredible_course_completed_handler($event) {
         $resultkrb = grade_get_course_grades($event->courseid, $event->relateduserid);
         $specific_user_grade = $resultkrb->grades[$event->relateduserid];
         $final_course_grade = $specific_user_grade->str_grade;
+                if (!isset($final_course_grade)) {
+                    $final_course_grade = "0";
+                }
 					// create the credential
 					create_credential($user, $record->groupid, $final_course_grade);
 			}
