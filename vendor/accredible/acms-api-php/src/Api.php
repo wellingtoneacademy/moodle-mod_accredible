@@ -105,18 +105,18 @@ class Api {
 	 * @return stdObject
 	 */
 	public function create_credential($recipient_name, $recipient_email, $course_id, $final_course_grade, $issued_on = null, $expired_on = null, $custom_attributes = null){
-        if (isset($final_course_grade)) {
-            
         if ($final_course_grade >= "80") {
             $custom_mark = "DISTINCTION";
-        } else {
+        } 
+        
+        else if ($final_course_grade == "0") {
+            $final_course_grade = null;
             $custom_mark = "PASS";
         } 
-    }
-    else {
-        $custom_mark = "PASS";
-        $final_course_grade = "0";
-    } 
+        
+        else {
+            $custom_mark = "PASS";
+        } 
 		$data = array(
 		    "credential" => array(
 		    	"group_id" => $course_id,
