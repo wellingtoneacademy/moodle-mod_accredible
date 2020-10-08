@@ -106,16 +106,16 @@ class Api {
 	 */
 	public function create_credential($recipient_name, $recipient_email, $course_id, $final_course_grade, $issued_on = null, $expired_on = null, $custom_attributes = null){
         if ($final_course_grade >= "80") {
-            $custom_mark = "DISTINCTION";
+            $custom_mark = return get_string('distinction_custom_mark', 'mod_accredible');
         } 
         
         else if ($final_course_grade == "0") {
             $final_course_grade = null;
-            $custom_mark = "PASS";
+            $custom_mark = return get_string('pass_custom_mark', 'mod_accredible');
         } 
         
         else {
-            $custom_mark = "PASS";
+            $custom_mark = return get_string('pass_custom_mark', 'mod_accredible');
         } 
 		$data = array(
 		    "credential" => array(
