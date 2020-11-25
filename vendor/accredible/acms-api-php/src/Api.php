@@ -105,18 +105,41 @@ class Api {
 	 * @return stdObject
 	 */
 	public function create_credential($recipient_name, $recipient_email, $course_id, $final_course_grade, $user_lang, $issued_on = null, $expired_on = null, $custom_attributes = null){
-        if ($final_course_grade >= "80") {
-            $custom_mark = new lang_string('distinction_custom_mark', 'mod_accredible', null, $user_lang);
+        
+        /*SPANISH VERSION OF THE MARKS*/
+        if ($user_lang == "es") {
+            
+            if ($final_course_grade >= "80") {
+            $custom_mark = "SOBRESALIENTE";
         } 
         
         else if ($final_course_grade == "0") {
             $final_course_grade = null;
-            $custom_mark = new lang_string('pass_custom_mark', 'mod_accredible', null, $user_lang);
+            $custom_mark = "APROBADO";
         } 
         
         else {
-            $custom_mark = new lang_string('pass_custom_mark', 'mod_accredible', null, $user_lang);
+            $custom_mark = "APROBADO";
         } 
+            
+        }
+        /*SPANISH VERSION ENDS*/
+        
+        else {
+        /*ENGLISH MARKS OR USER LANGUAGE IF WORKS*/
+        if ($final_course_grade >= "80") {
+            $custom_mark = get_string('distinction_custom_mark', 'mod_accredible');
+        } 
+        
+        else if ($final_course_grade == "0") {
+            $final_course_grade = null;
+            $custom_mark = get_string('pass_custom_mark', 'mod_accredible');
+        } 
+        
+        else {
+            $custom_mark = get_string('pass_custom_mark', 'mod_accredible');
+        } 
+            }
 		$data = array(
 		    "credential" => array(
 		    	"group_id" => $course_id,
