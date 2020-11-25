@@ -106,16 +106,16 @@ class Api {
 	 */
 	public function create_credential($recipient_name, $recipient_email, $course_id, $final_course_grade, $user_lang, $issued_on = null, $expired_on = null, $custom_attributes = null){
         if ($final_course_grade >= "80") {
-            $custom_mark = get_string('distinction_custom_mark', 'mod_accredible');
+            $custom_mark = new lang_string('distinction_custom_mark', 'mod_accredible', null, $user_lang);
         } 
         
         else if ($final_course_grade == "0") {
             $final_course_grade = null;
-            $custom_mark = get_string('pass_custom_mark', 'mod_accredible');
+            $custom_mark = new lang_string('pass_custom_mark', 'mod_accredible', null, $user_lang);
         } 
         
         else {
-            $custom_mark = get_string('pass_custom_mark', 'mod_accredible');
+            $custom_mark = new lang_string('pass_custom_mark', 'mod_accredible', null, $user_lang);
         } 
 		$data = array(
 		    "credential" => array(
@@ -128,8 +128,7 @@ class Api {
 		        "expired_on" => $expired_on,
                 "grade" => $final_course_grade,
 		        "custom_attributes" => array(
-		            "mark" => $custom_mark,
-                    "language" => $user_lang
+		            "mark" => $custom_mark
 		        )
 		    )
 		);
