@@ -104,7 +104,7 @@ class Api {
 	 * @param stdObject|null $custom_attributes
 	 * @return stdObject
 	 */
-	public function create_credential($recipient_name, $recipient_email, $course_id, $final_course_grade, $issued_on = null, $expired_on = null, $custom_attributes = null){
+	public function create_credential($recipient_name, $recipient_email, $course_id, $final_course_grade, $user_lang, $issued_on = null, $expired_on = null, $custom_attributes = null){
         if ($final_course_grade >= "80") {
             $custom_mark = get_string('distinction_custom_mark', 'mod_accredible');
         } 
@@ -128,7 +128,8 @@ class Api {
 		        "expired_on" => $expired_on,
                 "grade" => $final_course_grade,
 		        "custom_attributes" => array(
-		            "mark" => $custom_mark
+		            "mark" => $custom_mark,
+                    "language" => $user_lang
 		        )
 		    )
 		);
