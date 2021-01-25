@@ -6,18 +6,18 @@ defined('MOODLE_INTERNAL') || die();
 class client {
 
     public function get($url, $token) {
-        return $this->create_req($url, $token, 'GET');
+        return self::create_req($url, $token, 'GET');
     }
 
     public function post($url, $token, $postBody) {
-        return $this->create_req($url, $token, 'POST', $postBody);
+        return self::create_req($url, $token, 'POST', $postBody);
     }
 
     public function put($url, $token, $putBody) {
-        return $this->create_req($url, $token, 'PUT', $putBody);
+        return self::create_req($url, $token, 'PUT', $putBody);
     }
 
-    static function create_req($url, $token, $method, $postBody = null) {
+    function create_req($url, $token, $method, $postBody = null) {
         $curl = curl_init();
 
         curl_setopt($curl, CURLOPT_URL, $url);
