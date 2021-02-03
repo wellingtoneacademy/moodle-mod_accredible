@@ -55,7 +55,7 @@ function sync_course_with_accredible($course, $instance_id = null, $group_id = n
 
 		try {
 		    // Update the group
-            $group = $apiRest->update_group($group_id, null, $course->fullname, $description, new moodle_url('/course/view.php', array('id' => $course->id)));
+            $group = $apiRest->update_group($group_id, null, null, null, new moodle_url('/course/view.php', array('id' => $course->id)));
 
 			return $group->group->id;
 		} catch (\Exception $e) {
