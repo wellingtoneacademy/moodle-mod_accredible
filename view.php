@@ -122,7 +122,7 @@ else {
 		}
 
         echo '<div class="accredible-container">';
-        echo '<iframe class="responsive-iframe" src="https://www.credential.net/embed/'.$certificate->id.'"frameborder="0" allowfullscreen></iframe>';
+        echo '<iframe class="responsive-iframe" src="'.$certificate->url.'"frameborder="0" allowfullscreen></iframe>';
         echo '<div>';
 /*		echo html_writer::start_div('text-center');
 		echo html_writer::tag( 'br', null );
